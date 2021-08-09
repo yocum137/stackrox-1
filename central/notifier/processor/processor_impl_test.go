@@ -8,6 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	notifierMocks "github.com/stackrox/rox/central/notifiers/mocks"
 	"github.com/stackrox/rox/generated/storage"
+	"github.com/stackrox/rox/pkg/sac"
 )
 
 func TestProcessor_LoopDoesNothing(t *testing.T) {
@@ -80,7 +81,7 @@ func TestProcessor_LoopDoesNothingIfAllSucceed(t *testing.T) {
 		State:  storage.ViolationState_SNOOZED,
 		Policy: policy,
 	}
-	mockResolvableNotifier.EXPECT().AckAlert(context.Background(), snoozedAlert).Return(nil)
+	mockResolvableNotifier.EXPECT().AckAlert(sac.WithAllAccess(context.Background()), snoozedAlert).Return(nil)
 
 	attemptedAlert := &storage.Alert{
 		Id:     "a3",
@@ -143,7 +144,7 @@ func TestProcessor_LoopHandlesFailures(t *testing.T) {
 		State:  storage.ViolationState_SNOOZED,
 		Policy: policy,
 	}
-	mockResolvableNotifier.EXPECT().AckAlert(context.Background(), snoozedAlert).Return(errors.New("broke"))
+	mockResolvableNotifier.EXPECT().AckAlert(sac.WithAllAccess(context.Background()), snoozedAlert).Return(errors.New("broke"))
 	mockResolvableNotifier.EXPECT().ProtoNotifier().Return(resolvableAlertNotfierProto)
 
 	attemptedAlert := &storage.Alert{
@@ -164,7 +165,7 @@ func TestProcessor_LoopHandlesFailures(t *testing.T) {
 	mockAlertNotifier.EXPECT().AlertNotify(gomock.Any(), activeAlert).Return(nil)
 	mockResolvableNotifier.EXPECT().AlertNotify(ctx, activeAlert).Return(nil)
 
-	mockResolvableNotifier.EXPECT().AckAlert(context.Background(), snoozedAlert).Return(errors.New("broke"))
+	mockResolvableNotifier.EXPECT().AckAlert(sac.WithAllAccess(context.Background()), snoozedAlert).Return(errors.New("broke"))
 	mockResolvableNotifier.EXPECT().ProtoNotifier().Return(resolvableAlertNotfierProto)
 
 	mockAlertNotifier.EXPECT().AlertNotify(gomock.Any(), attemptedAlert).Return(nil)
@@ -173,7 +174,7 @@ func TestProcessor_LoopHandlesFailures(t *testing.T) {
 	loop.retryFailures(ctx)
 
 	// Retry previous failures. (Just the ack on the snoozed)
-	mockResolvableNotifier.EXPECT().AckAlert(context.Background(), snoozedAlert).Return(nil)
+	mockResolvableNotifier.EXPECT().AckAlert(sac.WithAllAccess(context.Background()), snoozedAlert).Return(nil)
 
 	loop.retryFailures(ctx)
 

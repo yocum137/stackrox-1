@@ -640,10 +640,31 @@ const formDescriptors = {
                 placeholder: 'PagerDuty Integration',
             },
             {
-                label: 'PagerDuty Integration Key',
+                label: 'Default PagerDuty Integration Key',
                 jsonpath: 'pagerduty.apiKey',
                 type: 'password',
                 ...storedCredentialFields,
+            },
+            {
+                label: 'Annotation Key for PagerDuty Integration Key',
+                jsonpath: 'labelKey',
+                type: 'text',
+                placeholder: 'pagerduty',
+                help: notifierHelpString,
+                featureFlagDependency: {
+                    featureFlag: knownBackendFlags.ROX_NS_ANNOTATION_FOR_NOTIFIERS,
+                    showIfValueIs: true,
+                },
+            },
+            {
+                label: 'Label/Annotation Key for PagerDuty Integration Key',
+                jsonpath: 'labelKey',
+                type: 'text',
+                placeholder: 'pagerduty',
+                featureFlagDependency: {
+                    featureFlag: knownBackendFlags.ROX_NS_ANNOTATION_FOR_NOTIFIERS,
+                    showIfValueIs: false,
+                },
             },
         ],
         syslog: [

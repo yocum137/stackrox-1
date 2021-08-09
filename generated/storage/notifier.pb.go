@@ -1093,6 +1093,8 @@ func (m *Splunk) Clone() *Splunk {
 
 type PagerDuty struct {
 	// The API key for the integration. The server will mask the value of this credential in responses and logs.
+	// The API key can be overriden via an annotation in the namespace or deployment. The key for the annotation is
+	// set in Notifier.label_key. NOTE: Notifier.label_default is not used as it doesn't mask the credentials.
 	ApiKey               string   `protobuf:"bytes,1,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty" scrub:"always"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

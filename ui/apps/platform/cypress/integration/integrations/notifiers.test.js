@@ -77,6 +77,17 @@ describe('Notifiers Test', () => {
             cy.get(selectors.buttons.save).should('be.enabled').click();
         });
 
+        it('should show a hint about stored credentials for PagerDuty', () => {
+            cy.get(selectors.pagerDutyTile).click();
+            editIntegration('PagerDuty Test');
+            cy.get(
+                'div:contains("Default PagerDuty Integration Key"):last [data-testid="help-icon"]'
+            ).trigger('mouseenter');
+            cy.get(selectors.tooltip.overlay).contains(
+                'Leave this empty to use the currently stored credentials'
+            );
+        });
+
         it('should create a new Email integration', () => {
             cy.get(selectors.emailTile).click();
 

@@ -100,6 +100,8 @@ message Splunk {
 
 message PagerDuty {
     // The API key for the integration. The server will mask the value of this credential in responses and logs.
+    // The API key can be overriden via an annotation in the namespace or deployment. The key for the annotation is
+    // set in Notifier.label_key. NOTE: Notifier.label_default is not used as it doesn't mask the credentials.
     string api_key = 1 [(gogoproto.moretags) = "scrub:\"always\""];
 }
 

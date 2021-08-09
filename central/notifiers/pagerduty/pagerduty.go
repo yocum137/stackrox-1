@@ -13,6 +13,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/pkg/errors"
+	namespaceDataStore "github.com/stackrox/rox/central/namespace/datastore"
 	"github.com/stackrox/rox/central/notifiers"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/httputil/proxy"
@@ -44,18 +45,20 @@ var (
 
 type pagerDuty struct {
 	*storage.Notifier
-	pdClient   *pd.Client
-	routingKey string
+	pdClient          *pd.Client
+	defaultRoutingKey string
+
+	namespaces namespaceDataStore.DataStore
 }
 
 func init() {
 	notifiers.Add("pagerduty", func(notifier *storage.Notifier) (notifiers.Notifier, error) {
-		s, err := newPagerDuty(notifier)
+		s, err := newPagerDuty(notifier, namespaceDataStore.Singleton())
 		return s, err
 	})
 }
 
-func newPagerDuty(notifier *storage.Notifier) (*pagerDuty, error) {
+func newPagerDuty(notifier *storage.Notifier, namespaces namespaceDataStore.DataStore) (*pagerDuty, error) {
 	pagerDutyConfig, ok := notifier.GetConfig().(*storage.Notifier_Pagerduty)
 	if !ok {
 		return nil, errors.New("PagerDuty configuration required")
@@ -69,15 +72,16 @@ func newPagerDuty(notifier *storage.Notifier) (*pagerDuty, error) {
 		Transport: proxy.RoundTripper(),
 	}
 	return &pagerDuty{
-		Notifier:   notifier,
-		pdClient:   pdClient,
-		routingKey: conf.GetApiKey(),
+		Notifier:          notifier,
+		pdClient:          pdClient,
+		defaultRoutingKey: conf.GetApiKey(),
+		namespaces:        namespaces,
 	}, nil
 }
 
 func validate(conf *storage.PagerDuty) error {
 	if len(conf.ApiKey) == 0 {
-		return errors.New("PagerDuty API key must be specified")
+		return errors.New("The default PagerDuty API key must be specified")
 	}
 	return nil
 }
@@ -87,7 +91,7 @@ func (*pagerDuty) Close(context.Context) error {
 }
 
 func (p *pagerDuty) AlertNotify(ctx context.Context, alert *storage.Alert) error {
-	return p.postAlert(alert, newAlert)
+	return p.postAlert(ctx, alert, newAlert)
 }
 
 func (p *pagerDuty) ProtoNotifier() *storage.Notifier {
@@ -95,7 +99,7 @@ func (p *pagerDuty) ProtoNotifier() *storage.Notifier {
 }
 
 func (p *pagerDuty) Test(ctx context.Context) error {
-	return p.postAlert(&storage.Alert{
+	return p.postAlert(ctx, &storage.Alert{
 		Id: uuid.NewDummy().String(),
 		Policy: &storage.Policy{
 			Name:        "Test PagerDuty Policy",
@@ -116,15 +120,15 @@ func (p *pagerDuty) Test(ctx context.Context) error {
 }
 
 func (p *pagerDuty) AckAlert(ctx context.Context, alert *storage.Alert) error {
-	return p.postAlert(alert, ackAlert)
+	return p.postAlert(ctx, alert, ackAlert)
 }
 
 func (p *pagerDuty) ResolveAlert(ctx context.Context, alert *storage.Alert) error {
-	return p.postAlert(alert, resolveAlert)
+	return p.postAlert(ctx, alert, resolveAlert)
 }
 
-func (p *pagerDuty) postAlert(alert *storage.Alert, eventType string) error {
-	pagerDutyEvent, err := p.createPagerDutyEvent(alert, eventType)
+func (p *pagerDuty) postAlert(ctx context.Context, alert *storage.Alert, eventType string) error {
+	pagerDutyEvent, err := p.createPagerDutyEvent(ctx, alert, eventType)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -154,7 +158,7 @@ func (p *pagerDuty) postAlert(alert *storage.Alert, eventType string) error {
 
 // More details on V2 API: https://v2.developer.pagerduty.com/docs/events-api-v2
 // PagerDuty has stopped supporting V1 API.
-func (p *pagerDuty) createPagerDutyEvent(alert *storage.Alert, eventType string) (pd.V2Event, error) {
+func (p *pagerDuty) createPagerDutyEvent(ctx context.Context, alert *storage.Alert, eventType string) (pd.V2Event, error) {
 	payload := &pd.V2Payload{
 		Summary:   notifiers.SummaryForAlert(alert),
 		Severity:  severityMap[alert.GetPolicy().GetSeverity()],
@@ -174,9 +178,12 @@ func (p *pagerDuty) createPagerDutyEvent(alert *storage.Alert, eventType string)
 		payload.Source = fmt.Sprintf("%s/%s", entity.Resource.GetClusterName(), entity.Resource.GetNamespace())
 		payload.Component = fmt.Sprintf("%s %s", entity.Resource.GetResourceType(), entity.Resource.GetName())
 	}
+
+	routingKey := notifiers.GetAnnotationValue(ctx, alert, p.GetLabelKey(), p.defaultRoutingKey, p.namespaces)
+
 	return pd.V2Event{
 		Action:     eventType,
-		RoutingKey: p.routingKey,
+		RoutingKey: routingKey,
 		Client:     client,
 		ClientURL:  notifiers.AlertLink(p.Notifier.UiEndpoint, alert),
 		DedupKey:   alert.GetId(),

@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/notifiers"
 	"github.com/stackrox/rox/generated/storage"
+	"github.com/stackrox/rox/pkg/sac"
 )
 
 // Sending alerts.
@@ -35,12 +36,15 @@ func sendNotification(ctx context.Context, notifier notifiers.AlertNotifier, ale
 }
 
 func sendResolvableNotification(notifier notifiers.ResolvableAlertNotifier, alert *storage.Alert) error {
+	// This is a background process so give it all access. If we're here the user already had access to resolve the alert.
+	ctx := sac.WithAllAccess(context.Background())
+
 	var err error
 	switch alert.GetState() {
 	case storage.ViolationState_SNOOZED:
-		err = notifier.AckAlert(context.Background(), alert)
+		err = notifier.AckAlert(ctx, alert)
 	case storage.ViolationState_RESOLVED:
-		err = notifier.ResolveAlert(context.Background(), alert)
+		err = notifier.ResolveAlert(ctx, alert)
 	}
 	if err != nil {
 		logFailure(notifier, alert, err)
