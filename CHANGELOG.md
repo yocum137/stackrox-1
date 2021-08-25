@@ -6,6 +6,19 @@ Please avoid adding duplicate information across this changelog and JIRA/doc inp
 
 ## [NEXT RELEASE]
 
+## [62.2]
+
+- Cluster internal endpoints set to `*.svc` to be respected by OpenShift's cluster wide `noProxy` configuration
+  - `sensor.stackrox` changed to `sensor.stackrox.svc`
+  - `central.stackrox` changed to `central.stackrox.svc`
+  - `scanner.stackrox` changed to `scanner.stackrox.svc`
+  - `scanner-db.stackrox` changed to `scanner-db.stackrox.svc`
+- Increased Operator memory requests from 80 MiB to 200 MiB and memory limits from 300 MiB to 1 GiB. The latter is to prevent operator restarts due to OOM on certain deployments.
+
+## [62.1]
+
+- Fixed RHSA-2021:2569, RHSA-2021:2574, RHSA-2021:2575, RHSA-2021:2717, RHBA-2021:2581 in RHEL images.
+
 ## [62.0]
 
 - Scanner now supports alpine:edge and alpine:3.14.
