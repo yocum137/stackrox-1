@@ -6,6 +6,17 @@ Please avoid adding duplicate information across this changelog and JIRA/doc inp
 
 ## [NEXT RELEASE]
 
+## [63.1]
+
+- Cluster internal endpoints set to `*.svc` to be respected by OpenShift's cluster wide `noProxy` configuration
+  - `sensor.stackrox` changed to `sensor.stackrox.svc`
+  - `central.stackrox` changed to `central.stackrox.svc`
+  - `scanner.stackrox` changed to `scanner.stackrox.svc`
+  - `scanner-db.stackrox` changed to `scanner-db.stackrox.svc`
+- Increased Operator memory requests from 80 MiB to 200 MiB and memory limits from 300 MiB to 1 GiB. The latter is to prevent operator restarts due to OOM on certain deployments.
+
+## [63.0]
+
 - Clusters now can have labels.
 - Role is now a combination of a permission set and an optional access scope.
 - API changes/deprecations:
@@ -18,6 +29,19 @@ Please avoid adding duplicate information across this changelog and JIRA/doc inp
   - In the GraphQL API, `Role { resourceToAccess: [Label!]! }` is deprecated, use
     `PermissionSet { resourceToAccess: [Label!]! }` instead.
   - In the GraphQL API, `Role { globalAccess: Access! }` is deprecated with no replacement intended.
+
+## [62.2]
+
+- Cluster internal endpoints set to `*.svc` to be respected by OpenShift's cluster wide `noProxy` configuration
+  - `sensor.stackrox` changed to `sensor.stackrox.svc`
+  - `central.stackrox` changed to `central.stackrox.svc`
+  - `scanner.stackrox` changed to `scanner.stackrox.svc`
+  - `scanner-db.stackrox` changed to `scanner-db.stackrox.svc`
+- Increased Operator memory requests from 80 MiB to 200 MiB and memory limits from 300 MiB to 1 GiB. The latter is to prevent operator restarts due to OOM on certain deployments.
+
+## [62.1]
+
+- Fixed RHSA-2021:2569, RHSA-2021:2574, RHSA-2021:2575, RHSA-2021:2717, RHBA-2021:2581 in RHEL images.
 
 ## [62.0]
 
