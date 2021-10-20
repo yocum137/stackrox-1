@@ -1,7 +1,0 @@
-# storybook
-/storybook-static/
-
-#build
-/lib
-/test-results
-/coverage

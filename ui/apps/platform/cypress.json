@@ -1,9 +1,0 @@
-{
-    "baseUrl": "https://localhost:3000",
-    "blockHosts": ["*.*"],
-    "chromeWebSecurity": false,
-    "ignoreTestFiles": ["**/constants/**/*", "**/helpers/**/*"],
-    "viewportWidth": 1440,
-    "viewportHeight": 850,
-    "numTestsKeptInMemory": 0
-}
