@@ -16,7 +16,7 @@ export type PermissionsTableProps = {
     isDisabled: boolean;
 };
 
-function PermissionsTable({
+export function PermissionsTable({
     resourceToAccess,
     setResourceValue,
     isDisabled,
@@ -52,7 +52,11 @@ function PermissionsTable({
             <Tbody>
                 {resourceToAccessEntries.map(([resource, accessLevel]) => (
                     <Tr key={resource}>
-                        <Td dataLabel="Resource">{resource}</Td>
+                        {isNew(resource) ? (
+                            <Td dataLabel="Resource"><b>NEW!</b> {resource}</Td>
+                        ) : (
+                            <Td dataLabel="Resource">{resource}</Td>
+                        )}
                         <Td dataLabel="Description">
                             <ResourceDescription resource={resource} />
                         </Td>
@@ -83,4 +87,61 @@ function PermissionsTable({
     );
 }
 
-export default PermissionsTable;
+export function SplitResourcesByDeprecation(resourceToAccess: PermissionsMap): [PermissionsMap, PermissionsMap] {
+    let deprecated: PermissionsMap = {}
+    let current: PermissionsMap = {}
+
+    for (let r in resourceToAccess) {
+        if (isDeprecated(r)) {
+            deprecated[r] = resourceToAccess[r]
+        } else {
+            current[r] = resourceToAccess[r]
+        }
+    }
+
+    return [current, deprecated]
+}
+
+function isDeprecated(resource: string): boolean {
+    let deprecated = new Set([
+        "AuthPlugin",
+        "AuthProvider",             
+        "Group",                    
+        "Licenses",                 
+        "Role",                     
+        "User",                     
+        "APIToken",                 
+        "BackupPlugins",            
+        "ImageIntegration",         
+        "Notifier",                 
+        "ComplianceRunSchedule",    
+        "ComplianceRuns",           
+        "AllComments",              
+        "Config",                   
+        "DebugLogs",                
+        "NetworkGraphConfig",       
+        "ProbeUpload",              
+        "ScannerBundle",            
+        "ScannerDefinitions",       
+        "SensorUpgradeConfig",      
+        "ServiceIdentity",          
+        "Detection",                
+        "NetworkBaseline",          
+        "ProcessWhitelist",         
+        "Risk",                     
+        "WatchedImage",
+    ])
+
+    return deprecated.has(resource)
+}
+
+function isNew(resource: string): boolean {
+    let newres = new Set([
+        "Access",
+        "Administration",
+        "DeploymentExtension",
+        "Integration",
+    ])
+
+    return newres.has(resource)
+}

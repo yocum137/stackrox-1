@@ -2,6 +2,15 @@ import React, { ReactElement } from 'react';
 
 // First draft of description fields for possible future request from backend.
 const resourceDescriptions: Record<string, string> = {
+    Access:
+        'Read: View configuration for authentication services, roles, groups, and users. Write: Modify configuration for authentication and authorization.',
+    Administration:
+        'Read: View configuration for network, sensor, scanner, and debugging configuration. Write: Modify configuration for network, sensor, scanner, and debugging configuration, delete comments from other users.',
+    DeploymentExtension:
+        'Read: View risk and baseline extensions for deployments. Write: risk and baseline extensions for deployments.',
+    Integration:
+        'Read: View API tokens, integrations and configurations for backup, registry, notification systems. Write: Modify API tokens, integrations and configurations for backup, registry, notification systems.',
+
     APIToken: 'Read: View API tokens. Write: Add or revoke API tokens.',
     Alert: 'Read: View policy violations. Write: Resolve or edit policy violations.',
     AllComments:
