@@ -17,6 +17,7 @@ import (
 	"github.com/stackrox/rox/pkg/auth/authproviders/oidc/internal/endpoint"
 	"github.com/stackrox/rox/pkg/auth/tokens"
 	"github.com/stackrox/rox/pkg/cryptoutils"
+	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
 	"github.com/stackrox/rox/pkg/httputil"
 	"github.com/stackrox/rox/pkg/ioutils"
@@ -98,7 +99,7 @@ func (p *backendImpl) RefreshAccessToken(ctx context.Context, refreshTokenData a
 	case "access_token":
 		return p.refreshWithAccessToken(ctx, refreshTokenData.RefreshToken)
 	default:
-		return nil, errors.Errorf("invalid refresh token type %q", t)
+		return nil, errors.Wrapf(errorhelpers.ErrInvalidArgs, "invalid refresh token type %q", t)
 	}
 }
 

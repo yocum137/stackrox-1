@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/pkg/auth/authproviders"
 	"github.com/stackrox/rox/pkg/auth/tokens"
+	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
 	"github.com/stackrox/rox/pkg/jwt"
 	"github.com/stackrox/rox/pkg/logging"
@@ -135,7 +136,7 @@ func (p *backendImpl) getAuthResponse(token string) (*authproviders.AuthResponse
 	err := p.validator.Validate(token, &claims, &extraClaims)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid token")
+		return nil, errorhelpers.NewErrInvalidArgs("invalid token: " + err.Error())
 	}
 
 	authResp := &authproviders.AuthResponse{
