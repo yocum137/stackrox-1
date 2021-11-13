@@ -182,7 +182,7 @@ func (r *registryImpl) tokenRefreshEndpoint(req *http.Request) (interface{}, err
 
 	authResp, err := refreshTokenEnabledBackend.RefreshAccessToken(req.Context(), cookieData.RefreshTokenData)
 	if err != nil {
-		return nil, httputil.Errorf(http.StatusInternalServerError, "failed to obtain new access token for refresh token: %v", err)
+		return nil, errors.Wrap(err, "failed to obtain new access token for refresh token")
 	}
 
 	token, newRefreshCookie, err := r.issueTokenForResponse(req.Context(), provider, authResp)
