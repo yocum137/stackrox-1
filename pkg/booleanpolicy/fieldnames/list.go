@@ -53,6 +53,7 @@ var (
 	SeccompProfileType            = newFieldName("Seccomp Profile Type")
 	ServiceAccount                = newFieldName("Service Account")
 	Severity                      = newFieldName("Severity")
+	SignedImage                   = newFieldName("Signed Image") // TODO(dhaus): Rename to something that is more significant in that regard.
 	UnexpectedNetworkFlowDetected = newFieldName("Unexpected Network Flow Detected")
 	UnexpectedProcessExecuted     = newFieldName("Unexpected Process Executed")
 	UnscannedImage                = newFieldName("Unscanned Image")

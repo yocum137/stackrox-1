@@ -23,7 +23,8 @@ const (
 	KubernetesUserAgentCustomTag       = "User Agent"
 	KubernetesIsImpersonatedCustomTag  = "Is Impersonated User"
 
-	RuntimeClassCustomTag = "Runtime Class"
+	RuntimeClassCustomTag   = "Runtime Class"
+	ImageSignatureCustomTag = "Verified Image Signature Keys"
 )
 
 type dockerfileLine struct {
@@ -40,6 +41,10 @@ type baselineResult struct {
 
 type impersonatedEventResult struct {
 	IsImpersonatedUser bool `search:"Is Impersonated User"`
+}
+
+type verifiedImageSignatureKeyResult struct {
+	VerifiedImageSignatureKeys map[string]string `search:"Verified Image Signature Keys"`
 }
 
 // NetworkFlowDetails captures information about a particular network flow.

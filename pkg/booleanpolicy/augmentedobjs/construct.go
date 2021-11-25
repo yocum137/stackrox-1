@@ -6,6 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator/pathutil"
+	"github.com/stackrox/rox/pkg/logging"
+	"github.com/stackrox/rox/pkg/signature"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
@@ -13,6 +15,13 @@ const (
 	// CompositeFieldCharSep is the separating character used when we create a composite field.
 	CompositeFieldCharSep = "\t"
 )
+
+var (
+	log = logging.LoggerForModule()
+)
+
+// TODO(dhaus): Declare a interface / function alias here to verify the image signature (like what is the return value)
+type verifySignatureOfDeploymentImages = func(deployment *storage.Deployment, keysToVerify []string) (string, bool)
 
 func findMatchingContainerIdxForProcess(deployment *storage.Deployment, process *storage.ProcessIndicator) (int, error) {
 	for i, container := range deployment.GetContainers() {
@@ -26,8 +35,12 @@ func findMatchingContainerIdxForProcess(deployment *storage.Deployment, process 
 }
 
 // ConstructDeploymentWithProcess constructs an augmented deployment with process information.
-func ConstructDeploymentWithProcess(deployment *storage.Deployment, images []*storage.Image, process *storage.ProcessIndicator, processNotInBaseline bool) (*pathutil.AugmentedObj, error) {
-	obj, err := ConstructDeployment(deployment, images)
+func ConstructDeploymentWithProcess(deployment *storage.Deployment,
+	images []*storage.Image,
+	verifierFactory signature.VerifierFactory,
+	process *storage.ProcessIndicator,
+	processNotInBaseline bool) (*pathutil.AugmentedObj, error) {
+	obj, err := ConstructDeployment(deployment, images, verifierFactory)
 	if err != nil {
 		return nil, err
 	}
@@ -117,9 +130,10 @@ func ConstructNetworkFlow(flow *NetworkFlowDetails) (*pathutil.AugmentedObj, err
 func ConstructDeploymentWithNetworkFlowInfo(
 	deployment *storage.Deployment,
 	images []*storage.Image,
+	verifierFactory signature.VerifierFactory,
 	flow *NetworkFlowDetails,
 ) (*pathutil.AugmentedObj, error) {
-	obj, err := ConstructDeployment(deployment, images)
+	obj, err := ConstructDeployment(deployment, images, verifierFactory)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +151,7 @@ func ConstructDeploymentWithNetworkFlowInfo(
 }
 
 // ConstructDeployment constructs the augmented deployment object.
-func ConstructDeployment(deployment *storage.Deployment, images []*storage.Image) (*pathutil.AugmentedObj, error) {
+func ConstructDeployment(deployment *storage.Deployment, images []*storage.Image, verifierFactory signature.VerifierFactory) (*pathutil.AugmentedObj, error) {
 	obj := pathutil.NewAugmentedObj(deployment)
 	if len(images) != len(deployment.GetContainers()) {
 		return nil, errors.Errorf("deployment %s/%s had %d containers, but got %d images",
@@ -170,6 +184,31 @@ func ConstructDeployment(deployment *storage.Deployment, images []*storage.Image
 				return nil, utils.Should(err)
 			}
 		}
+	}
+
+	verifiedImageSignatureResult := &verifiedImageSignatureKeyResult{VerifiedImageSignatureKeys: map[string]string{}}
+
+	if verifierFactory != nil {
+		log.Infof("Factory is set during creation, will create and verify the signature")
+		dv, err := verifierFactory.DeploymentVerifier(deployment)
+		if err != nil {
+			log.Errorf("Found error during creation of delpoyment verifier: %v", err)
+			return nil, err
+		}
+		verifiedKeys, verified, err := dv.VerifyImages()
+		if err != nil {
+			log.Errorf("Found error during verification of images: %v", err)
+			return nil, err
+		}
+		if verified {
+			log.Infof("The image is verified and the verified keys are %v", verifiedKeys)
+			verifiedImageSignatureResult.VerifiedImageSignatureKeys = verifiedKeys
+		}
+	}
+
+	if err := obj.AddPlainObjAt(verifiedImageSignatureResult,
+		pathutil.FieldStep(imageSignatureAugmentKey)); err != nil {
+		return nil, err
 	}
 
 	return obj, nil

@@ -7,9 +7,9 @@ go 1.16
 require github.com/stackrox/scanner v0.0.0-20211030133935-e0a9b47f81de
 
 require (
-	cloud.google.com/go v0.94.1
+	cloud.google.com/go v0.97.0
 	cloud.google.com/go/containeranalysis v0.1.0
-	cloud.google.com/go/storage v1.12.0
+	cloud.google.com/go/storage v1.18.2
 	github.com/BurntSushi/toml v0.4.1
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -37,7 +37,7 @@ require (
 	github.com/dexidp/dex v0.0.0-20210917061239-f0186ff2651e
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/distribution v2.7.1+incompatible
-	github.com/docker/docker v17.12.0-ce-rc1.0.20200618181300-9dc6525e6118+incompatible
+	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0
 	github.com/facebookincubator/flog v0.0.0-20190930132826-d2511d0ce33c // indirect
@@ -46,7 +46,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/fullsailor/pkcs7 v0.0.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-logr/logr v0.4.0
+	github.com/go-logr/logr v1.0.0
 	github.com/godbus/dbus/v5 v5.0.4
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gogo/protobuf v1.3.2
@@ -55,6 +55,8 @@ require (
 	github.com/golangci/golangci-lint v1.42.1
 	github.com/google/certificate-transparency-go v1.1.2
 	github.com/google/go-cmp v0.5.6
+	github.com/google/go-containerregistry v0.7.0
+	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20211130181552-63e6f4ed9c31
 	github.com/googleapis/gnostic v0.5.5
 	github.com/gorilla/schema v1.2.0
 	github.com/graph-gophers/graphql-go v1.1.0
@@ -78,23 +80,26 @@ require (
 	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/mitchellh/hashstructure v1.1.0
+	github.com/moby/sys/mount v0.3.0 // indirect
 	github.com/nilslice/protolock v0.0.0
 	github.com/nxadm/tail v1.4.8
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.16.0
 	github.com/opencontainers/go-digest v1.0.0
-	github.com/opencontainers/image-spec v1.0.2-0.20190823105129-775207bd45b6
+	github.com/opencontainers/image-spec v1.0.2-0.20210730191737-8e42a01fb1b7
 	github.com/openshift/api v3.9.1-0.20191201231411-9f834e337466+incompatible
 	github.com/openshift/client-go v0.0.0-20200623090625-83993cebb5ae
 	github.com/operator-framework/operator-sdk v0.19.4
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/client_model v0.2.0
-	github.com/prometheus/common v0.30.0
+	github.com/prometheus/common v0.31.1
 	github.com/russellhaering/gosaml2 v0.6.0
 	github.com/russellhaering/goxmldsig v1.1.1
 	github.com/sergi/go-diff v1.2.0
+	github.com/sigstore/cosign v1.3.0
+	github.com/sigstore/sigstore v0.0.0-20211005102407-3ab959fb2809
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stackrox/anchore-client v0.0.0-20190929180200-981e05834836
@@ -104,25 +109,24 @@ require (
 	github.com/stackrox/k8s-istio-cve-pusher v0.0.0-20210422200002-d89f671ac4f5
 	github.com/steveyen/gtreap v0.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c
 	github.com/tidwall/gjson v1.9.2
 	github.com/tkuchiki/go-timezone v0.1.3
 	github.com/vbauerster/mpb/v4 v4.12.2
 	go.etcd.io/bbolt v1.3.6
 	go.uber.org/atomic v1.9.0
-	go.uber.org/zap v1.19.0
+	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	golang.org/x/net v0.0.0-20210902165921-8d991716f632
-	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
+	golang.org/x/net v0.0.0-20211111160137-58aab5ef257a
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210908233432-aa78b53d3365
+	golang.org/x/sys v0.0.0-20211110154304-99a53858aa08
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
-	golang.org/x/tools v0.1.5
+	golang.org/x/tools v0.1.7
 	golang.stackrox.io/grpc-http1 v0.2.3
-	google.golang.org/api v0.57.0
-	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83
-	google.golang.org/grpc v1.40.0
+	google.golang.org/api v0.60.0
+	google.golang.org/genproto v0.0.0-20211111162719-482062a4217b
+	google.golang.org/grpc v1.42.0
 	google.golang.org/grpc/examples v0.0.0-20210902184326-c93e472777b9
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5
 	gopkg.in/square/go-jose.v2 v2.6.0
@@ -136,7 +140,7 @@ require (
 	k8s.io/client-go v0.22.2
 	k8s.io/kubectl v0.22.2
 	k8s.io/kubelet v0.22.2
-	k8s.io/utils v0.0.0-20210820185131-d34e5cb4466e
+	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 	sigs.k8s.io/controller-runtime v0.10.2
 	sigs.k8s.io/yaml v1.3.0
 )
@@ -147,6 +151,8 @@ replace (
 	github.com/facebookincubator/nvdtools => github.com/stackrox/nvdtools v0.0.0-20210326191554-5daeb6395b56
 	github.com/fullsailor/pkcs7 => github.com/misberner/pkcs7 v0.0.0-20190417093538-a48bf0f78dea
 	github.com/gogo/protobuf => github.com/connorgorman/protobuf v1.2.2-0.20210115205927-b892c1b298f7
+
+	github.com/google/trillian => github.com/google/trillian v1.3.13
 
 	github.com/heroku/docker-registry-client => github.com/stackrox/docker-registry-client v0.0.0-20210302165330-43446b0a41b5
 	github.com/joelanford/helm-operator => github.com/stackrox/helm-operator v0.0.8-0.20210927052144-bbfc3e124f11

@@ -10,6 +10,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	gogoTypes "github.com/gogo/protobuf/types"
+	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/augmentedobjs"
 	"github.com/stackrox/rox/pkg/booleanpolicy/fieldnames"
@@ -24,6 +25,7 @@ import (
 	"github.com/stackrox/rox/pkg/protoutils"
 	"github.com/stackrox/rox/pkg/readable"
 	"github.com/stackrox/rox/pkg/set"
+	"github.com/stackrox/rox/pkg/signature"
 	"github.com/stackrox/rox/pkg/sliceutils"
 	"github.com/stackrox/rox/pkg/testutils/envisolator"
 	"github.com/stackrox/rox/pkg/uuid"
@@ -2655,6 +2657,58 @@ func (suite *DefaultPoliciesTestSuite) TestKubeEventDefaultPolicies() {
 			}
 		})
 	}
+}
+
+func (suite *DefaultPoliciesTestSuite) TestImageSignature() {
+	publicKey := "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSVA2cm53MWRTS2pFQzRaOVhsQ2ZQN0lkNkNRVAp3aWpxZTZvNlpSZ25KeFV1Y3JIODIyQmdUYS9mWGpreE5ZUDR1ODBmQVFrNUFVZVhMc3kyeHRndUFBPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="
+	dep := fixtures.GetDeployment().Clone()
+	dep1 := fixtures.GetDeployment().Clone()
+	dep1.Containers = []*storage.Container{{Id: "test",
+		Image: &storage.ContainerImage{
+			Id: "testing",
+			Name: &storage.ImageName{
+				Registry: "ttl.sh",
+				Remote:   "408ab9c1-2a84-4ac0-acb5-f969ced03f9e",
+				Tag:      "72h",
+				FullName: "ttl.sh/408ab9c1-2a84-4ac0-acb5-f969ced03f9e:72h",
+			},
+		}}}
+	suite.addDepAndImages(dep)
+	suite.addDepAndImages(dep1)
+
+	realPolicy := policyWithSingleKeyValue(fieldnames.SignedImage, "PUBLIC KEY="+publicKey, false)
+	realMatcher, err := buildDeploymentMatcher(realPolicy)
+	suite.NoError(err)
+	realMatcher.verifierFactory = signature.NewVerifierFactory(signature.WithBase64EncodedKeys([]string{"PUBLIC KEY=" + publicKey}),
+		signature.WithCustomKeyChain(authn.DefaultKeychain))
+	realViolations, err := realMatcher.MatchDeployment(nil, dep1, suite.getImagesForDeployment(dep1))
+	suite.NoError(err)
+	suite.Empty(realViolations)
+
+	policy := policyWithSingleKeyValue(fieldnames.SignedImage, "PUBLIC KEY=somekey", false)
+	validFactory := signature.MockVerifierFactory(map[string]string{"PUBLIC KEY": "somekey"}, false, true)
+	errorFactory := signature.MockVerifierFactory(nil, true, false)
+	invalidFactory := signature.MockVerifierFactory(nil, false, false)
+	matcher, err := buildDeploymentMatcher(policy)
+	suite.NoError(err)
+
+	// Should not return any alerts when the key is verified.
+	matcher.verifierFactory = validFactory
+	violations, err := matcher.MatchDeployment(nil, dep, suite.getImagesForDeployment(dep))
+	suite.NoError(err)
+	suite.Empty(violations)
+
+	// Should return alerts when the key is not verified.
+	matcher.verifierFactory = invalidFactory
+	violations, err = matcher.MatchDeployment(nil, dep, suite.getImagesForDeployment(dep))
+	suite.NoError(err)
+	suite.NotEmpty(violations)
+
+	// Should return an error when an error occurred during verification.
+	matcher.verifierFactory = errorFactory
+	violations, err = matcher.MatchDeployment(nil, dep, suite.getImagesForDeployment(dep))
+	suite.Error(err)
+	suite.Empty(violations)
 }
 
 func (suite *DefaultPoliciesTestSuite) TestNetworkBaselinePolicy() {

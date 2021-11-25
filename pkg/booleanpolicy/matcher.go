@@ -6,7 +6,9 @@ import (
 	"github.com/stackrox/rox/pkg/booleanpolicy/augmentedobjs"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator/pathutil"
+	"github.com/stackrox/rox/pkg/booleanpolicy/fieldnames"
 	"github.com/stackrox/rox/pkg/booleanpolicy/query"
+	"github.com/stackrox/rox/pkg/signature"
 )
 
 var (
@@ -135,7 +137,7 @@ func BuildAuditLogEventMatcher(p *storage.Policy, options ...ValidateOption) (Au
 
 // BuildDeploymentWithProcessMatcher builds a DeploymentWithProcessMatcher.
 func BuildDeploymentWithProcessMatcher(p *storage.Policy, options ...ValidateOption) (DeploymentWithProcessMatcher, error) {
-	sectionsAndEvals, err := getSectionsAndEvals(&deploymentEvalFactory, p, storage.LifecycleStage_DEPLOY, options...)
+	matcher, err := buildDeploymentMatcher(p, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -173,16 +175,14 @@ func BuildDeploymentWithProcessMatcher(p *storage.Policy, options ...ValidateOpt
 	}
 
 	return &processMatcherImpl{
-		matcherImpl: matcherImpl{
-			evaluators: sectionsAndEvals,
-		},
+		matcherImpl:           *matcher,
 		processOnlyEvaluators: processOnlyEvaluators,
 	}, nil
 }
 
 // BuildDeploymentWithNetworkFlowMatcher builds a DeploymentWithNetworkFlowMatcher
 func BuildDeploymentWithNetworkFlowMatcher(p *storage.Policy, options ...ValidateOption) (DeploymentWithNetworkFlowMatcher, error) {
-	sectionsAndEvals, err := getSectionsAndEvals(&deploymentEvalFactory, p, storage.LifecycleStage_DEPLOY, options...)
+	matcher, err := buildDeploymentMatcher(p, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -213,9 +213,7 @@ func BuildDeploymentWithNetworkFlowMatcher(p *storage.Policy, options ...Validat
 	// Although the struct implementation is the same as matcherImpl, we should still use networkFlowMatcher
 	// since it implements another check func MatchDeploymentWithNetworkFlowInfo
 	return &networkFlowMatcherImpl{
-		matcherImpl: matcherImpl{
-			evaluators: sectionsAndEvals,
-		},
+		matcherImpl:               *matcher,
 		networkFlowOnlyEvaluators: networkFlowOnlyEvaluators,
 	}, nil
 }
@@ -223,13 +221,25 @@ func BuildDeploymentWithNetworkFlowMatcher(p *storage.Policy, options ...Validat
 // BuildDeploymentMatcher builds a matcher for deployments against the given policy,
 // which must be a boolean policy.
 func BuildDeploymentMatcher(p *storage.Policy, options ...ValidateOption) (DeploymentMatcher, error) {
+	return buildDeploymentMatcher(p, options...)
+}
+
+func buildDeploymentMatcher(p *storage.Policy, options ...ValidateOption) (*matcherImpl, error) {
 	sectionsAndEvals, err := getSectionsAndEvals(&deploymentEvalFactory, p, storage.LifecycleStage_DEPLOY, options...)
 	if err != nil {
 		return nil, err
 	}
+	var verifierFactory signature.VerifierFactory
+	if ContainsValueWithFieldName(p, fieldnames.SignedImage) {
+		keys := GetValuesWithFieldName(p, fieldnames.SignedImage)
+		// The signature.WithBase64EncodedKeys will take care of removing the "value" of the key-value map pair, no need
+		// to sanitize the input here.
+		verifierFactory = signature.NewVerifierFactory(signature.WithBase64EncodedKeys(keys))
+	}
 
 	return &matcherImpl{
-		evaluators: sectionsAndEvals,
+		evaluators:      sectionsAndEvals,
+		verifierFactory: verifierFactory,
 	}, nil
 }
 

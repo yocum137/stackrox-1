@@ -89,7 +89,7 @@ func (d *detectorImpl) detectForDeployment(
 	var alerts []*storage.Alert
 	var cacheReceptable booleanpolicy.CacheReceptacle
 
-	augmentedDeploy, err := augmentedobjs.ConstructDeployment(deployment, images)
+	augmentedDeploy, err := augmentedobjs.ConstructDeployment(deployment, images, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,6 @@ func (d *detectorImpl) detectForDeployment(
 		if compiled.Policy().GetDisabled() {
 			return nil
 		}
-
 		// Check predicate on deployment.
 		if !compiled.AppliesTo(deployment) {
 			return nil

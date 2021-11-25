@@ -273,7 +273,8 @@ func (d *detectorImpl) runDetector() {
 		case <-d.detectorStopper.StopDone():
 			return
 		case scanOutput := <-d.enricher.outputChan():
-			alerts := d.unifiedDetector.DetectDeployment(deploytime.DetectionContext{}, scanOutput.deployment, scanOutput.images)
+			alerts := d.unifiedDetector.DetectDeployment(deploytime.DetectionContext{}, scanOutput.deployment,
+				scanOutput.images)
 
 			sort.Slice(alerts, func(i, j int) bool {
 				return alerts[i].GetPolicy().GetId() < alerts[j].GetPolicy().GetId()
@@ -389,6 +390,7 @@ func (d *detectorImpl) processDeploymentNoLock(deployment *storage.Deployment, a
 	case central.ResourceAction_CREATE_RESOURCE:
 		d.deduper.addDeployment(deployment)
 		d.markDeploymentForProcessing(deployment.GetId())
+		log.Infof("Found a new deployment that has been created: %q", deployment.GetName())
 		go d.enricher.blockingScan(deployment, action)
 	case central.ResourceAction_UPDATE_RESOURCE:
 		// Check if the deployment has changes that require detection, which is more expensive than hashing
@@ -397,6 +399,7 @@ func (d *detectorImpl) processDeploymentNoLock(deployment *storage.Deployment, a
 			return
 		}
 		d.markDeploymentForProcessing(deployment.GetId())
+		log.Infof("Processing delpoyment which requires update: %q", deployment.GetName())
 		go d.enricher.blockingScan(deployment, action)
 	}
 }

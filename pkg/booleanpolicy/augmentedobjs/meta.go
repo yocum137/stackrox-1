@@ -17,6 +17,7 @@ const (
 	baselineResultAugmentKey      = "BaselineResult"
 	envVarAugmentKey              = "EnvironmentVariable"
 	impersonatedEventResultKey    = "ImpersonatedEventResult"
+	imageSignatureAugmentKey      = "ImageSignature"
 )
 
 // This block enumerates metadata about the augmented objects we use in policies.
@@ -24,6 +25,7 @@ var (
 	DeploymentMeta = pathutil.NewAugmentedObjMeta((*storage.Deployment)(nil)).
 			AddAugmentedObjectAt([]string{"Containers", imageAugmentKey}, ImageMeta).
 			AddAugmentedObjectAt([]string{"Containers", processAugmentKey}, ProcessMeta).
+			AddPlainObjectAt([]string{imageSignatureAugmentKey}, (*verifiedImageSignatureKeyResult)(nil)).
 			AddPlainObjectAt([]string{"Containers", "Config", "Env", envVarAugmentKey}, (*envVar)(nil)).
 			AddPlainObjectAt([]string{kubeEventAugKey}, (*storage.KubernetesEvent)(nil)).
 			AddAugmentedObjectAt([]string{networkFlowAugKey}, NetworkFlowMeta)

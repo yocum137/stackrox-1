@@ -21,6 +21,8 @@ func (d *detectorImpl) ReconcilePolicies(newList []*storage.Policy) {
 	reconcilePolicySets(newList, d.runtimeDetector.PolicySet(), func(p *storage.Policy) bool {
 		return isLifecycleStage(p, storage.LifecycleStage_RUNTIME)
 	})
+
+	log.Infof("New POLICY list found and update with")
 }
 
 func (d *detectorImpl) DetectDeployment(ctx deploytime.DetectionContext, deployment *storage.Deployment, images []*storage.Image) []*storage.Alert {

@@ -110,6 +110,9 @@ func (cp *compiledPolicy) setBuildTimeMatchers(policy *storage.Policy) error {
 }
 
 func (cp *compiledPolicy) setDeployTimeMatchers(policy *storage.Policy) error {
+	// TODO(dhaus): Potentially we can create the factory _here_ and get the value, if the value is there create
+	// 				the factory and add it as a property of the compiled policy.
+	//				Need to check whether this is covering all use-cases, only the compiledPolicy will work.
 	deploymentMatcher, err := booleanpolicy.BuildDeploymentMatcher(policy)
 	if err != nil {
 		return err
@@ -303,6 +306,8 @@ func (cp *compiledPolicy) MatchAgainstDeployment(cache *booleanpolicy.CacheRecep
 	if cp.deploymentMatcher == nil {
 		return booleanpolicy.Violations{}, errors.Errorf("couldn't match policy %q against deployments", cp.Policy().GetName())
 	}
+	log.Infof("Matching policy %q against deployment %q", cp.policy.GetName(), deployment.GetName())
+	log.Infof("Matcher used for this: %+v", cp.deploymentMatcher)
 	return cp.deploymentMatcher.MatchDeployment(cache, deployment, images)
 }
 

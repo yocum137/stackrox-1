@@ -6,6 +6,8 @@ import (
 	ptypes "github.com/gogo/protobuf/types"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/alert/convert"
+	"github.com/stackrox/rox/pkg/booleanpolicy"
+	"github.com/stackrox/rox/pkg/booleanpolicy/fieldnames"
 	"github.com/stackrox/rox/pkg/uuid"
 )
 
@@ -62,4 +64,8 @@ func scaleToZeroEnabled(deployment *storage.Deployment) bool {
 		return false
 	}
 	return true
+}
+
+func imageSignatureAvailable(policy *storage.Policy) bool {
+	return booleanpolicy.ContainsValueWithFieldName(policy, fieldnames.SignedImage)
 }

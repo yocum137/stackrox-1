@@ -191,6 +191,29 @@ export const policyConfigurationDescriptor = [
         canBooleanLogic: false,
     },
     {
+        label: 'Image Signature',
+        name: 'Signed Image',
+        longName: 'Only allow images with a verified signature',
+        category: policyCriteriaCategories.IMAGE_CONTENTS,
+        type: 'group',
+        subComponents: [
+            {
+                type: 'select',
+                options: [{ label: 'Base64 Encoded Public Key', value: 'PUBLIC KEY' }],
+                label: 'Type of verification',
+                subpath: 'key',
+            },
+            {
+                name: 'value',
+                type: 'text',
+                label: 'Contents',
+                placeholder: '<depending on the type>',
+                subpath: 'value',
+            },
+        ],
+        canBooleanLogic: false,
+    },
+    {
         label: 'Image User',
         name: 'Image User',
         negatedName: `Image user is not`,

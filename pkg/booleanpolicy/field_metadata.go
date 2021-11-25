@@ -590,6 +590,15 @@ func initializeFieldMetadata() FieldMetadata {
 		[]storage.EventSource{storage.EventSource_NOT_APPLICABLE},
 		[]RuntimeFieldType{}, negationForbidden, operatorsForbidden)
 
+	f.registerFieldMetadata(fieldnames.SignedImage,
+		querybuilders.ForFieldLabelMap(augmentedobjs.ImageSignatureCustomTag, query.MapShouldNotContain),
+		nil,
+		func(*validateConfiguration) *regexp.Regexp {
+			return keyValueValueRegex
+		},
+		[]storage.EventSource{storage.EventSource_NOT_APPLICABLE},
+		[]RuntimeFieldType{}, negationForbidden, operatorsForbidden)
+
 	f.registerFieldMetadata(fieldnames.VolumeDestination,
 		querybuilders.ForFieldLabelRegex(search.VolumeDestination),
 		violationmessages.VolumeContextFields,

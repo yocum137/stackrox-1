@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages/printer"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/networkgraph/networkbaseline"
+	"github.com/stackrox/rox/pkg/signature"
 )
 
 var (
@@ -53,7 +54,7 @@ func (p *processMatcherImpl) MatchDeploymentWithProcess(cache *CacheReceptacle, 
 	}
 
 	violations, err := p.matcherImpl.getViolations(cache, func() (*pathutil.AugmentedObj, error) {
-		return augmentedobjs.ConstructDeploymentWithProcess(deployment, images, indicator, processNotInBaseline)
+		return augmentedobjs.ConstructDeploymentWithProcess(deployment, images, p.matcherImpl.verifierFactory, indicator, processNotInBaseline)
 	}, indicator, nil, nil)
 	if err != nil || violations == nil {
 		return Violations{}, err
@@ -172,7 +173,7 @@ func (m *networkFlowMatcherImpl) MatchDeploymentWithNetworkFlowInfo(
 	}
 
 	violations, err := m.matcherImpl.getViolations(cache, func() (*pathutil.AugmentedObj, error) {
-		return augmentedobjs.ConstructDeploymentWithNetworkFlowInfo(deployment, images, flow)
+		return augmentedobjs.ConstructDeploymentWithNetworkFlowInfo(deployment, images, m.matcherImpl.verifierFactory, flow)
 	}, nil, nil, flow)
 	if err != nil || violations == nil {
 		return Violations{}, err
@@ -181,7 +182,8 @@ func (m *networkFlowMatcherImpl) MatchDeploymentWithNetworkFlowInfo(
 }
 
 type matcherImpl struct {
-	evaluators []sectionAndEvaluator
+	evaluators      []sectionAndEvaluator
+	verifierFactory signature.VerifierFactory
 }
 
 func matchWithEvaluator(sectionAndEval sectionAndEvaluator, obj *pathutil.AugmentedObj) (*evaluator.Result, error) {
@@ -241,7 +243,7 @@ func (m *matcherImpl) getViolations(
 		if result == nil {
 			continue
 		}
-
+		log.Infof("Found match: %+v", result.Matches)
 		alertViolations, isProcessViolation, isKubeOrAuditEventViolation, isNetworkFlowViolation, err :=
 			violationmessages.Render(eval.section, result, indicator, kubeEvent, networkFlow)
 		if err != nil {
@@ -281,8 +283,10 @@ func (m *matcherImpl) getViolations(
 
 // MatchDeployment runs detection against the deployment and images.
 func (m *matcherImpl) MatchDeployment(cache *CacheReceptacle, deployment *storage.Deployment, images []*storage.Image) (Violations, error) {
+	log.Infof("Matching deployment %q with verifier factory %+v", deployment.GetName(), m.verifierFactory)
 	violations, err := m.getViolations(cache, func() (*pathutil.AugmentedObj, error) {
-		return augmentedobjs.ConstructDeployment(deployment, images)
+		log.Infof("Creating augmented deployment for obj %q", deployment.GetName())
+		return augmentedobjs.ConstructDeployment(deployment, images, m.verifierFactory)
 	}, nil, nil, nil)
 	if err != nil || violations == nil {
 		return Violations{}, err

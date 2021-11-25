@@ -16,7 +16,7 @@ func (d *detectorImpl) PolicySet() detection.PolicySet {
 	return d.policySet
 }
 
-// Detect runs detection on an deployment, returning any generated alerts.
+// DetectDeployment runs detection on an deployment, returning any generated alerts.
 func (d *detectorImpl) Detect(ctx DetectionContext, deployment *storage.Deployment, images []*storage.Image, filters ...detection.FilterOption) ([]*storage.Alert, error) {
 	var alerts []*storage.Alert
 	var cacheReceptacle booleanpolicy.CacheReceptacle
@@ -41,7 +41,14 @@ func (d *detectorImpl) Detect(ctx DetectionContext, deployment *storage.Deployme
 		}
 
 		// Generate violations.
-		violations, err := compiled.MatchAgainstDeployment(&cacheReceptacle, deployment, images)
+		var violations booleanpolicy.Violations
+		var err error
+		if imageSignatureAvailable(compiled.Policy()) {
+			// For image signatures, force non-caching to fetch the image signature fresh.
+			violations, err = compiled.MatchAgainstDeployment(nil, deployment, images)
+		} else {
+			violations, err = compiled.MatchAgainstDeployment(&cacheReceptacle, deployment, images)
+		}
 		if err != nil {
 			return errors.Wrapf(err, "evaluating violations for policy %s; deployment %s/%s", compiled.Policy().GetName(), deployment.GetNamespace(), deployment.GetName())
 		}
