@@ -194,8 +194,6 @@ message ImageCVEEdge {
     string                    id                     = 1;
     google.protobuf.Timestamp first_image_occurrence = 2;
 
-    // TODO: [ROX-8348] Unhide search fields.
-
     VulnerabilityState        state                  = 3 [(gogoproto.moretags) = "search:\"Vulnerability State\""];
 }
 

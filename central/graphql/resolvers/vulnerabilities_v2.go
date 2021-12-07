@@ -12,6 +12,7 @@ import (
 	distroctx "github.com/stackrox/rox/central/graphql/resolvers/distroctx"
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
+	vulnReqMappings "github.com/stackrox/rox/central/vulnerabilityrequest/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/cve"
@@ -833,4 +834,38 @@ func (resolver *cVEResolver) addScopeContext(query *v1.Query) (context.Context, 
 		return ctx, search.ConjunctionQuery(query, resolver.getCVEQuery())
 	}
 	return ctx, query
+}
+
+// VulnerabilityRequests resolver supports queries on vulnerability request fields only.
+func (resolver *cVEResolver) VulnerabilityRequests(ctx context.Context, args RawQuery) ([]*VulnerabilityRequestResolver, error) {
+	if err := readVulnerabilityRequestsOrApprovals(ctx); err != nil {
+		return nil, err
+	}
+	query, err := args.AsV1QueryOrEmpty()
+	if err != nil {
+		return nil, err
+	}
+
+	var vulnReqQueryConjuncts []*v1.Query
+	filteredQuery, filtered := search.FilterQueryWithMap(query, vulnReqMappings.OptionsMap)
+	if filtered {
+		vulnReqQueryConjuncts = append(vulnReqQueryConjuncts, filteredQuery)
+	}
+	vulnReqQueryConjuncts = append(vulnReqQueryConjuncts,
+		search.NewQueryBuilder().AddExactMatches(search.CVE, resolver.data.GetId()).ProtoQuery())
+
+	// Get vuln requests created for image scope.
+
+	scope, ok := scoped.GetScope(ctx)
+	// The only resource scope that vulnerability requests can be viewed in is image scope.
+	if ok && scope.Level == v1.SearchCategory_IMAGES {
+		// If image scope is set, it is highly likely that we reached here through image resolver. Therefore,
+		// cache already has image.
+		vulnReqQueryConjuncts = append(vulnReqQueryConjuncts,
+			search.NewQueryBuilder())
+	}
+
+	// Get vuln requests created in global-scope.
+
+	return
 }
