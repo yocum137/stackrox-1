@@ -47,6 +47,7 @@ import (
 	secretDataStore "github.com/stackrox/rox/central/secret/datastore"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	vulnReqManager "github.com/stackrox/rox/central/vulnerabilityrequest/manager"
+	vulnReqDataStore "github.com/stackrox/rox/central/vulnerabilityrequest/datastore"
 	vulnReqService "github.com/stackrox/rox/central/vulnerabilityrequest/service"
 	watchedImageDataStore "github.com/stackrox/rox/central/watchedimage/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
@@ -97,6 +98,7 @@ type Resolver struct {
 	cveMatcher                  *cveMatcher.CVEMatcher
 	manager                     complianceOperatorManager.Manager
 	mitreStore                  mitreDataStore.MitreAttackReadOnlyDataStore
+	vulnReqDataStore  vulnReqDataStore.DataStore
 	vulnReqMgr                  vulnReqManager.Manager
 	vulnReqService              vulnReqService.Service
 }
@@ -143,6 +145,7 @@ func New() *Resolver {
 		cveMatcher:                  cveMatcher.Singleton(),
 		manager:                     complianceOperatorManager.Singleton(),
 		mitreStore:                  mitreDataStore.Singleton(),
+		vulnReqDataStore: vulnReqDataStore.Singleton(),
 		vulnReqMgr:                  vulnReqManager.Singleton(),
 		vulnReqService:              vulnReqService.Singleton(),
 	}

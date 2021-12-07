@@ -50,6 +50,7 @@ func init() {
 		schema.AddExtraResolver("Image", "plottedVulns(query: String): PlottedVulnerabilities!"),
 		schema.AddEnumType("ImageWatchStatus", imageWatchStatuses),
 		schema.AddExtraResolver("Image", "watchStatus: ImageWatchStatus!"),
+		schema.AddExtraResolver("Image", "vulnerabilityrequests(query: String, pagination: Pagination): [VulnerabilityRequest!]!"),
 	)
 }
 
@@ -313,6 +314,54 @@ func (resolver *imageResolver) WatchStatus(ctx context.Context) (string, error) 
 		return watchedImageStatus, nil
 	}
 	return notWatchedImageWatchStatus, nil
+}
+
+func (resolver *imageResolver) VulnerabilityRequests(ctx context.Context, args PaginatedQuery) ([]*VulnerabilityRequestResolver, error) {
+	if err := readVulnerabilityRequestsOrApprovals(ctx); err != nil {
+		return nil, err
+	}
+	query, err := args.AsV1QueryOrEmpty()
+	if err != nil {
+		return nil, err
+	}
+
+	registry := resolver.data.GetName().GetRegistry()
+	remote := resolver.data.GetName().GetRemote()
+	tag := resolver.data.GetName().GetTag()
+
+	// Get vulnerability requests scoped to this image.
+	var allVulnReqs []*storage.VulnerabilityRequest
+	imageScopedVulnReqs, err := resolver.root.vulnReqDataStore.SearchRawRequests(ctx, search.ConjunctionQuery(
+		query,
+		search.NewQueryBuilder().AddExactMatches(search.ImageRegistry, registry).ProtoQuery(),
+		search.NewQueryBuilder().AddExactMatches(search.ImageRemote, remote).ProtoQuery(),
+		search.NewQueryBuilder().AddExactMatches(search.ImageTag, tag, ".*").ProtoQuery(),
+	))
+	if err != nil {
+		return nil, err
+	}
+	allVulnReqs = append(allVulnReqs, imageScopedVulnReqs...)
+
+	// Get global vulnerability requests.
+	globalScopedVulnReqs, err := resolver.root.vulnReqDataStore.SearchRawRequests(ctx, search.ConjunctionQuery(
+		query,
+		search.NewQueryBuilder().AddExactMatches(search.ImageRegistry, registry).ProtoQuery(),
+		search.NewQueryBuilder().AddExactMatches(search.ImageRemote, remote).ProtoQuery(),
+		search.NewQueryBuilder().AddExactMatches(search.ImageTag, tag).ProtoQuery(),
+	))
+	if err != nil {
+		return nil, err
+	}
+	allVulnReqs = append(allVulnReqs, globalScopedVulnReqs...)
+
+	vulnReqWrappers, err := resolver.root.wrapVulnerabilityRequests(allVulnReqs, nil)
+	if err != nil {
+		return nil, err
+	}
+	resolvers, err := paginationWrapper{
+		pv: query.GetPagination(),
+	}.paginate(vulnReqWrappers, nil)
+	return resolvers.([]*VulnerabilityRequestResolver), err
 }
 
 func (resolver *imageResolver) UnusedVarSink(ctx context.Context, args RawQuery) *int32 {

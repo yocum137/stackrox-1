@@ -53,9 +53,9 @@ message VulnerabilityRequest {
     }
     message Scope {
         message Image {
-            string registry  = 1;
-            string remote    = 2;
-            string tag       = 3;
+            string registry  = 1 [(gogoproto.moretags) = "search:\"Image Registry\",hidden"];
+            string remote    = 2 [(gogoproto.moretags) = "search:\"Image Remote\",hidden"];
+            string tag       = 3 [(gogoproto.moretags) = "search:\"Image Tag\",hidden"];
         }
 
         // For now global scopes out all the images (i.e. .*). The field could be extended in future to support
@@ -67,7 +67,9 @@ message VulnerabilityRequest {
         //   }
         // }
 
-        message Global {}
+        message Global {
+            bool all_images = 1;
+        }
 
         oneof info {
             Image  image_scope  = 1;

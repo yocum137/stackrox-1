@@ -132,6 +132,40 @@ func (b *storeImpl) GetMany(ids []string) ([]*storage.ImageCVEEdge, []int, error
 	return ret, missing, nil
 }
 
+func (b *storeImpl) AddVulnReqWithState(cve string, images []string, requestID string, state storage.VulnerabilityState) error {
+	defer metrics.SetDackboxOperationDurationTime(time.Now(), ops.UpdateMany, "ImageCVEEdge")
+
+	edgeIDs := getEdgeIDs(cve, images...)
+	graphKeys := gatherKeysForEdge(cve, images...)
+	// Lock nodes in the graph and update the image-cve edge in the db.
+	return b.keyFence.DoStatusWithLock(concurrency.DiscreteKeySet(graphKeys...), func() error {
+		dackTxn, err := b.dacky.NewTransaction()
+		if err != nil {
+			return err
+		}
+		defer dackTxn.Discard()
+
+		for _, edgeID := range edgeIDs {
+			msg, err := b.reader.ReadIn(edgeDackBox.BucketHandler.GetKey(edgeID), dackTxn)
+			if err != nil {
+				return err
+			}
+			if msg == nil {
+				continue
+			}
+			edge := msg.(*storage.ImageCVEEdge)
+			if edge.GetState() == state {
+				continue
+			}
+			edge.State = state
+			if err := b.upserter.UpsertIn(nil, edge, dackTxn); err != nil {
+				return err
+			}
+		}
+		return dackTxn.Commit()
+	})
+}
+
 func (b *storeImpl) UpdateVulnState(cve string, images []string, state storage.VulnerabilityState) error {
 	defer metrics.SetDackboxOperationDurationTime(time.Now(), ops.UpdateMany, "ImageCVEEdge")
 

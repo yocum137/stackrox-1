@@ -345,7 +345,12 @@
   },
   "definitions": {
     "ScopeGlobal": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "allImages": {
+          "type": "boolean"
+        }
+      }
     },
     "VulnerabilityRequestCVEs": {
       "type": "object",

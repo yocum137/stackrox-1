@@ -18,7 +18,8 @@ type DataStore interface {
 	SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
 	SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ImageCVEEdge, error)
 	Get(ctx context.Context, id string) (*storage.ImageCVEEdge, bool, error)
-	UpdateVulnerabilityState(ctx context.Context, cve string, images []string, state storage.VulnerabilityState) error
+	AddVulnerabilityRequestWithState(ctx context.Context, cve string, images []string, requestID string, state storage.VulnerabilityState) error
+	RemoveVulnerabilityRequest(ctx context.Context, cve string, images []string, requestID string, state storage.VulnerabilityState) error
 }
 
 // New returns a new instance of a DataStore.
