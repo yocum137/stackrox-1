@@ -8,13 +8,8 @@ import (
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator/pathutil"
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages"
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages/printer"
-	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/networkgraph/networkbaseline"
 	"github.com/stackrox/rox/pkg/signature"
-)
-
-var (
-	log = logging.LoggerForModule()
 )
 
 type processMatcherImpl struct {
@@ -243,7 +238,6 @@ func (m *matcherImpl) getViolations(
 		if result == nil {
 			continue
 		}
-		log.Infof("Found match: %+v", result.Matches)
 		alertViolations, isProcessViolation, isKubeOrAuditEventViolation, isNetworkFlowViolation, err :=
 			violationmessages.Render(eval.section, result, indicator, kubeEvent, networkFlow)
 		if err != nil {
@@ -283,9 +277,7 @@ func (m *matcherImpl) getViolations(
 
 // MatchDeployment runs detection against the deployment and images.
 func (m *matcherImpl) MatchDeployment(cache *CacheReceptacle, deployment *storage.Deployment, images []*storage.Image) (Violations, error) {
-	log.Infof("Matching deployment %q with verifier factory %+v", deployment.GetName(), m.verifierFactory)
 	violations, err := m.getViolations(cache, func() (*pathutil.AugmentedObj, error) {
-		log.Infof("Creating augmented deployment for obj %q", deployment.GetName())
 		return augmentedobjs.ConstructDeployment(deployment, images, m.verifierFactory)
 	}, nil, nil, nil)
 	if err != nil || violations == nil {

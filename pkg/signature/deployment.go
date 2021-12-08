@@ -37,21 +37,22 @@ type deploymentVerifier struct {
 	deployment *storage.Deployment
 }
 
+// VerifyImages will use the injected storage.Deployment and the ImageVerifier to verify all images within a
+// deployment and their signature. If the signature is successfully verified, it will return true as well as a
+// map of a verifier type and the public key that successfully validated the signature.
+// If the verification fails the function will return false and a nil map.
+// If any error occurred during signature verification it will return an error and a false value.
 func (d deploymentVerifier) VerifyImages() (map[string]string, bool, error) {
-	log.Info("Starting validation")
 	verifiedBase64EncKeysSet := set.NewStringSet()
-	log.Infof("Verifier: %+v", d.iv)
 	for _, container := range d.deployment.GetContainers() {
+		// TODO(dhaus): We can improve this here by handling all signature verification async.
 		res := d.iv.VerifySignature(types.ToImage(container.GetImage()))
 
 		if res.Err != nil {
-			log.Infof("Encountered an error while trying to verify image within deployment %q: %v",
-				d.deployment.GetId(), res.Err)
 			return nil, false, res.Err
 		}
 
 		if !res.Verified {
-			log.Infof("Failed to verify image within deployment %q", d.deployment.GetId())
 			return nil, false, nil
 		}
 
@@ -63,7 +64,7 @@ func (d deploymentVerifier) VerifyImages() (map[string]string, bool, error) {
 func createResultMap(keys []string) map[string]string {
 	resultMap := make(map[string]string, len(keys))
 	for _, key := range keys {
-		// TODO(dhaus): This should have the type of the verifier used.
+		// TODO(dhaus): Needs chaning once its possible to have base64enc values as keys.
 		resultMap["PUBLIC KEY"] = key
 	}
 	return resultMap

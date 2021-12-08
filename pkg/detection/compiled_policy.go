@@ -110,9 +110,6 @@ func (cp *compiledPolicy) setBuildTimeMatchers(policy *storage.Policy) error {
 }
 
 func (cp *compiledPolicy) setDeployTimeMatchers(policy *storage.Policy) error {
-	// TODO(dhaus): Potentially we can create the factory _here_ and get the value, if the value is there create
-	// 				the factory and add it as a property of the compiled policy.
-	//				Need to check whether this is covering all use-cases, only the compiledPolicy will work.
 	deploymentMatcher, err := booleanpolicy.BuildDeploymentMatcher(policy)
 	if err != nil {
 		return err

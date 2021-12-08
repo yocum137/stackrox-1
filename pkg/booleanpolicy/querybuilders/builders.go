@@ -7,7 +7,6 @@ import (
 
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/query"
-	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/predicate/basematchers"
 	"github.com/stackrox/rox/pkg/stringutils"
@@ -18,7 +17,6 @@ var (
 		storage.BooleanOperator_OR:  query.Or,
 		storage.BooleanOperator_AND: query.And,
 	}
-	log = logging.LoggerForModule()
 )
 
 func valueToStringExact(value string) string {

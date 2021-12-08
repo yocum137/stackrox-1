@@ -232,9 +232,9 @@ func buildDeploymentMatcher(p *storage.Policy, options ...ValidateOption) (*matc
 	var verifierFactory signature.VerifierFactory
 	if ContainsValueWithFieldName(p, fieldnames.SignedImage) {
 		keys := GetValuesWithFieldName(p, fieldnames.SignedImage)
-		// The signature.WithBase64EncodedKeys will take care of removing the "value" of the key-value map pair, no need
+		// The signature.WithBase64EncodedPublicKeys will take care of removing the "value" of the key-value map pair, no need
 		// to sanitize the input here.
-		verifierFactory = signature.NewVerifierFactory(signature.WithBase64EncodedKeys(keys))
+		verifierFactory = signature.NewVerifierFactory(signature.WithBase64EncodedPublicKeys(keys))
 	}
 
 	return &matcherImpl{

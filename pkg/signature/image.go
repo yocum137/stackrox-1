@@ -13,7 +13,7 @@ type ImageVerifier interface {
 }
 
 // VerificationResult will be returned by all SignatureVerifier's containing information
-// about whether the image signature was verified. If it was verified, a list of public keys which matched
+// about whether the image signature was verified. If it was verified, the which matched
 // the signature is returned.
 type VerificationResult struct {
 	VerifiedKey string
@@ -21,6 +21,7 @@ type VerificationResult struct {
 	Err         error
 }
 
+// DefaultImageVerifier creates a default ImageVerifier to handle signature verification for a storage.Image.
 func DefaultImageVerifier(base64EncPubKeys []string, kc authn.Keychain) (ImageVerifier, error) {
 	return newPublicKeyVerifier(base64EncPubKeys, kc)
 }

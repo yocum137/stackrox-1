@@ -54,7 +54,7 @@ func newPublicKeyVerifier(base64EncKeys []string, kc authn.Keychain) (*publicKey
 }
 
 // VerifySignature will verify whether an image is signed against a set of public keys.
-// This function follows the cosign approach and its workflow to validate public keys.
+// This function follows cosign approach and its workflow to validate public keys.
 // 1. The image and repository references are created.
 // 2. For each public key:
 //		a. Try to download the signature file, inferred from the image / repo references.
@@ -63,20 +63,15 @@ func newPublicKeyVerifier(base64EncKeys []string, kc authn.Keychain) (*publicKey
 // is found or any error occurred.
 func (p *publicKeyVerifier) VerifySignature(image *storage.Image) VerificationResult {
 	imageFullName := image.GetName().GetFullName()
-
-	log.Infof("Starting verification for image %q", imageFullName)
-
 	ctx := context.Background()
 
 	if image.GetNotPullable() {
-		log.Infof("Skipping image %q for signature verification as it is not pullable.", imageFullName)
 		return VerificationResult{}
 	}
 
 	registryOpts := options.RegistryOptions{}
 	remoteOpts, err := registryOpts.ClientOpts(ctx)
 	if err != nil {
-		log.Errorf("Error: %v", err)
 		return VerificationResult{Err: errors.Wrap(err, "initializing remote opts")}
 	}
 
@@ -90,7 +85,6 @@ func (p *publicKeyVerifier) VerifySignature(image *storage.Image) VerificationRe
 	// Need to strip the tag value as well as the ":" from the image's full name.
 	repoRef, err := name.NewRepository(strings.TrimSuffix(imageFullName, ":"+image.GetName().GetTag()))
 	if err != nil {
-		log.Errorf("Error: %v", err)
 		return VerificationResult{Err: errors.Wrapf(err,
 			"getting repository reference for image %q", imageFullName)}
 	}
@@ -100,14 +94,12 @@ func (p *publicKeyVerifier) VerifySignature(image *storage.Image) VerificationRe
 
 	imageRef, err := name.ParseReference(imageFullName)
 	if err != nil {
-		log.Errorf("Error: %v", err)
 		return VerificationResult{Err: errors.Wrapf(err, "getting image reference for image %q", imageFullName)}
 	}
 
 	for pubKeyIndex, pubKey := range p.parsedPublicKeys {
 		checkOpts.SigVerifier, err = signature.LoadVerifier(pubKey, crypto.SHA256)
 		if err != nil {
-			log.Errorf("Error: %v", err)
 			return VerificationResult{Err: errors.Wrap(err, "getting cosign verifier")}
 		}
 
@@ -115,10 +107,8 @@ func (p *publicKeyVerifier) VerifySignature(image *storage.Image) VerificationRe
 		// cosign.
 		_, _, err = cosign.Verify(ctx, imageRef, cosign.SignaturesAccessor, checkOpts)
 		if err == nil {
-			log.Infof("Successfully verified image %q with public key %q", imageFullName, p.base64EncPublicKeys[pubKeyIndex])
 			return VerificationResult{Verified: true, VerifiedKey: p.base64EncPublicKeys[pubKeyIndex]}
 		}
-		log.Errorf("Failed verification for image %q: %v", imageFullName, err)
 	}
 
 	return VerificationResult{}

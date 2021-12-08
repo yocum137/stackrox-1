@@ -77,7 +77,6 @@ func (f *FieldMetadata) findField(fieldName string) (*metadataAndQB, error) {
 func (f *FieldMetadata) FieldIsOfType(fieldName string, expectedType RuntimeFieldType) bool {
 	field := f.fieldsToQB[fieldName]
 	if field == nil {
-		log.Warnf("policy field %s not found", fieldName)
 		return false
 	}
 	for _, fieldType := range field.fieldTypes {

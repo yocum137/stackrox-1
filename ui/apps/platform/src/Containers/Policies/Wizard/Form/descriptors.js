@@ -211,7 +211,7 @@ export const policyConfigurationDescriptor = [
                 subpath: 'value',
             },
         ],
-        canBooleanLogic: false,
+        canBooleanLogic: true,
     },
     {
         label: 'Image User',
