@@ -2,6 +2,7 @@ package object
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/stackrox/rox/pkg/protoreflect"
 )
@@ -30,6 +31,9 @@ func walk(s Struct, field reflect.StructField, typ reflect.Type) Field {
 		}
 		for i := 0; i < typ.NumField(); i++ {
 			field := typ.Field(i)
+			if strings.HasPrefix(field.Name, "XXX_") {
+				continue
+			}
 
 			if field.Tag.Get("protobuf_oneof") != "" {
 				oneofStruct := Struct{

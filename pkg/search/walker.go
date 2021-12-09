@@ -10,14 +10,15 @@ import (
 	"github.com/stackrox/rox/pkg/search/enumregistry"
 )
 
-type searchWalker struct {
+type searchWalkerLegacy struct {
 	category v1.SearchCategory
 	fields   map[FieldLabel]*Field
 }
 
-// Walk iterates over the obj and creates a search.Map object from the found struct tags
-func Walk(category v1.SearchCategory, prefix string, obj interface{}) OptionsMap {
-	sw := searchWalker{
+// walkLegacy iterates over the obj and creates a search.Map object from the found struct tags
+// This function is deprecated and is only used for testing purposes
+func walkLegacy(category v1.SearchCategory, prefix string, obj interface{}) OptionsMap {
+	sw := searchWalkerLegacy{
 		category: category,
 		fields:   make(map[FieldLabel]*Field),
 	}
@@ -25,7 +26,7 @@ func Walk(category v1.SearchCategory, prefix string, obj interface{}) OptionsMap
 	return OptionsMapFromMap(category, sw.fields)
 }
 
-func (s *searchWalker) getSearchField(path, tag string) (string, *Field) {
+func (s *searchWalkerLegacy) getSearchField(path, tag string) (string, *Field) {
 	if tag == "" {
 		return "", nil
 	}
@@ -68,7 +69,7 @@ func (s *searchWalker) getSearchField(path, tag string) (string, *Field) {
 }
 
 // handleStruct takes in a struct object and properly handles all of the fields
-func (s *searchWalker) handleStruct(prefix string, original reflect.Type) {
+func (s *searchWalkerLegacy) handleStruct(prefix string, original reflect.Type) {
 	for i := 0; i < original.NumField(); i++ {
 		field := original.Field(i)
 		jsonTag := strings.TrimSuffix(field.Tag.Get("json"), ",omitempty")
@@ -135,7 +136,7 @@ func (s *searchWalker) handleStruct(prefix string, original reflect.Type) {
 	}
 }
 
-func (s *searchWalker) walkRecursive(prefix string, original reflect.Type) v1.SearchDataType {
+func (s *searchWalkerLegacy) walkRecursive(prefix string, original reflect.Type) v1.SearchDataType {
 	switch original.Kind() {
 	case reflect.Ptr, reflect.Slice:
 		return s.walkRecursive(prefix, original.Elem())
