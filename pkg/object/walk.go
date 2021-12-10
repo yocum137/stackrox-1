@@ -24,10 +24,9 @@ func walk(s Struct, field reflect.StructField, typ reflect.Type) Field {
 				StructType: TIME,
 			}
 		}
-
 		childStruct := Struct{
 			Field:      newField(field, kind),
-			StructType: GENERIC,
+			StructType: MESSAGE,
 		}
 		for i := 0; i < typ.NumField(); i++ {
 			field := typ.Field(i)
@@ -59,12 +58,12 @@ func walk(s Struct, field reflect.StructField, typ reflect.Type) Field {
 	case reflect.Slice:
 		return Slice{
 			Field: newField(field, kind),
-			Value: walk(s, reflect.StructField{}, typ.Elem()),
+			Value: walk(s, field, typ.Elem()),
 		}
 	case reflect.Map:
 		return Map{
 			Field: newField(field, kind),
-			Value: walk(s, reflect.StructField{}, typ.Elem()),
+			Value: walk(s, field, typ.Elem()),
 		}
 	case reflect.Int32:
 		enum, ok := reflect.Zero(typ).Interface().(protoreflect.ProtoEnum)

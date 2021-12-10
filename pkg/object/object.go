@@ -12,7 +12,7 @@ type StructType int
 
 // Different types of structs
 const (
-	GENERIC StructType = iota
+	MESSAGE StructType = iota
 	TIME
 	ONEOF
 )
@@ -127,3 +127,25 @@ type Struct struct {
 	Fields     []Field
 	StructType StructType
 }
+
+type contextFunc func(ctx PathContext, obj Field) bool
+
+type PathContext struct {
+
+}
+
+func (s Struct) Walk(fn contextFunc) {
+
+
+
+})
+
+func (s Struct) walkHelper(path PathContext, fn contextFunc) {
+
+
+
+	fn(path)
+	for field := range s.Fields {
+
+	}
+})
