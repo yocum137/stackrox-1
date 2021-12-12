@@ -1,0 +1,53 @@
+{
+  "id": "ab87cb6d-5349-4d3c-89ee-166e01a07995",
+  "name": "Image Signature",
+  "description": "This policy detects images which either do not have a signature at all or a signature that cannot be verified by the specified public key.",
+  "rationale": "Image signatures help with the authenticity of images you are running within your cluster, ensuring that the image you are starting is actually coming from your trusted source.",
+  "remediation": "Sign images duh",
+  "disabled": false,
+  "categories": [
+    "Security Best Practices"
+  ],
+  "fields": null,
+  "lifecycleStages": [
+    "DEPLOY"
+  ],
+  "eventSource": "NOT_APPLICABLE",
+  "whitelists": [],
+  "exclusions": [],
+  "scope": [],
+  "severity": "HIGH_SEVERITY",
+  "enforcementActions": [],
+  "notifiers": [],
+  "lastUpdated": "2021-12-11T01:02:46.518071882Z",
+  "SORTName": "Image Signature",
+  "SORTLifecycleStage": "DEPLOY",
+  "SORTEnforcement": false,
+  "policyVersion": "1.1",
+  "policySections": [
+    {
+      "sectionName": "Policy Section 1",
+      "policyGroups": [
+        {
+          "fieldName": "Signed Image",
+          "booleanOperator": "OR",
+          "negate": false,
+          "values": [
+            {
+              "value": "PUBLIC KEY=LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSVA2cm53MWRTS2pFQzRaOVhsQ2ZQN0lkNkNRVAp3aWpxZTZvNlpSZ25KeFV1Y3JIODIyQmdUYS9mWGpreE5ZUDR1ODBmQVFrNUFVZVhMc3kyeHRndUFBPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "mitreAttackVectors": [
+    {
+      "tactic": "TA0002",
+      "techniques": []
+    }
+  ],
+  "criteriaLocked": false,
+  "mitreVectorsLocked": false,
+  "isDefault": false
+}

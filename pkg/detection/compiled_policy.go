@@ -303,8 +303,6 @@ func (cp *compiledPolicy) MatchAgainstDeployment(cache *booleanpolicy.CacheRecep
 	if cp.deploymentMatcher == nil {
 		return booleanpolicy.Violations{}, errors.Errorf("couldn't match policy %q against deployments", cp.Policy().GetName())
 	}
-	log.Infof("Matching policy %q against deployment %q", cp.policy.GetName(), deployment.GetName())
-	log.Infof("Matcher used for this: %+v", cp.deploymentMatcher)
 	return cp.deploymentMatcher.MatchDeployment(cache, deployment, images)
 }
 
