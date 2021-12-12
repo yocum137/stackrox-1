@@ -32,25 +32,25 @@ var signedContainerImage = &storage.ContainerImage{
 }
 
 var unsignedContainerImage = &storage.ContainerImage{
-	Id:                   "ttl.sh/967f77f5-c474-49d2-bd74-58bb7e856959",
-	Name:                 &storage.ImageName{
-		Registry:             "ttl.sh",
-		Remote:               "967f77f5-c474-49d2-bd74-58bb7e856959",
-		Tag:                  "72h",
-		FullName:             "ttl.sh/967f77f5-c474-49d2-bd74-58bb7e856959:72h",
+	Id: "ttl.sh/967f77f5-c474-49d2-bd74-58bb7e856959",
+	Name: &storage.ImageName{
+		Registry: "ttl.sh",
+		Remote:   "967f77f5-c474-49d2-bd74-58bb7e856959",
+		Tag:      "72h",
+		FullName: "ttl.sh/967f77f5-c474-49d2-bd74-58bb7e856959:72h",
 	},
-	NotPullable:          false,
+	NotPullable: false,
 }
 
 var wronglySignedContainerImage = &storage.ContainerImage{
-	Id:                   "ttl.sh/6a565840-48eb-449c-8f4b-285a734ee418",
-	Name:                 &storage.ImageName{
-		Registry:             "ttl.sh",
-		Remote:               "6a565840-48eb-449c-8f4b-285a734ee418",
-		Tag:                  "72h",
-		FullName:             "ttl.sh/6a565840-48eb-449c-8f4b-285a734ee418:72h",
+	Id: "ttl.sh/6a565840-48eb-449c-8f4b-285a734ee418",
+	Name: &storage.ImageName{
+		Registry: "ttl.sh",
+		Remote:   "6a565840-48eb-449c-8f4b-285a734ee418",
+		Tag:      "72h",
+		FullName: "ttl.sh/6a565840-48eb-449c-8f4b-285a734ee418:72h",
 	},
-	NotPullable:          false,
+	NotPullable: false,
 }
 
 func generateDeployments(amount int) map[*storage.Deployment][]*storage.Image {
@@ -58,11 +58,11 @@ func generateDeployments(amount int) map[*storage.Deployment][]*storage.Image {
 	for i := 0; i < amount; i++ {
 		var dep *storage.Deployment
 		var imgs []*storage.Image
-		if i % 3 == 0 {
+		if i%3 == 0 {
 			dep, imgs = deploymentWithUnsignedImages(i)
-		} else if i % 3 == 1 {
+		} else if i%3 == 1 {
 			dep, imgs = deploymentWithWronglySignedImages(i)
-		} else if i % 3 == 2 {
+		} else if i%3 == 2 {
 			dep, imgs = deploymentWithSignedImages(i)
 		}
 		deploymentsAndImages[dep] = imgs
