@@ -48,6 +48,10 @@ func addToDocumentMapping(path []string, searchField *search.Field, docMap *mapp
 			labelDocMap.AddSubDocumentMapping("keypair", keypairDocMapping)
 
 			docMap.AddSubDocumentMapping(path[0], labelDocMap)
+		case v1.SearchDataType_SEARCH_DATETIME:
+			timeMap := newDocumentMapping(false)
+			timeMap.AddFieldMappingsAt("seconds", setFieldMappingDefaults(mapping.NewNumericFieldMapping(), searchField))
+			docMap.AddSubDocumentMapping(path[0], timeMap)
 		default:
 			docMap.AddFieldMappingsAt(path[0], searchFieldToMapping(searchField))
 		}

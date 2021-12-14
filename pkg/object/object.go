@@ -2,9 +2,9 @@ package object
 
 import (
 	"reflect"
-	"strings"
 
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	"github.com/stackrox/rox/pkg/stringutils"
 )
 
 // StructType distinguishes between different struct types
@@ -22,6 +22,32 @@ type Field interface {
 	Name() string
 	Type() reflect.Kind
 	Tags() Tags
+	Children() []Field
+}
+
+func IsEnum(f Field) bool {
+	_, ok := f.(Enum)
+	return ok
+}
+
+func IsSlice(f Field) bool {
+	_, ok := f.(Slice)
+	return ok
+}
+
+func IsTime(f Field) bool {
+	_, ok := f.(Time)
+	return ok
+}
+
+func IsStruct(f Field) bool {
+	_, ok := f.(Struct)
+	return ok
+}
+
+func IsMap(f Field) bool {
+	_, ok := f.(Map)
+	return ok
 }
 
 func newField(field reflect.StructField, kind reflect.Kind) Field {
@@ -52,10 +78,22 @@ func (f baseField) Tags() Tags {
 	return f.tags
 }
 
+func (f baseField) Children() []Field {
+	return nil
+}
+
 // Map defines a map type
 type Map struct {
 	Field
 	Value Field
+}
+
+func (m Map) Children() []Field {
+	return []Field {m.Value}
+}
+
+type Time struct {
+	Field
 }
 
 // Slice defines a repeated field
@@ -64,61 +102,14 @@ type Slice struct {
 	Value Field
 }
 
+func (s Slice) Children() []Field {
+	return []Field{s.Value}
+}
+
 // Enum wraps an int32 with the proto descriptor
 type Enum struct {
 	Field
 	Descriptor *descriptor.EnumDescriptorProto
-}
-
-// Tags is a utility around the StructTag object
-type Tags struct {
-	reflect.StructTag
-}
-
-// TagValues is a wrapper around the struct tags that provides utility functions
-type TagValues string
-
-// First returns the first element in the tag. Useful for things like search
-func (t TagValues) First() string {
-	return strings.Split(string(t), ",")[0]
-}
-
-// Lookup returns the value of the key and a bool if the key exists in the tag
-func (t TagValues) Lookup(key string) (string, bool) {
-	for _, value := range strings.Split(string(t), ",") {
-		spl := strings.Split(value, "=")
-		if spl[0] == key {
-			if len(spl) > 1 {
-				return spl[1], true
-			}
-			return "", true
-		}
-	}
-	return "", false
-}
-
-// Exists checks the existence of the key in that tag
-func (t TagValues) Exists(key string) bool {
-	_, ok := t.Lookup(key)
-	return ok
-}
-
-// Get returns the value of the key in the tag
-func (t TagValues) Get(key string) string {
-	val, _ := t.Lookup(key)
-	return val
-}
-
-// Get returns the tag string for the specified key
-func (t Tags) Get(key string) TagValues {
-	values, _ := t.Lookup(key)
-	return values
-}
-
-// Lookup returns the tag value for the specified key and a bool that signifies if the key exists in the tag
-func (t Tags) Lookup(key string) (TagValues, bool) {
-	tagStr, ok := t.StructTag.Lookup(key)
-	return TagValues(tagStr), ok
 }
 
 // Struct defines a struct in the object
@@ -128,24 +119,54 @@ type Struct struct {
 	StructType StructType
 }
 
-type contextFunc func(ctx PathContext, obj Field) bool
+func (s Struct) Children() []Field {
+	return s.Fields
+}
+
+type contextFunc func(ctx *PathContext, obj Field) bool
+
+func JSONPath(p *PathContext, field Field) string {
+	if p.Prev != nil && (IsSlice(p.Prev.Field) || IsMap(p.Prev.Field)) {
+		return p.Prev.JSONPath()
+	}
+	ctxPath := p.JSONPath()
+	jsonTag := field.Tags().Get("json").First()
+	return stringutils.JoinNonEmpty(".", ctxPath, stringutils.FirstNonEmpty(jsonTag, p.Name()))
+}
 
 type PathContext struct {
+	Prev *PathContext
+	Field
+}
 
+func (p *PathContext) JSONPath() string {
+	if IsSlice(p.Field) || IsMap(p.Field) {
+		return p.Prev.JSONPath()
+	}
+	jsonTag := p.Field.Tags().Get("json").First()
+	if p.Prev == nil {
+		return stringutils.FirstNonEmpty(jsonTag, p.Name())
+	}
+	return stringutils.JoinNonEmpty(".", p.Prev.JSONPath(), stringutils.FirstNonEmpty(jsonTag, p.Name()))
 }
 
 func (s Struct) Walk(fn contextFunc) {
-
-
-
-})
-
-func (s Struct) walkHelper(path PathContext, fn contextFunc) {
-
-
-
-	fn(path)
-	for field := range s.Fields {
-
+	ctx := &PathContext{
+		Prev:  nil,
+		Field: s,
 	}
-})
+	walkHelper(ctx, fn)
+}
+
+func walkHelper(path *PathContext, fn contextFunc) {
+	for _, field := range path.Field.Children() {
+		if ok := fn(path, field); !ok {
+			continue
+		}
+		childCtx := &PathContext{
+			Prev:  path,
+			Field: field,
+		}
+		walkHelper(childCtx, fn)
+	}
+}
