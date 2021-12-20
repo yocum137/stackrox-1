@@ -12,7 +12,7 @@ var (
 // ManagerSingleton returns the singleton instance for the sensor connection manager.
 func ManagerSingleton() Manager {
 	managerInstanceInit.Do(func() {
-		managerInstance = newManager()
+		managerInstance = NewManager()
 	})
 
 	return managerInstance

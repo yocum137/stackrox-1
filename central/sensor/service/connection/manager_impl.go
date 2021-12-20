@@ -60,7 +60,7 @@ type manager struct {
 	autoTriggerUpgrades *concurrency.Flag
 }
 
-func newManager() *manager {
+func NewManager() *manager {
 	return &manager{
 		connectionsByClusterID: make(map[string]connectionAndUpgradeController),
 	}
