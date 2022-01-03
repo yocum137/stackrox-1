@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/stackrox/rox/pkg/version"
 	"github.com/stackrox/rox/sensor/kubernetes/client"
 	"github.com/stackrox/rox/sensor/kubernetes/fake"
+	"github.com/stackrox/rox/sensor/kubernetes/operator"
 	"github.com/stackrox/rox/sensor/kubernetes/sensor"
 	"golang.org/x/sys/unix"
 )
@@ -47,6 +49,13 @@ func main() {
 	utils.CrashOnError(err)
 
 	s.Start()
+
+	go func() {
+		operator := operator.New(sharedClientInterface.Kubernetes())
+		if err := operator.Start(context.Background()); err != nil {
+			log.Errorf("Error launching sensor embedded operator, self-operating features will not be available: %v", err)
+		}
+	}()
 
 	for {
 		select {
