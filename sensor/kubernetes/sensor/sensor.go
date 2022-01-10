@@ -18,6 +18,7 @@ import (
 	"github.com/stackrox/rox/pkg/namespaces"
 	"github.com/stackrox/rox/pkg/protoutils"
 	"github.com/stackrox/rox/pkg/satoken"
+	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/sensor/common"
 	"github.com/stackrox/rox/sensor/common/admissioncontroller"
 	"github.com/stackrox/rox/sensor/common/centralclient"
@@ -53,7 +54,30 @@ import (
 
 var (
 	log = logging.LoggerForModule()
+
+	sensorNamespaceOnce sync.Once
+	sensorNamespace		string
 )
+
+func GetSensorNamespace() string {
+	sensorNamespaceOnce.Do(func() {
+		sensorNs, err := satoken.LoadNamespaceFromFile()
+		if err != nil {
+			log.Errorf("Failed to determine namespace from service account token file: %s", err)
+		}
+		if sensorNs == "" {
+			sensorNs = os.Getenv("POD_NAMESPACE")
+		}
+		if sensorNs == "" {
+			sensorNs = namespaces.StackRox
+			log.Warnf("Unable to determine Sensor namespace, defaulting to %s", sensorNs)
+		}
+
+		sensorNamespace = sensorNs
+	})
+
+	return sensorNamespace
+}
 
 // CreateSensor takes in a client interface and returns a sensor instantiation
 func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager) (*sensor.Sensor, error) {
@@ -141,17 +165,7 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 		components = append(components, reprocessor.NewHandler(admCtrlSettingsMgr, policyDetector, imageCache))
 	}
 
-	sensorNamespace, err := satoken.LoadNamespaceFromFile()
-	if err != nil {
-		log.Errorf("Failed to determine namespace from service account token file: %s", err)
-	}
-	if sensorNamespace == "" {
-		sensorNamespace = os.Getenv("POD_NAMESPACE")
-	}
-	if sensorNamespace == "" {
-		sensorNamespace = namespaces.StackRox
-		log.Warnf("Unable to determine Sensor namespace, defaulting to %s", sensorNamespace)
-	}
+	sensorNamespace := GetSensorNamespace()
 
 	if admCtrlSettingsMgr != nil {
 		components = append(components, k8sadmctrl.NewConfigMapSettingsPersister(client.Kubernetes(), admCtrlSettingsMgr, sensorNamespace))

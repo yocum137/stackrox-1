@@ -51,7 +51,7 @@ func main() {
 	s.Start()
 
 	go func() {
-		operator := operator.New(sharedClientInterface.Kubernetes())
+		operator := operator.New(sharedClientInterface.Kubernetes(), s.CentralConnection())
 		if err := operator.Start(context.Background()); err != nil {
 			log.Errorf("Error launching sensor embedded operator, self-operating features will not be available: %v", err)
 		}

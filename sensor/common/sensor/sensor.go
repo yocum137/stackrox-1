@@ -84,6 +84,13 @@ func NewSensor(configHandler config.Handler, detector detector.Detector, imageSe
 	}
 }
 
+// CentralConnection is the channel that Sensor uses to connect to Central.
+// Operations on this channel will wait until Sensor completes the connection
+// setup during Start().
+func (s *Sensor) CentralConnection() *grpcUtil.LazyClientConn {
+	return s.centralConnection
+}
+
 // AddAPIServices adds the api services to the sensor. It should be called PRIOR to Start()
 func (s *Sensor) AddAPIServices(services ...pkgGRPC.APIService) {
 	s.apiServices = append(s.apiServices, services...)
