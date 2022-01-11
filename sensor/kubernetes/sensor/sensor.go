@@ -56,9 +56,10 @@ var (
 	log = logging.LoggerForModule()
 
 	sensorNamespaceOnce sync.Once
-	sensorNamespace		string
+	sensorNamespace     string
 )
 
+// GetSensorNamespace return namespace for Sensor
 func GetSensorNamespace() string {
 	sensorNamespaceOnce.Do(func() {
 		sensorNs, err := satoken.LoadNamespaceFromFile()

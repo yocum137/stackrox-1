@@ -66,16 +66,15 @@ func (s *serviceImpl) authorizeAndGetClusterID(ctx context.Context) (string, err
 	}
 
 	clusterID := svc.GetId()
-	if centralsensor.IsInitCertClusterID(clusterID) {
-		return "", errors.Errorf("cannot issue local Scanner credentials for a cluster that has not yet been assigned an ID: found id %q", clusterID)
-	}
-
-	_, clusterExists, err := s.clusters.GetCluster(ctx, clusterID)
-	if err != nil {
-		return "", errors.Wrapf(err, "error fetching cluster with ID %q", clusterID)
-	}
-	if !clusterExists {
-		return "", errors.Errorf("cluster with ID %q does not exist", clusterID)
+	if !centralsensor.IsInitCertClusterID(clusterID) {
+		// Wildcard certs are not in the cluster database, so we accept wildcard cluster IDs.
+		_, clusterExists, err := s.clusters.GetCluster(ctx, clusterID)
+		if err != nil {
+			return "", errors.Wrapf(err, "error fetching cluster with ID %q", clusterID)
+		}
+		if !clusterExists {
+			return "", errors.Errorf("cluster with ID %q does not exist", clusterID)
+		}
 	}
 
 	return clusterID, nil
