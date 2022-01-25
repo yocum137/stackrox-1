@@ -16,6 +16,13 @@ luname() {
 
 tmp_roxctl="tmp/roxctl-bats/bin"
 
+assert_bundle_image_defaults() {
+  local bundle_dir="$1"; shift
+  local component="$1"; shift
+  local regex="$1"; shift
+  assert_components_registry "$bundle_dir" "$regex" "$component"
+}
+
 # roxctl-development runs roxctl built with GOTAGS=''. It builds the binary if needed
 roxctl-development() {
   if [[ ! -x "${tmp_roxctl}/roxctl-dev" ]]; then
@@ -76,6 +83,14 @@ assert_components_registry() {
         ;;
       scanner-db)
         run yq e 'select(documentIndex == 1) | .spec.template.spec.containers[] | select(.name == "db").image' "${dir}/02-scanner-06-deployment.yaml"
+        assert_output --regexp "$regex"
+        ;;
+      sensor)
+        run yq e 'select(documentIndex == 0) | .spec.template.spec.containers[] | select(.name == "sensor").image' "${dir}/sensor.yaml"
+        assert_output --regexp "$regex"
+        ;;
+      collector)
+        run yq e 'select(documentIndex == 0) | .spec.template.spec.containers[] | select(.name == "collector").image' "${dir}/collector.yaml"
         assert_output --regexp "$regex"
         ;;
       *)
@@ -158,4 +173,13 @@ run_invalid_flavor_value_test() {
   run "$roxctl_bin" central generate "$orch" "${extra_params[@]}" pvc --output-dir "$(mktemp -d -u)"
   assert_failure
   assert_output --regexp "invalid arguments: '--image-defaults': unexpected value .*, allowed values are \[.*\]"
+}
+
+generate_bundle() {
+  installation_flavor="$1";shift
+  unique_name="bats-cluster-$(date '+%s')"
+  run roxctl-development sensor generate "$installation_flavor" \
+        --insecure-skip-tls-verify -e "$API_ENDPOINT" -p "$ROX_PASSWORD" --name "$unique_name" "$@" \
+        --output-dir="$out_dir"
+  assert_success
 }
