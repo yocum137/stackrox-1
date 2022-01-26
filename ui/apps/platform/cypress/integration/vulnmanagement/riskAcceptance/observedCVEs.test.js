@@ -33,7 +33,7 @@ function selectBulkAction(actionText) {
     cy.get(`li[role="menuitem"] button:contains("${actionText}")`);
 }
 
-function getRowActionsByRowIndex(rowIndex) {
+function getTableRowActionsByRowIndex(rowIndex) {
     return cy.get(
         `table[aria-label="Observed CVEs Table"] tbody tr:nth(${rowIndex}) button[aria-label="Actions"]`
     );
@@ -97,7 +97,7 @@ describe('Vulnmanagement Risk Acceptance', () => {
             cy.visit(imageEntityPage);
             cy.wait('@getObservedCVEs');
 
-            getRowActionsByRowIndex(0).click();
+            getTableRowActionsByRowIndex(0).click();
             getRowActionItem('Defer CVE').click();
             submitDeferralForm();
 
@@ -108,7 +108,7 @@ describe('Vulnmanagement Risk Acceptance', () => {
             cy.visit(imageEntityPage);
             cy.wait('@getObservedCVEs');
 
-            getRowActionsByRowIndex(1).click();
+            getTableRowActionsByRowIndex(1).click();
             getRowActionItem('Mark as False Positive').click();
             submitFalsePositiveForm();
 
@@ -139,6 +139,43 @@ describe('Vulnmanagement Risk Acceptance', () => {
 
             getPendingApprovalIconByRowIndex(4);
             getPendingApprovalIconByRowIndex(5);
+        });
+
+        // @TODO: Make this more robust by mocking the affected components data and testing if
+        // we render things in the table correctly
+        it('should be able to see the affected components modal', () => {
+            cy.visit(imageEntityPage);
+            cy.wait('@getObservedCVEs');
+
+            cy.get(
+                'table[aria-label="Observed CVEs Table"] tbody tr:nth(0) td[data-label="Affected components"] button'
+            ).click();
+
+            cy.get('table[aria-label="Affected Components Table"]');
+        });
+
+        it('should be able to navigate to the Pending Approvals table filtered by a request ID', () => {
+            cy.visit(imageEntityPage);
+            cy.wait('@getObservedCVEs');
+
+            getTableRowActionsByRowIndex(0).click();
+            getRowActionItem('Defer CVE').click();
+            submitDeferralForm();
+            getPendingApprovalIconByRowIndex(0).click();
+            cy.get('input[aria-label="Copyable input"]')
+                .invoke('val')
+                .then((url) => {
+                    cy.visit(url);
+
+                    // should have only 1 filter for Request ID
+                    cy.get('.pf-c-chip-group').should('have.length', 1);
+                    cy.get('.pf-c-chip-group').should('contain', 'Request ID');
+                    // should be filtered to only one vuln request
+                    cy.get('table[aria-label="Pending Approvals Table"] tbody tr').should(
+                        'have.length',
+                        1
+                    );
+                });
         });
     });
 });
