@@ -4,6 +4,7 @@ export type TableColumn = {
     Header: string;
     accessor: string;
     Cell?: ({ original, value }) => ReactElement | string;
+    width?: 50 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 | 60 | 70 | 80 | 90 | 100 | undefined;
     sortField?: string;
 };
 

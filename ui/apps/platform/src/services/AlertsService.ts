@@ -5,16 +5,10 @@ import { Alert, ListAlert } from 'Containers/Violations/types/violationTypes';
 import axios from './instance';
 import searchOptionsToQuery from './searchOptionsToQuery';
 import { RestSortOption } from './sortOption';
+import { RestSearchOption } from './searchOption';
 
 const baseUrl = '/v1/alerts';
 const baseCountUrl = '/v1/alertscount';
-
-// TODO import RestSearchOption and RestSortOption from searchUtils when it is TypeScript.
-export type RestSearchOption = {
-    label?: string;
-    type?: string; // for example, 'categoryOption'
-    value: string | string[];
-};
 
 // TODO import Severity from PoliciesService when it is TypeScript.
 export type Severity = 'LOW_SEVERITY' | 'MEDIUM_SEVERITY' | 'HIGH_SEVERITY' | 'CRITICAL_SEVERITY';

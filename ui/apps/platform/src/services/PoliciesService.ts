@@ -6,6 +6,7 @@ import { ListPolicy, Policy } from 'types/policy.proto';
 import { addBrandedTimestampToString } from 'utils/dateUtils';
 import { transformPolicyCriteriaValuesToStrings } from 'utils/policyUtils';
 
+import { RestSortOption } from './sortOption';
 import axios from './instance';
 import { policy as policySchema } from './schemas';
 
@@ -50,10 +51,37 @@ export function fetchPolicies(filters: { query: string }): Promise<{
 /*
  * Get policies filtered by an optional query string. ListPolicy is a subset of Policy.
  */
-export function getPolicies(query = ''): Promise<ListPolicy[]> {
+export function getPoliciesCount(query = ''): Promise<ListPolicy[]> {
     const params = queryString.stringify({ query });
     return axios
         .get<{ policies: Policy[] }>(`${baseUrl}?${params}`)
+        .then((response) => response?.data?.policies ?? []);
+}
+
+/*
+ * Get policies filtered by an optional query string. ListPolicy is a subset of Policy.
+ */
+export function getPolicies(
+    query = '',
+    sortOption: RestSortOption,
+    page: number,
+    pageSize: number
+): Promise<ListPolicy[]> {
+    const offset = page > 0 ? page * pageSize : 0;
+    const searchQueryString = queryString.stringify({ query });
+    const paginationObj = {
+        pagination: {
+            offset,
+            limit: pageSize,
+            sortOption,
+        },
+    };
+    const paginationQueryString = queryString.stringify(paginationObj, {
+        arrayFormat: 'repeat',
+        allowDots: true,
+    });
+    return axios
+        .get<{ policies: Policy[] }>(`${baseUrl}?${searchQueryString}&${paginationQueryString}`)
         .then((response) => response?.data?.policies ?? []);
 }
 

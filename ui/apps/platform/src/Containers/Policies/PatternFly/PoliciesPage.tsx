@@ -1,11 +1,9 @@
 import React from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 import usePermissions from 'hooks/usePermissions';
-import { policiesBasePathPatternFly } from 'routePaths';
-import { SearchFilter } from 'types/search';
 
-import { getSearchStringForFilter, parsePoliciesSearchString } from './policies.utils';
+import { parsePoliciesSearchString } from './policies.utils';
 import PoliciesTablePage from './Table/PoliciesTablePage';
 import PolicyPage from './PolicyPage';
 
@@ -22,7 +20,6 @@ function PoliciesPage() {
      * /main/policies?s[Lifecycle Stage]=BUILD&s[Lifecycle State]=DEPLOY
      * /main/policies?s[Lifecycle State]=RUNTIME&s[Severity]=CRITICAL_SEVERITY
      */
-    const history = useHistory();
     const { search } = useLocation();
     const { pageAction, searchFilter } = parsePoliciesSearchString(search);
     const { policyId } = useParams();
@@ -30,14 +27,6 @@ function PoliciesPage() {
     const { hasReadAccess, hasReadWriteAccess } = usePermissions();
     const hasReadAccessForPolicy = hasReadAccess('Policy');
     const hasWriteAccessForPolicy = hasReadWriteAccess('Policy');
-
-    function handleChangeSearchFilter(changedSearchFilter: SearchFilter) {
-        // Browser history has only the most recent search filter.
-        history.replace({
-            pathname: policiesBasePathPatternFly,
-            search: getSearchStringForFilter(changedSearchFilter),
-        });
-    }
 
     if (!hasReadAccessForPolicy) {
         return <div>TODO</div>;
@@ -56,7 +45,6 @@ function PoliciesPage() {
     return (
         <PoliciesTablePage
             hasWriteAccessForPolicy={hasWriteAccessForPolicy}
-            handleChangeSearchFilter={handleChangeSearchFilter}
             searchFilter={searchFilter}
         />
     );
