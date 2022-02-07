@@ -13,6 +13,8 @@ type MetaStep struct {
 	Type             reflect.Type
 	FieldName        string
 	StructFieldIndex []int // This is reflect.StructField.Index, which is an efficient way to index into a struct.
+
+	JSONTag string
 }
 
 // A MetaPath represents a path on types

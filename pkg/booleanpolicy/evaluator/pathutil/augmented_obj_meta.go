@@ -176,7 +176,7 @@ func (o *AugmentedObjMeta) addPathsForSearchTagsFromStruct(currentType reflect.T
 	if augmentedFieldsFound {
 		seenAugmentKeys.Add(key)
 		for augmentedFieldName, childObjMeta := range augmentedFields {
-			newPath := pathWithNewStep(pathWithinThisObj, MetaStep{FieldName: augmentedFieldName, Type: childObjMeta.RootType()})
+			newPath := pathWithNewStep(pathWithinThisObj, MetaStep{FieldName: augmentedFieldName, JSONTag: augmentedFieldName, Type: childObjMeta.RootType()})
 			childObjMeta.doMapSearchTagsToPaths(concatPaths(pathUntilThisObj, newPath), outputMap)
 		}
 	}
@@ -201,7 +201,14 @@ func (o *AugmentedObjMeta) addPathsForSearchTagsFromStruct(currentType reflect.T
 		}
 
 		// Create a new path through this field.
-		newPath := pathWithNewStep(pathWithinThisObj, MetaStep{FieldName: field.Name, Type: field.Type, StructFieldIndex: field.Index})
+		newPath := pathWithNewStep(pathWithinThisObj,
+			MetaStep{
+				FieldName:        field.Name,
+				JSONTag:          stringutils.OrDefault(field.Tag.Get("json"), field.Name),
+				Type:             field.Type,
+				StructFieldIndex: field.Index,
+			},
+		)
 		actualTag := stringutils.OrDefault(policyTag, searchTag)
 		if actualTag != "" {
 			fullPath := concatPaths(pathUntilThisObj, newPath)

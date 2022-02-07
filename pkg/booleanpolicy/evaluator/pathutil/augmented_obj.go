@@ -3,6 +3,7 @@ package pathutil
 import (
 	"reflect"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 )
 
@@ -25,6 +26,23 @@ func (t *augmentTree) getValue() *reflect.Value {
 		return nil
 	}
 	return t.value
+}
+
+var (
+	// a non-existent tag name forces the library to use the Go field name, which is what we want.
+	decoderConfig = &mapstructure.DecoderConfig{TagName: "nonexistent"}
+)
+
+func (t *augmentTree) getFullValue() (map[string]interface{}, error) {
+	val := t.getValue()
+	if val == nil {
+		return nil, nil
+	}
+	out := make(map[string]interface{})
+	if err := mapstructure.Decode(val.Interface(), &out); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func addAugmentedObjToTreeAtPath(rootTree *augmentTree, path *Path, subObj *AugmentedObj) error {
@@ -108,6 +126,8 @@ type AugmentedValue interface {
 	// It panics if Index(i) on the reflect.Value panics.
 	Index(int) AugmentedValue
 	PathFromRoot() *Path
+
+	GetFullValue() (map[string]interface{}, error)
 }
 
 type augmentedValue struct {
@@ -117,6 +137,10 @@ type augmentedValue struct {
 
 	currentNode *augmentTree
 	underlying  reflect.Value
+}
+
+func (v *augmentedValue) GetFullValue() (map[string]interface{}, error) {
+	return v.currentNode.getFullValue()
 }
 
 func (v *augmentedValue) Elem() AugmentedValue {

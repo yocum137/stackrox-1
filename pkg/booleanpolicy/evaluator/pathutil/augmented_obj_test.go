@@ -1,6 +1,7 @@
 package pathutil
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,4 +30,6 @@ func TestAugmentedObj(t *testing.T) {
 
 	// Test the error case.
 	assert.Error(t, o.AddPlainObjAt(stringObj, FieldStep("IntObj")))
+
+	fmt.Println(o.Value().GetFullValue())
 }
