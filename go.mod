@@ -75,6 +75,7 @@ require (
 	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/mitchellh/hashstructure v1.1.0
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/moby/sys/mount v0.3.0 // indirect
 	github.com/nxadm/tail v1.4.8
 	github.com/olekukonko/tablewriter v0.0.5
