@@ -141,7 +141,40 @@ func generateBaseMatcherHelper(query *query.FieldQuery, typ reflect.Type) ([]reg
 	return nil, ErrRegoNotYetSupported
 }
 
-func generateBaseMatcher(typ reflect.Type, query *query.FieldQuery) {
+type regoMatchFunc struct {
+	functionCode string
+	functionName string
+}
+
+type matchersForField struct {
+	funcs    []regoMatchFunc
+	operator query.Operator
+	negate   bool
+}
+
+func generateMatchersForField(query *query.FieldQuery, typ reflect.Type) (matchersForField, error) {
+	var generators []regoMatchFuncGenerator
 	if query.MatchAll {
+		generators = []regoMatchFuncGenerator{
+			&simpleMatchFuncGenerator{Name: fmt.Sprintf("matchAll%s", query.Field), MatchCode: "true"},
+		}
+	} else {
+		var err error
+		generators, err = generateBaseMatcherHelper(query, typ)
+		if err != nil {
+			return matchersForField{}, err
+		}
 	}
+	if len(generators) == 0 {
+		return matchersForField{}, fmt.Errorf("got no generators for query %+v", query)
+	}
+	m := matchersForField{operator: query.Operator, negate: query.Negate}
+	for _, gen := range generators {
+		code, err := gen.GenerateRego()
+		if err != nil {
+			return matchersForField{}, err
+		}
+		m.funcs = append(m.funcs, regoMatchFunc{functionCode: code, functionName: gen.FuncName()})
+	}
+	return m, nil
 }
