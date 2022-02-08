@@ -17,14 +17,10 @@ package policy.test
 
 test[msg] {
 	some i
-	input.containers[i].security_context.privileged
-	some j
-	regex.match(".*vol.*", input.containers[i].volumes[j].source)
-	msg := sprintf("container '%v' is privileged and has volume %v with source %v",
-	[input.containers[i].name, input.containers[i].volumes[j].name, input.containers[i].volumes[j].source])
+	input.containers[i].name != ""
+	msg := {"name": [input.containers[i].name]}
 }
 `
-
 
 	testDeployment := fixtures.GetDeployment()
 	res, err := rego.New(
@@ -32,8 +28,8 @@ test[msg] {
 		rego.Module("test.policy", module),
 		rego.Input(testDeployment),
 	).Eval(context.Background())
-	out, _ := json.MarshalIndent(res, " ", "   ")
-	fmt.Println(string(out))
+	_, _ = json.MarshalIndent(res, " ", "   ")
+	fmt.Printf("OUT IS %#v\n\n", res)
 	return
 	q, err := rego.New(
 		rego.Query("out = data.policy.test.test"),
@@ -48,4 +44,3 @@ test[msg] {
 		require.NoError(b, err)
 	}
 }
-
