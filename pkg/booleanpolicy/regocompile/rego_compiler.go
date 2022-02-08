@@ -103,24 +103,32 @@ func CreateRegoCompiler(objMeta *pathutil.AugmentedObjMeta) (RegoCompilerForType
 	return &regoCompilerForType{fieldToMetaPathMap: fieldToMetaPathMap}, nil
 }
 
-func pathToKey(path []string) string {
-	return strings.Join(path, ".")
-}
-
 func (r *regoCompilerForType) CompileRegoBasedEvaluator(query *query.Query) (evaluator.Evaluator, error) {
 	regoModule, err := r.compileRego(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compile rego: %w", err)
 	}
+	fmt.Println(regoModule)
 	q, err := rego.New(
 		rego.Query("out = data.policy.main.violations"),
 		rego.Module("main.policy", regoModule),
 	).PrepareForEval(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	return &regoBasedEvaluator{q: q}, nil
+}
+
+type fieldMatchData struct {
+	matchers matchersForField
+	name     string
+	path     string
 }
 
 func (r *regoCompilerForType) compileRego(query *query.Query) (string, error) {
 	pathsToArrayIndexes := make(map[string]int)
+
+	var fieldToMatchers []fieldMatchData
 
 	for _, fieldQuery := range query.FieldQueries {
 		field := fieldQuery.Field
@@ -128,22 +136,84 @@ func (r *regoCompilerForType) compileRego(query *query.Query) (string, error) {
 		if !found {
 			return "", fmt.Errorf("field %v not in object", field)
 		}
-		var path []string
+		var constructedPath strings.Builder
 		for i, elem := range metaPathToField {
-			path = append(path, elem.JSONTag)
+			constructedPath.WriteString(elem.FieldName)
 			if i == len(metaPathToField)-1 {
 				continue
 			}
 			if elem.Type.Kind() == reflect.Slice || elem.Type.Kind() == reflect.Array {
-				pathKey := pathToKey(path)
+				pathKey := constructedPath.String()
 				idx, ok := pathsToArrayIndexes[pathKey]
 				if !ok {
 					idx = len(pathsToArrayIndexes)
 					pathsToArrayIndexes[pathKey] = idx
 				}
+				constructedPath.WriteString(fmt.Sprintf("[idx%d]", idx))
 			}
+			constructedPath.WriteString(".")
 		}
+		matchersForField, err := generateMatchersForField(fieldQuery, metaPathToField[len(metaPathToField)-1].Type)
+		if err != nil {
+			return "", fmt.Errorf("generating matchers for field query %+v: %w", fieldQuery, err)
+		}
+		fieldToMatchers = append(fieldToMatchers, fieldMatchData{
+			matchers: matchersForField,
+			name:     field,
+			path:     constructedPath.String(),
+		})
 	}
 
-	return "", nil
+	args := &mainProgramArgs{}
+	for i := 0; i < len(pathsToArrayIndexes); i++ {
+		args.IndexesToDeclare = append(args.IndexesToDeclare, i)
+	}
+	var funcLengths []int
+	for _, matchData := range fieldToMatchers {
+		for _, f := range matchData.matchers.funcs {
+			args.Functions = append(args.Functions, f.functionCode)
+		}
+		funcLengths = append(funcLengths, len(matchData.matchers.funcs))
+	}
+	if err := runForEachProcessProduct(funcLengths, func(indexes []int) error {
+		condition := condition{}
+		for i, matchData := range fieldToMatchers {
+			condition.Fields = append(condition.Fields, fieldInCondition{
+				Name:     matchData.name,
+				JSONPath: matchData.path,
+				FuncName: matchData.matchers.funcs[indexes[i]].functionName,
+			})
+		}
+		args.Conditions = append(args.Conditions, condition)
+		return nil
+	}); err != nil {
+		return "", err
+	}
+	return generateMainProgram(args)
+}
+
+func runForEachProcessProduct(arrayLengths []int, f func([]int) error) error {
+	for _, l := range arrayLengths {
+		if l == 0 {
+			return nil
+		}
+	}
+	currentVal := make([]int, len(arrayLengths))
+	for {
+		if err := f(currentVal); err != nil {
+			return err
+		}
+		idxToIncrement := 0
+		for {
+			if currentVal[idxToIncrement] < arrayLengths[idxToIncrement]-1 {
+				currentVal[idxToIncrement]++
+				break
+			}
+			if idxToIncrement == len(currentVal)-1 {
+				return nil
+			}
+			currentVal[idxToIncrement] = 0
+			idxToIncrement++
+		}
+	}
 }

@@ -1,6 +1,8 @@
 package booleanpolicy
 
 import (
+	"errors"
+
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator/pathutil"
 	"github.com/stackrox/rox/pkg/booleanpolicy/query"
@@ -19,7 +21,7 @@ func (f *factoryWrapper) GenerateEvaluator(q *query.Query) (evaluator.Evaluator,
 		if err == nil {
 			return eval, nil
 		}
-		if err != regocompile.ErrRegoNotYetSupported {
+		if !errors.Is(err, regocompile.ErrRegoNotYetSupported) {
 			return nil, err
 		}
 	}

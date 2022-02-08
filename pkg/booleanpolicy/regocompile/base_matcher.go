@@ -15,7 +15,7 @@ import (
 
 var (
 	simpleMatchFuncTemplate = template.Must(template.New("").Parse(`
-matches{{.Name}}(val) = result {
+{{.Name}}(val) = result {
 	result := { "match": {{ .MatchCode }}, "values": [val] }
 }
 `))
@@ -34,11 +34,14 @@ var (
 	ErrRegoNotYetSupported = errors.New("as-yet unsupported rego path")
 )
 
+func sanitizeFuncName(name string) string {
+	return invalidRegoFuncNameChars.ReplaceAllString(name, "_")
+}
+
 // getRegoFunctionName returns a rego function name for matching the field to the given value.
 // The idx is also required, and is used to ensure the function name is unique.
 func getRegoFunctionName(field, value string, idx int) string {
-	sanitizedValue := invalidRegoFuncNameChars.ReplaceAllString(value, "_")
-	return fmt.Sprintf("match%sTo%d%s", field, idx, sanitizedValue)
+	return sanitizeFuncName(fmt.Sprintf("match%sTo%d%s", field, idx, value))
 }
 
 func (s *simpleMatchFuncGenerator) GenerateRego() (string, error) {
@@ -67,7 +70,7 @@ func generateStringMatchCode(value string) (string, error) {
 	}
 	var matchCode string
 	if strings.HasPrefix(value, search.RegexPrefix) {
-		matchCode = fmt.Sprintf(`regex.match(val, "%s")`, strings.TrimPrefix(value, search.RegexPrefix))
+		matchCode = fmt.Sprintf(`regex.match("%s", val)`, strings.TrimPrefix(value, search.RegexPrefix))
 	} else if strings.HasPrefix(value, `"`) && strings.HasSuffix(value, `"`) && len(value) > 1 {
 		matchCode = fmt.Sprintf(`val == "%s"`, value[1:len(value)-1])
 	} else {
@@ -147,28 +150,29 @@ type regoMatchFunc struct {
 }
 
 type matchersForField struct {
-	funcs    []regoMatchFunc
-	operator query.Operator
-	negate   bool
+	funcs []regoMatchFunc
 }
 
-func generateMatchersForField(query *query.FieldQuery, typ reflect.Type) (matchersForField, error) {
+func generateMatchersForField(fieldQuery *query.FieldQuery, typ reflect.Type) (matchersForField, error) {
+	if fieldQuery.Operator == query.And || fieldQuery.Negate {
+		return matchersForField{}, ErrRegoNotYetSupported
+	}
 	var generators []regoMatchFuncGenerator
-	if query.MatchAll {
+	if fieldQuery.MatchAll {
 		generators = []regoMatchFuncGenerator{
-			&simpleMatchFuncGenerator{Name: fmt.Sprintf("matchAll%s", query.Field), MatchCode: "true"},
+			&simpleMatchFuncGenerator{Name: sanitizeFuncName(fmt.Sprintf("matchAll%s", fieldQuery.Field)), MatchCode: "true"},
 		}
 	} else {
 		var err error
-		generators, err = generateBaseMatcherHelper(query, typ)
+		generators, err = generateBaseMatcherHelper(fieldQuery, typ)
 		if err != nil {
 			return matchersForField{}, err
 		}
 	}
 	if len(generators) == 0 {
-		return matchersForField{}, fmt.Errorf("got no generators for query %+v", query)
+		return matchersForField{}, fmt.Errorf("got no generators for fieldQuery %+v", fieldQuery)
 	}
-	m := matchersForField{operator: query.Operator, negate: query.Negate}
+	m := matchersForField{}
 	for _, gen := range generators {
 		code, err := gen.GenerateRego()
 		if err != nil {
