@@ -26,11 +26,11 @@ func (f *factoryWrapper) GenerateEvaluator(q *query.Query) (evaluator.Evaluator,
 	return f.legacyFactory.GenerateEvaluator(q)
 }
 
-// MustGetFactoryWrapper returns a factory wrapper.
+// MustCreateFactoryWrapper returns a factory wrapper.
 // A factory wrapper routes between the OPA and the legacy factory
 // depending on the value of the feature flag.
 // This is temporary code until the OPA feature flag is removed.
-func MustGetFactoryWrapper(objMeta *pathutil.AugmentedObjMeta) evaluator.Factory {
+func MustCreateFactoryWrapper(objMeta *pathutil.AugmentedObjMeta) evaluator.Factory {
 	return &factoryWrapper{
 		legacyFactory:   evaluator.MustCreateNewFactory(objMeta),
 		opaBasedFactory: regocompile.MustCreateRegoCompiler(objMeta),

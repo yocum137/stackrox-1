@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	deploymentEvalFactory = evaluator.MustCreateNewFactory(augmentedobjs.DeploymentMeta)
-	processEvalFactory    = evaluator.MustCreateNewFactory(augmentedobjs.ProcessMeta)
-	imageEvalFactory      = evaluator.MustCreateNewFactory(augmentedobjs.ImageMeta)
-	kubeEventFactory      = evaluator.MustCreateNewFactory(augmentedobjs.KubeEventMeta)
-	networkFlowFactory    = evaluator.MustCreateNewFactory(augmentedobjs.NetworkFlowMeta)
+	deploymentEvalFactory = MustCreateFactoryWrapper(augmentedobjs.DeploymentMeta)
+	processEvalFactory    = MustCreateFactoryWrapper(augmentedobjs.ProcessMeta)
+	imageEvalFactory      = MustCreateFactoryWrapper(augmentedobjs.ImageMeta)
+	kubeEventFactory      = MustCreateFactoryWrapper(augmentedobjs.KubeEventMeta)
+	networkFlowFactory    = MustCreateFactoryWrapper(augmentedobjs.NetworkFlowMeta)
 )
 
 // A CacheReceptacle is an optional argument that can be passed to the Match* functions of the Matchers below, that
