@@ -9,6 +9,12 @@ var (
 	mainProgramTemplate = template.Must(template.New("").Parse(`
 package policy.main
 
+# Custom utility functions.
+and(args) = result {
+	result := sum([argAsInt | arg := args[_]; argAsInt := to_number(arg)]) == count(args)
+}
+
+
 {{ $root := . }}
 
 {{- range .Functions }}
@@ -20,14 +26,19 @@ violations[result] {
 	{{- range $root.IndexesToDeclare }}
 	some idx{{.}}
 	{{- end }}
-	{{- range .Fields }}
-	{{.FuncName}}Result := {{ .FuncName }}(input.{{ .JSONPath }}) 
-	{{.FuncName}}Result["match"]
+	{{- range $field := .Fields }}
+	{{- range .FuncNames }}
+	{{.}}Result := {{ .}}(input.{{ $field.JSONPath }}) 
+	{{.}}Result["match"]{{- if $field.Negate }} == false {{- end }}
+	{{- end }}
 	{{- end }}
 	result := {
-		{{- range $index, $field := .Fields }}
-			{{- if $index }},{{end }} 
-			"{{ $field.Name }}": {{ $field.FuncName }}Result["values"]
+		{{- range $fieldIndex, $field := .Fields }}
+			{{- if $fieldIndex}},{{- end }} 
+			"{{ $field.Name }}": 
+				{{- range $funcNameIndex, $funcName := $field.FuncNames }}
+					{{- if $funcNameIndex}} &{{ end }} {{ $funcName }}Result["values"]
+				{{- end }}
 		{{- end }}
 	}
 }
@@ -36,9 +47,10 @@ violations[result] {
 )
 
 type fieldInCondition struct {
-	Name     string
-	FuncName string
-	JSONPath string
+	Name      string
+	JSONPath  string
+	Negate    bool
+	FuncNames []string
 }
 
 type condition struct {

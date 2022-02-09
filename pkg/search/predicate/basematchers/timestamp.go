@@ -15,7 +15,9 @@ const (
 	dayDuration = 24 * time.Hour
 )
 
-func parseTimestamp(value string) (*types.Timestamp, *time.Duration, error) {
+// ParseTimestampQuery parses a query on a timestamp.
+// It returns either an absolute time, or a duration.
+func ParseTimestampQuery(value string) (*types.Timestamp, *time.Duration, error) {
 	if t, ok := parseTimeString(value); ok {
 		// Adjust for the timezone offset when comparing
 		seconds := t.Unix() - timeToOffset(t)

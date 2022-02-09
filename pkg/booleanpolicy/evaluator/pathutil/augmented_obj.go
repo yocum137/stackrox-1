@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/pkg/utils"
 )
@@ -33,6 +34,10 @@ func (t *augmentTree) getValue() *reflect.Value {
 	return t.value
 }
 
+var (
+	timestampPtrType = reflect.TypeOf((*types.Timestamp)(nil))
+)
+
 // convertValue converts a reflect.Value into an object that can be stuck into a map[string]interface{}.
 func convertValue(val reflect.Value) (interface{}, error) {
 	kind := val.Kind()
@@ -52,6 +57,18 @@ func convertValue(val reflect.Value) (interface{}, error) {
 		return out, nil
 	}
 	if kind == reflect.Ptr {
+		// Special case for the proto timestamp type
+		if val.Type() == timestampPtrType {
+			asTS := val.Interface().(*types.Timestamp)
+			if asTS == nil {
+				return 0, nil
+			}
+			time, err := types.TimestampFromProto(asTS)
+			if err != nil {
+				return nil, err
+			}
+			return time.UnixNano(), nil
+		}
 		// If it's a nil pointer, explicitly set it to `nil` in the output map.
 		if val.IsNil() {
 			return nil, nil

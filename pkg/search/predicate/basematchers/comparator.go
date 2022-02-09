@@ -69,7 +69,8 @@ func floatComparator(cmp string) (func(a, b float64) bool, error) {
 	}
 }
 
-func parseNumericPrefix(value string) (prefix string, trimmedValue string) {
+// ParseNumericPrefix parses a numeric value with an optional comparator in front.
+func ParseNumericPrefix(value string) (prefix string, trimmedValue string) {
 	// The order which these checks are executed must be maintained.
 	// If we for instance look for "<" before "<=", we will never find "<=" because "<" will be found as its prefix.
 	for _, prefix := range []string{LessThanOrEqualTo, GreaterThanOrEqualTo, LessThan, GreaterThan} {

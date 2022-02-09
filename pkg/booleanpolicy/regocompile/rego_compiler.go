@@ -2,15 +2,18 @@ package regocompile
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator"
 	"github.com/stackrox/rox/pkg/booleanpolicy/evaluator/pathutil"
 	"github.com/stackrox/rox/pkg/booleanpolicy/query"
+	"github.com/stackrox/rox/pkg/readable"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
@@ -24,7 +27,36 @@ type RegoCompiler interface {
 }
 
 type regoBasedEvaluator struct {
-	q rego.PreparedEvalQuery
+	q            rego.PreparedEvalQuery
+	typeMetadata map[string]reflect.Type
+}
+
+func (r *regoBasedEvaluator) convertResultToString(fieldName string, value interface{}) (ret string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+			ret = fmt.Sprintf("%v", value)
+		}
+	}()
+	typ := r.typeMetadata[fieldName]
+	switch typ.Kind() {
+	case reflect.String:
+		return value.(string)
+	case reflect.Ptr:
+		// It's a timestamp, so we will have the value in nanos.
+		if typ == timestampPtrType {
+			val, err := value.(json.Number).Int64()
+			if err != nil {
+				panic(err)
+			}
+			if val == 0 {
+				return "<empty timestamp>"
+			}
+			t := time.Unix(0, val)
+			return readable.Time(t)
+		}
+	}
+	return fmt.Sprintf("%v", value)
 }
 
 // convertBindingToResult converts a set of variable bindings to a result.
@@ -32,7 +64,7 @@ type regoBasedEvaluator struct {
 // We know that our rego programs are constructed to return map[string][]interface{},
 // so this takes advantage of that to traverse them. It also converts each returned value
 // into a string.
-func convertBindingToResult(binding interface{}) (m map[string][]string, err error) {
+func (r *regoBasedEvaluator) convertBindingToResult(binding interface{}) (m map[string][]string, err error) {
 	panicked := true
 	defer func() {
 		if r := recover(); r != nil || panicked {
@@ -44,7 +76,7 @@ func convertBindingToResult(binding interface{}) (m map[string][]string, err err
 		vAsInterfaceSlice := v.([]interface{})
 		vAsString := make([]string, 0, len(vAsInterfaceSlice))
 		for _, val := range vAsInterfaceSlice {
-			vAsString = append(vAsString, fmt.Sprintf("%v", val))
+			vAsString = append(vAsString, r.convertResultToString(k, val))
 		}
 		m[k] = vAsString
 	}
@@ -84,7 +116,7 @@ func (r *regoBasedEvaluator) Evaluate(obj pathutil.AugmentedValue) (*evaluator.R
 
 	res := &evaluator.Result{}
 	for _, binding := range outBindings {
-		match, err := convertBindingToResult(binding)
+		match, err := r.convertBindingToResult(binding)
 		if err != nil {
 			utils.Should(fmt.Errorf("failed to convert binding %+v: %w", binding, err))
 			return nil, false
@@ -111,9 +143,12 @@ func CreateRegoCompiler(objMeta *pathutil.AugmentedObjMeta) (RegoCompiler, error
 }
 
 func (r *regoCompilerForType) CompileRegoBasedEvaluator(query *query.Query) (evaluator.Evaluator, error) {
-	regoModule, err := r.compileRego(query)
+	regoModule, typeMetadata, err := r.compileRego(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compile rego: %w", err)
+	}
+	for i, line := range strings.Split(regoModule, "\n") {
+		fmt.Println(i+1, "\t", line)
 	}
 	q, err := rego.New(
 		rego.Query("out = data.policy.main.violations"),
@@ -122,26 +157,33 @@ func (r *regoCompilerForType) CompileRegoBasedEvaluator(query *query.Query) (eva
 	if err != nil {
 		return nil, err
 	}
-	return &regoBasedEvaluator{q: q}, nil
+	return &regoBasedEvaluator{q: q, typeMetadata: typeMetadata}, nil
 }
 
 type fieldMatchData struct {
 	matchers []regoMatchFunc
+	operator query.Operator
+	negated  bool
 	name     string
 	path     string
 }
 
-func (r *regoCompilerForType) compileRego(query *query.Query) (string, error) {
+func (d *fieldMatchData) spreadAcrossMultipleRules() bool {
+	return (d.operator == query.Or && !d.negated) || (d.operator == query.And && d.negated)
+}
+
+func (r *regoCompilerForType) compileRego(policyQuery *query.Query) (string, map[string]reflect.Type, error) {
 	// We need to get a unique set of array indexes for each path in the rego code.
 	// That is tracked in this map.
 	pathsToArrayIndexes := make(map[string]int)
 	var fieldsAndMatchers []fieldMatchData
+	typeMetadata := make(map[string]reflect.Type)
 
-	for _, fieldQuery := range query.FieldQueries {
+	for _, fieldQuery := range policyQuery.FieldQueries {
 		field := fieldQuery.Field
 		metaPathToField, found := r.fieldToMetaPathMap.Get(field)
 		if !found {
-			return "", fmt.Errorf("field %v not in object", field)
+			return "", nil, fmt.Errorf("field %v not in object", field)
 		}
 		var constructedPath strings.Builder
 		for i, elem := range metaPathToField {
@@ -163,13 +205,16 @@ func (r *regoCompilerForType) compileRego(query *query.Query) (string, error) {
 		}
 		matchersForField, err := generateMatchersForField(fieldQuery, metaPathToField[len(metaPathToField)-1].Type)
 		if err != nil {
-			return "", fmt.Errorf("generating matchers for field query %+v: %w", fieldQuery, err)
+			return "", nil, fmt.Errorf("generating matchers for field query %+v: %w", fieldQuery, err)
 		}
 		fieldsAndMatchers = append(fieldsAndMatchers, fieldMatchData{
 			matchers: matchersForField,
 			name:     field,
 			path:     constructedPath.String(),
+			operator: fieldQuery.Operator,
+			negated:  fieldQuery.Negate,
 		})
+		typeMetadata[field] = metaPathToField[len(metaPathToField)-1].Type
 	}
 
 	args := &mainProgramArgs{}
@@ -181,24 +226,41 @@ func (r *regoCompilerForType) compileRego(query *query.Query) (string, error) {
 		for _, f := range matchData.matchers {
 			args.Functions = append(args.Functions, f.functionCode)
 		}
-		funcLengths = append(funcLengths, len(matchData.matchers))
+		if matchData.spreadAcrossMultipleRules() {
+			funcLengths = append(funcLengths, len(matchData.matchers))
+		} else {
+			funcLengths = append(funcLengths, 1)
+		}
 	}
 	// We need to generate one rule for each cross product, since we are OR-ing between them.
 	if err := runForEachCrossProduct(funcLengths, func(indexes []int) error {
 		condition := condition{}
 		for i, matchData := range fieldsAndMatchers {
+			var funcNames []string
+			if matchData.spreadAcrossMultipleRules() {
+				funcNames = []string{matchData.matchers[indexes[i]].functionName}
+			} else {
+				for _, m := range matchData.matchers {
+					funcNames = append(funcNames, m.functionName)
+				}
+			}
 			condition.Fields = append(condition.Fields, fieldInCondition{
-				Name:     matchData.name,
-				JSONPath: matchData.path,
-				FuncName: matchData.matchers[indexes[i]].functionName,
+				Name:      matchData.name,
+				JSONPath:  matchData.path,
+				FuncNames: funcNames,
+				Negate:    matchData.negated,
 			})
 		}
 		args.Conditions = append(args.Conditions, condition)
 		return nil
 	}); err != nil {
-		return "", err
+		return "", nil, err
 	}
-	return generateMainProgram(args)
+	module, err := generateMainProgram(args)
+	if err != nil {
+		return "", nil, err
+	}
+	return module, typeMetadata, err
 }
 
 // This takes a list of array lengths, and invokes the func for every combination of the array indexes.

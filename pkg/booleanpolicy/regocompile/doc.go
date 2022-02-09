@@ -18,7 +18,7 @@ Note the following things:
   Similarly, rego has no AND keyword; to get AND semantics in a rule, you just put the statements one after the other in
   a rule. A rule only matches if every statement in it evalutes to true.
 * To decompose the program, we create functions for each individual match object. The function returns an object of the
-  form { "match": <bool>, "values": <array> }. Then, in the rule, we assert that "match" is true, and we return the array
+  form { "match": <bool>, "values": <array> }. Then, in the rule, we assert that "match" is true, and we return the set
   of matching values outside of rego.
 * Thus, the final returned value will be a []map[string][]interface{}, with one element for each set of variable bindings
   that satisfies the query. Each set of variable bindings will have a value of each field (by key label).
@@ -26,18 +26,18 @@ Note the following things:
 package policy.main
 
 matchVolume_TypeTo0r_hostpath(val) = result {
-	result := { "match": regex.match(`^(?i:hostpath)$`, val), "values": [val] }
+	result := { "match": regex.match(`^(?i:hostpath)$`, val), "values": {val} }
 }
 
 matchVolume_TypeTo0r_pvc(val) = result {
-	result := { "match": regex.match(`^(?i:pvc)$`, val), "values": [val] }
+	result := { "match": regex.match(`^(?i:pvc)$`, val), "values": {val} }
 }
 
 matchAllContainer_Name(val) = result {
-	result := { "match": true, "values": [val] }}
+	result := { "match": true, "values": {val} }}
 
 matchAllVolume_Name(val) = result {
-	result := { "match": true, "values": [val] }
+	result := { "match": true, "values": {val} }
 }
 
 violations[result] {
