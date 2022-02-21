@@ -4,6 +4,8 @@ import argparse
 from asyncore import write
 import pathlib
 
+EXCLUDED_DIRS = ["generated"]
+
 FILE_HEADER = """// Copyright StackRox Authors
 // SPDX-License-Identifier: Apache-2.0
 
@@ -37,10 +39,17 @@ def main():
 
     print(f"Checking all files in {arguments.path} and its child folders")
 
-    source_files = find_files(arguments.path, "*/(!generated)/*[!pb|!pb.gw].go")
     proto_files = find_files(arguments.path, "**/?*.proto")
+    source_files = find_files(arguments.path, "**/*[!pb|!pb.gw].go")
+    
+    print(f"Pre-Filter length: {len(proto_files+source_files)}")
 
-    for file in proto_files+source_files:
+    # Filter out any files in excluded directories
+    filtered_files = [x for x in (proto_files + source_files) if any(exclusion+"/" not in str(x) for exclusion in EXCLUDED_DIRS) ]
+
+    print(f"Post-Filter length: {len(filtered_files)}")
+
+    for file in filtered_files:
         if not contains_header(file):
             write_header(file)
 
