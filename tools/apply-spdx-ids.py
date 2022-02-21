@@ -4,8 +4,6 @@ import argparse
 from asyncore import write
 import pathlib
 
-# EXCLUDED_EXTENSIONS = ["pb.go", "pb.gw.go"]
-
 FILE_HEADER = """// Copyright StackRox Authors
 // SPDX-License-Identifier: Apache-2.0
 
@@ -39,7 +37,7 @@ def main():
 
     print(f"Checking all files in {arguments.path} and its child folders")
 
-    source_files = find_files(arguments.path, "**/*[!pb|!pb.gw].go")
+    source_files = find_files(arguments.path, "*/(!generated)/*[!pb|!pb.gw].go")
     proto_files = find_files(arguments.path, "**/?*.proto")
 
     for file in proto_files+source_files:
