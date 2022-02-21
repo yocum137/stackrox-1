@@ -20,16 +20,13 @@ def find_files(path, fileglob):
 def contains_header(filepath):
     with open(filepath, mode="r") as file:
         # Check for the content of the first comment line
-        print(f"checking for {FILE_HEADER.splitlines()[0].split('//')[1].strip()}")
         if FILE_HEADER in file.read():
-            print("found in file")
             return True
         return False
 
 
 def write_header(filepath):
     with open(filepath, "r+") as file:
-        print(f"opening file {filepath}")
         content = file.read()
         file.seek(0, 0)
         file.write(FILE_HEADER + content)
@@ -40,12 +37,16 @@ def main():
     parser.add_argument("--path", type=pathlib.Path, help="Path to project basedir")
     arguments = parser.parse_args()
 
+    print(f"Checking all files in {arguments.path} and its child folders")
+
     source_files = find_files(arguments.path, "**/*[!pb|!pb.gw].go")
     proto_files = find_files(arguments.path, "**/?*.proto")
 
     for file in proto_files+source_files:
         if not contains_header(file):
             write_header(file)
+
+    print("Please remember to commit any changes!")
 
 
 
