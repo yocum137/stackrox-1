@@ -160,6 +160,8 @@ function RiskAcceptancePage(): ReactElement {
                         />
                     </Tabs>
                 </div>
+            </PageSection>
+            <PageSection variant="default">
                 <Switch>
                     <Route
                         exact

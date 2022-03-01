@@ -5,7 +5,9 @@ import {
     Divider,
     DropdownItem,
     Pagination,
+    pluralize,
     Spinner,
+    Title,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -118,6 +120,9 @@ function PendingApprovalsTable({
         <>
             <Toolbar>
                 <ToolbarContent>
+                    <ToolbarItem>
+                        <Title headingLevel="h2">{pluralize(rows.length, 'result')} found</Title>
+                    </ToolbarItem>
                     <ToolbarItem>
                         <PendingApprovalsSearchFilter
                             searchFilter={searchFilter}

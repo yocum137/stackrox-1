@@ -5,7 +5,9 @@ import {
     Divider,
     DropdownItem,
     Pagination,
+    pluralize,
     Spinner,
+    Title,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -95,6 +97,9 @@ function ApprovedFalsePositivesTable({
         <>
             <Toolbar>
                 <ToolbarContent>
+                    <ToolbarItem>
+                        <Title headingLevel="h2">{pluralize(rows.length, 'result')} found</Title>
+                    </ToolbarItem>
                     <ToolbarItem>
                         <ApprovedFalsePositivesSearchFilter
                             searchFilter={searchFilter}

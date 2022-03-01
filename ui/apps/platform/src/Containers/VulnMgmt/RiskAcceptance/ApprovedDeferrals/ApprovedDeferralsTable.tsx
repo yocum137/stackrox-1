@@ -9,6 +9,8 @@ import {
     ToolbarItem,
     Bullseye,
     Spinner,
+    Title,
+    pluralize,
 } from '@patternfly/react-core';
 
 import RequestCommentsButton from 'Containers/VulnMgmt/RiskAcceptance/RequestComments/RequestCommentsButton';
@@ -97,6 +99,9 @@ function ApprovedDeferralsTable({
         <>
             <Toolbar>
                 <ToolbarContent>
+                    <ToolbarItem>
+                        <Title headingLevel="h2">{pluralize(rows.length, 'result')} found</Title>
+                    </ToolbarItem>
                     <ToolbarItem>
                         <ApprovedDeferralsSearchFilter
                             searchFilter={searchFilter}
