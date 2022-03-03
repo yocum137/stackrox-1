@@ -11,6 +11,7 @@ export const ENFORCEMENT_ACTIONS: Record<EnforcementAction, string> = Object.fre
     FAIL_DEPLOYMENT_UPDATE_ENFORCEMENT: 'FAIL_DEPLOYMENT_UPDATE_ENFORCEMENT',
 });
 
+// TODO Branding change here?
 export const ENFORCEMENT_ACTIONS_AS_STRING: Record<EnforcementAction, string> = Object.freeze({
     UNSET_ENFORCEMENT: 'No enforcement',
     SCALE_TO_ZERO_ENFORCEMENT: 'Scale to 0',

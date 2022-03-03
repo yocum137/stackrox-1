@@ -7,6 +7,7 @@ import {
 } from 'services/CertGenerationService';
 import CredentialExpiry from './CredentialExpiry';
 
+// TODO Update branding in this file
 const CredentialExpiryBanners = () => {
     return (
         <>

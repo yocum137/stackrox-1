@@ -40,6 +40,7 @@ export const ConfigTelemetryDetailContent = (): ReactElement => {
     }
     return (
         <>
+            {/* TODO Branding */}
             <p className="pf-u-mb-sm">
                 Online telemetry data collection allows StackRox to better utilize anonymized
                 information to enhance your user experience.
@@ -49,6 +50,7 @@ export const ConfigTelemetryDetailContent = (): ReactElement => {
                 onToggle={onToggle}
                 isExpanded={isExpanded}
             >
+                {/* TODO Branding */}
                 <p>
                     By consenting to online data collection, you allow StackRox to store and perform
                     analytics on data that arises from the usage and operation of the StackRox

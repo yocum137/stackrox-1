@@ -165,6 +165,7 @@ const PolicyImportDialogue = ({ closeAction, importPolicySuccess }) => {
                 <>
                     <div className="flex flex-col bg-base-100 rounded-sm shadow flex-grow flex-shrink-0 mb-4">
                         <div className="my-3 px-3 font-600 text-lg leading-loose text-base-600">
+                            {/* TODO Branding */}
                             Upload a policy that has been exported from StackRox.
                         </div>
                         <div

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// TODO Check branding in this file, where is it used?
 // Icon
 const Logo = ({ className }) => (
     <svg

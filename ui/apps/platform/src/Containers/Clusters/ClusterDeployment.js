@@ -106,6 +106,7 @@ const ClusterDeploymentPage = ({
                                 <CheckCircle />
                             </div>
                             <div className="flex-3 pl-2">
+                                {/* TODO Branding */}
                                 Success! The cluster has been recognized properly by StackRox.
                             </div>
                         </div>

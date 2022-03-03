@@ -3,6 +3,8 @@ import React from 'react';
 import renderKeyValues from '../GenericNotifier/GenericNotifier';
 import renderPriorityMapping from '../Jira/Jira';
 
+// TODO Various branding concerns in this file "StackRox"
+
 const skipTestIntegration = {
     label: 'Create integration without testing',
     jsonpath: 'skipTestIntegration',

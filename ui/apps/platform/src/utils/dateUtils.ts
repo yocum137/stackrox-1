@@ -36,6 +36,7 @@ export function getLatestDatedItemByKey(key, list = []) {
     }, null);
 }
 
+// TODO Branding
 export function addBrandedTimestampToString(str) {
     return `StackRox:${str as string}-${format(new Date(), dateFormat)}`;
 }

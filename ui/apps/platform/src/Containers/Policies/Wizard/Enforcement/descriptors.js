@@ -3,6 +3,7 @@ import deployImage from 'images/enforcement-deploy.svg';
 import runImage from 'images/enforcement-runtime.svg';
 
 // Enforcement type mapped to tile properties for enforcement tab.
+// TODO Branding
 export const lifecycleTileMap = {
     BUILD: {
         image: buildImage,

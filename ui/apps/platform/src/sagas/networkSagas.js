@@ -218,6 +218,7 @@ function* loadNetworkPage() {
 }
 
 function* generateNetworkModification() {
+    // TODO Branding
     yield put(wizardNetworkActions.setNetworkPolicyModificationName('StackRox Generated'));
     yield put(wizardNetworkActions.setNetworkPolicyModificationState('REQUEST'));
     try {

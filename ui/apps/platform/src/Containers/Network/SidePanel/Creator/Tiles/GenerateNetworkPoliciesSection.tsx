@@ -17,6 +17,7 @@ function GenerateNetworkPoliciesSection(): ReactElement {
                 />
                 <div className="pl-3 font-700 text-lg ">Generate network policies</div>
             </div>
+            {/* TODO Branding */}
             <div className="mb-3 px-3 font-600 text-lg leading-loose text-base-600">
                 StackRox can generate a set of recommended network policies based on your
                 environment&apos;s configuration. Select a time window for the network connections

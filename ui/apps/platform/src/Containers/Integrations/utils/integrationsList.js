@@ -50,6 +50,7 @@ const integrationsList = {
     ],
     imageIntegrations: [
         {
+            // TODO Branding
             label: 'StackRox Scanner',
             type: 'clairify',
             categories: 'Image Scanner + Node Scanner',

@@ -8,6 +8,7 @@ import dateFns from 'date-fns';
 import computedStyleToInlineStyle from 'computed-style-to-inline-style';
 import Button from 'Components/Button';
 import { actions } from 'reducers/pdfDownload';
+// TODO Branding in this file.
 import StackroxLogo from 'images/stackrox-logo.png';
 import { enhanceWordBreak } from 'utils/pdfUtils';
 

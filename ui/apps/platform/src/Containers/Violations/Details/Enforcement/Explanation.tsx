@@ -5,6 +5,7 @@ import { Divider } from '@patternfly/react-core';
 import LIFECYCLE_STAGES from 'constants/lifecycleStages';
 import { LifecycleStage } from '../../types/violationTypes';
 
+// TODO Branding
 function getEnforcementExplanation(lifecycleStage: LifecycleStage, message: string) {
     if (lifecycleStage === LIFECYCLE_STAGES.DEPLOY) {
         return `Deployment data was evaluated against this StackRox policy. ${message}`;

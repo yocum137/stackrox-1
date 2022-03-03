@@ -33,6 +33,7 @@ function getFriendlyErrorMessage(type, response) {
                 errorMessage =
                     'Access denied. The account number does not match the credentials provided. Please re-enter the account number and try again.';
             } else if (response?.data?.error?.includes('not subscribed')) {
+                // TODO Branding
                 errorMessage =
                     'Chosen region is not subscribed to StackRox Security Hub integration. Please subscribe through AWS Console, or choose a region that is subscribed.';
             } else if (
