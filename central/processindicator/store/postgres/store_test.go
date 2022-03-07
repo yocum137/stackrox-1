@@ -6,13 +6,19 @@ package postgres
 
 import (
 	"context"
+	"encoding/csv"
+	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/postgres/pgtest"
 	"github.com/stackrox/rox/pkg/testutils/envisolator"
+	"github.com/stackrox/rox/pkg/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -40,6 +46,16 @@ func (s *ProcessIndicatorsStoreSuite) TearDownTest() {
 }
 
 func (s *ProcessIndicatorsStoreSuite) TestStore() {
+	f, err := os.Create("results.csv")
+	defer f.Close()
+
+	if err != nil {
+
+		log.Errorf("failed to open file", err)
+	}
+
+	w := csv.NewWriter(f)
+
 	source := pgtest.GetConnectionString(s.T())
 	config, err := pgxpool.ParseConfig(source)
 	if err != nil {
@@ -83,4 +99,87 @@ func (s *ProcessIndicatorsStoreSuite) TestStore() {
 	s.NoError(err)
 	s.False(exists)
 	s.Nil(foundProcessIndicator)
+
+	//batchSize := 100
+	//batches := []int{100,250,500,1000,5000,10000,20000}
+	batches := []int{100,250,500,1000,5000,10000,20000}
+	results := [][]string{}
+	numRecords := 1000
+	var indicators []*storage.ProcessIndicator
+	for i := 0; i < numRecords; i++ {
+		pi := fixtures.GetProcessIndicator()
+		pi.Id = uuid.NewV4().String()
+		pi.PodId = strconv.Itoa(i)
+		indicators = append(indicators, pi)
+	}
+
+	for _, batchSize := range batches {
+		result := []string{}
+		result = append(result, strconv.Itoa(batchSize))
+
+		indicators = nil
+		for i := 0; i < numRecords; i++ {
+			pi := fixtures.GetProcessIndicator()
+			pi.Id = uuid.NewV4().String()
+			pi.PodId = strconv.Itoa(i)
+			indicators = append(indicators, pi)
+		}
+
+		log.Info("One at a time")
+		a := time.Now()
+		s.NoError(store.UpsertMany(indicators))
+
+		delta := time.Now().Sub(a)
+		result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
+		log.Infof("%d\n", delta.Nanoseconds())
+
+		log.Info("Multi  Value")
+		if batchSize <= 1000 {
+
+			indicators = nil
+			for i := 0; i < numRecords; i++ {
+				pi := fixtures.GetProcessIndicator()
+				pi.Id = uuid.NewV4().String()
+				pi.PodId = strconv.Itoa(i)
+				indicators = append(indicators, pi)
+			}
+
+			a = time.Now()
+			s.NoError(store.UpsertManyMultiVal(indicators, batchSize))
+
+			delta = time.Now().Sub(a)
+			result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
+		} else {
+			result = append(result, "N/A")
+		}
+		log.Infof("%d\n", delta.Nanoseconds())
+
+		processIndicatorCount, err = store.Count()
+		log.Infof("Indicator counts = %d", processIndicatorCount)
+
+		log.Infof("Copy with batch %d", batchSize)
+		indicators = nil
+		for i := 0; i < numRecords; i++ {
+			pi := fixtures.GetProcessIndicator()
+			pi.Id = uuid.NewV4().String()
+			pi.PodId = strconv.Itoa(i)
+			indicators = append(indicators, pi)
+		}
+		a = time.Now()
+		s.NoError(store.UpsertManyPGCopy(indicators, batchSize))
+		//s.NoError(store.UpsertManyMultiVal(indicators, batchSize))
+		delta = time.Now().Sub(a)
+		result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
+		log.Infof("%d\n", delta.Nanoseconds())
+
+		processIndicatorCount, err = store.Count()
+		log.Infof("Indicator counts = %d", processIndicatorCount)
+
+		results = append(results, result)
+	}
+
+	log.Info(results)
+	err = w.WriteAll(results) // calls Flush internally
+	log.Info("Successfully loaded the DB")
+
 }

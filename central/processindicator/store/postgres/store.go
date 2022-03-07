@@ -4,6 +4,9 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -42,6 +45,8 @@ type Store interface {
 	Get(id string) (*storage.ProcessIndicator, bool, error)
 	Upsert(obj *storage.ProcessIndicator) error
 	UpsertMany(objs []*storage.ProcessIndicator) error
+	UpsertManyMultiVal(objs []*storage.ProcessIndicator, batchSize int) error
+	UpsertManyPGCopy(objs []*storage.ProcessIndicator, batchSize int) error
 	Delete(id string) error
 	GetIDs() ([]string, error)
 	GetMany(ids []string) ([]*storage.ProcessIndicator, []int, error)
@@ -434,6 +439,282 @@ func (s *storeImpl) Walk(fn func(obj *storage.ProcessIndicator) error) error {
 		}
 	}
 	return nil
+}
+
+func (s *storeImpl) UpsertManyMultiVal(objs []*storage.ProcessIndicator, batchSize int) error {
+	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.UpdateMany, "ProcessIndicator")
+
+	return s.upsertMultiVal(batchSize, objs...)
+}
+
+func (s *storeImpl) upsertMultiVal(batchSize int, objs ...*storage.ProcessIndicator) error {
+	conn, release := s.acquireConn(ops.Get, "ProcessIndicator")
+	defer  release()
+
+	sqlStr := "INSERT INTO process_indicators (Id, DeploymentId, ContainerName, PodId, PodUid, Signal_Id, Signal_ContainerId, Signal_Time, Signal_Name, Signal_Args, Signal_ExecFilePath, Signal_Pid, Signal_Uid, Signal_Gid, Signal_Lineage, Signal_Scraped, ClusterId, Namespace, ContainerStartTime, ImageId, serialized) VALUES"
+
+	sqlEnd := " ON CONFLICT(Id) DO UPDATE SET Id = EXCLUDED.Id, DeploymentId = EXCLUDED.DeploymentId, ContainerName = EXCLUDED.ContainerName, PodId = EXCLUDED.PodId, PodUid = EXCLUDED.PodUid, Signal_Id = EXCLUDED.Signal_Id, Signal_ContainerId = EXCLUDED.Signal_ContainerId, Signal_Time = EXCLUDED.Signal_Time, Signal_Name = EXCLUDED.Signal_Name, Signal_Args = EXCLUDED.Signal_Args, Signal_ExecFilePath = EXCLUDED.Signal_ExecFilePath, Signal_Pid = EXCLUDED.Signal_Pid, Signal_Uid = EXCLUDED.Signal_Uid, Signal_Gid = EXCLUDED.Signal_Gid, Signal_Lineage = EXCLUDED.Signal_Lineage, Signal_Scraped = EXCLUDED.Signal_Scraped, ClusterId = EXCLUDED.ClusterId, Namespace = EXCLUDED.Namespace, ContainerStartTime = EXCLUDED.ContainerStartTime, ImageId = EXCLUDED.ImageId, serialized = EXCLUDED.serialized"
+	var inserts []string
+	vals := []interface{}{}
+	childDeletes := []string{}
+	childValues := [][]interface{}{}
+	var childInsertsFinal [][]string
+
+	childSql := "INSERT INTO process_indicators_LineageInfo (parent_Id, idx, ParentUid, ParentExecFilePath) VALUES"
+
+	childEnd := "ON CONFLICT(parent_Id, idx) DO UPDATE SET parent_Id = EXCLUDED.parent_Id, idx = EXCLUDED.idx, ParentUid = EXCLUDED.ParentUid, ParentExecFilePath = EXCLUDED.ParentExecFilePath"
+
+
+	//varCount := 0
+	i := 0;
+
+	// cannot insert more than 1000 rows at a time with this method.
+	if batchSize > 1000 {
+		batchSize = 1000
+	}
+
+	for _, obj := range objs {
+		i++
+
+		serialized, marshalErr := obj.Marshal()
+		if marshalErr != nil {
+			return marshalErr
+		}
+
+		vals = append(vals, obj.GetId(),
+			obj.GetDeploymentId(),
+			obj.GetContainerName(),
+			obj.GetPodId(),
+			obj.GetPodUid(),
+			obj.GetSignal().GetId(),
+			obj.GetSignal().GetContainerId(),
+			pgutils.NilOrStringTimestamp(obj.GetSignal().GetTime()),
+			obj.GetSignal().GetName(),
+			obj.GetSignal().GetArgs(),
+			obj.GetSignal().GetExecFilePath(),
+			obj.GetSignal().GetPid(),
+			obj.GetSignal().GetUid(),
+			obj.GetSignal().GetGid(),
+			obj.GetSignal().GetLineage(),
+			obj.GetSignal().GetScraped(),
+			obj.GetClusterId(),
+			obj.GetNamespace(),
+			pgutils.NilOrStringTimestamp(obj.GetContainerStartTime()),
+			obj.GetImageId(),
+			serialized)
+
+
+		const rowSQL= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		inserts = append(inserts, rowSQL)
+
+		// work through children
+		// Grab the lineage Rows
+		childVals := []interface{}{}
+		var childInserts []string
+		for childIdx, child := range obj.GetSignal().GetLineageInfo() {
+			childVals = append(childVals,
+				obj.GetId(),
+				childIdx,
+				child.GetParentUid(),
+				child.GetParentExecFilePath(),
+			)
+
+			const childRowSQL= "(?, ?, ?, ?)"
+
+			childInserts = append(childInserts, childRowSQL)
+
+			//
+			//finalStr := "INSERT INTO process_indicators_LineageInfo (parent_Id, idx, ParentUid, ParentExecFilePath) VALUES($1, $2, $3, $4) ON CONFLICT(parent_Id, idx) DO UPDATE SET parent_Id = EXCLUDED.parent_Id, idx = EXCLUDED.idx, ParentUid = EXCLUDED.ParentUid, ParentExecFilePath = EXCLUDED.ParentExecFilePath"
+			//_, err := tx.Exec(context.Background(), finalStr, values...)
+
+			//probably should build a struct with sting and values, but for now hard coding the vals
+			delete := fmt.Sprintf("delete from process_indicators_LineageInfo where parent_Id = '%s' AND idx >= %d", obj.GetId(), len(obj.GetSignal().GetLineageInfo()))
+			childDeletes = append(childDeletes, delete)
+			//childDeletes = append(childDeletes,"delete from process_indicators_LineageInfo where parent_Id = $1 AND idx >= $2")
+			//_, err = tx.Exec(context.Background(), query, obj.GetId(), len(obj.GetSignal().GetLineageInfo()))
+		}
+		childValues = append(childValues, childVals)
+		childInsertsFinal = append(childInsertsFinal, childInserts)
+
+		// if we are at the end or reach our batch size we need to begin a transaction
+		// apply the inserts and commit
+		rem := i % batchSize
+
+		if rem == 0 || i == len(objs) {
+			tx, err := conn.Begin(context.Background())
+			if err != nil {
+				return err
+			}
+
+			// build the string for the batch
+			varString := strings.Join(inserts, ",")
+			varString = ReplaceSQL(varString, "?")
+			finalStr := sqlStr + varString + sqlEnd
+			//log.Info("SQL => " + finalStr)
+
+			_, err = tx.Exec(context.Background(), finalStr, vals...)
+			if err != nil {
+				if err := tx.Rollback(context.Background()); err != nil {
+					return err
+				}
+				return err
+			}
+
+			for k, childVal := range childValues {
+				//log.Info(childVal)
+				// build the string for the batch
+				childVarString := strings.Join(childInsertsFinal[k], ",")
+				childVarString = ReplaceSQL(childVarString, "?")
+				//log.Info(childVarString)
+				childFinalStr := childSql + childVarString + childEnd
+				//log.Info(childFinalStr)
+
+				_, err = tx.Exec(context.Background(), childFinalStr, childVal...)
+				if err != nil {
+					return err
+				}
+			}
+
+			if err := tx.Commit(context.Background()); err != nil {
+				return err
+			}
+
+			// clear the inserts and vals
+			inserts = nil
+			vals = []interface{}{}
+			childInserts = nil
+			childValues = [][]interface{}{}
+			childInsertsFinal = nil
+			//varCount = 0
+		}
+	}
+	return nil
+}
+
+func (s *storeImpl) upsertPGCopy(batchSize int, objs ...*storage.ProcessIndicator) error {
+	conn, release := s.acquireConn(ops.Get, "ProcessIndicator")
+	defer release()
+
+	// Todo: Need to figure out the conflicts as copy does not overwrite.  Would have to delete
+	// any entries we are trying to process first.
+	inputRows := [][]interface{}{}
+	lineageRows := [][]interface{}{}
+	var deletes []string
+
+	i := 0;
+
+	for _, obj := range objs {
+		i++
+		//log.Info("Vals length")
+		//log.Info(len(inputRows))
+
+		serialized, marshalErr := obj.Marshal()
+		if marshalErr != nil {
+			return marshalErr
+		}
+
+		// Add the id to be deleted.
+		deletes = append(deletes, obj.GetId())
+
+		inputRows = append(inputRows, []interface{}{
+			// parent primary keys start
+			obj.GetId(),
+			obj.GetDeploymentId(),
+			obj.GetContainerName(),
+			obj.GetPodId(),
+			obj.GetPodUid(),
+			obj.GetSignal().GetId(),
+			obj.GetSignal().GetContainerId(),
+			pgutils.NilOrStringTimestamp(obj.GetSignal().GetTime()),
+			obj.GetSignal().GetName(),
+			obj.GetSignal().GetArgs(),
+			obj.GetSignal().GetExecFilePath(),
+			obj.GetSignal().GetPid(),
+			obj.GetSignal().GetUid(),
+			obj.GetSignal().GetGid(),
+			obj.GetSignal().GetLineage(),
+			obj.GetSignal().GetScraped(),
+			obj.GetClusterId(),
+			obj.GetNamespace(),
+			pgutils.NilOrStringTimestamp(obj.GetContainerStartTime()),
+			obj.GetImageId(),
+			serialized,
+		})
+
+		// Grab the lineage Rows
+		for childIdx, child := range obj.GetSignal().GetLineageInfo() {
+			lineageRows = append(lineageRows, []interface{}{
+				// parent primary keys start
+
+				obj.GetId(),
+
+				childIdx,
+
+				child.GetParentUid(),
+
+				child.GetParentExecFilePath(),
+			})
+		}
+
+
+		rem := i % batchSize
+
+		if rem == 0 || i == len(objs) {
+			// copy doesn't upsert so have to delete first.  I assume that will not be horribly efficient.
+			// this should delete all the children so that will save a step that the one at a time approach currently
+			// has to do if the original insert had more children than the update.
+			s.DeleteMany(deletes)
+
+			_, err := conn.CopyFrom(context.Background(), pgx.Identifier{"process_indicators"}, []string{"id", "deploymentid", "containername", "podid", "poduid", "signal_id", "signal_containerid", "signal_time", "signal_name", "signal_args", "signal_execfilepath", "signal_pid", "signal_uid", "signal_gid", "signal_lineage", "signal_scraped", "clusterid", "namespace", "containerstarttime", "imageid", "serialized"}, pgx.CopyFromRows(inputRows))
+
+			if err != nil {
+				return err
+			}
+
+			// now store the lineage
+			_, err = conn.CopyFrom(context.Background(), pgx.Identifier{"process_indicators_lineageinfo"}, []string{"parent_id", "idx", "parentuid", "parentexecfilepath"}, pgx.CopyFromRows(lineageRows))
+
+			if err != nil {
+				return err
+			}
+
+
+			// clear the inserts and vals
+			deletes = nil
+			inputRows = [][]interface{}{}
+			lineageRows = [][]interface{}{}
+		}
+
+
+	}
+
+	// copy doesn't upsert so have to delete first.  I assume that will not be horribly efficient.
+	//s.DeleteMany(deletes)
+	//
+	//copyCount, err := conn.CopyFrom(context.Background(), pgx.Identifier{"process_indicators"}, []string{"id", "deploymentid", "containername", "podid", "poduid", "signal_id", "signal_containerid", "signal_time", "signal_name", "signal_args", "signal_execfilepath", "signal_pid", "signal_uid", "signal_gid", "signal_lineage", "signal_scraped", "clusterid", "namespace", "containerstarttime", "imageid", "serialized"}, pgx.CopyFromRows(inputRows))
+
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//log.Infof("Copy count %d", copyCount)
+	return nil
+}
+
+func (s *storeImpl) UpsertManyPGCopy(objs []*storage.ProcessIndicator, batchSize int) error {
+	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.UpdateMany, "ProcessIndicator")
+
+	return s.upsertPGCopy(batchSize, objs...)
+}
+
+
+// ReplaceSQL replaces the instance occurrence of any string pattern with an increasing $n based sequence
+func ReplaceSQL(old, searchPattern string) string {
+	tmpCount := strings.Count(old, searchPattern)
+	for m := 1; m <= tmpCount; m++ {
+		old = strings.Replace(old, searchPattern, "$"+strconv.Itoa(m), 1)
+	}
+	return old
 }
 
 //// Used for testing

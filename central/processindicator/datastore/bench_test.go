@@ -19,7 +19,7 @@ import (
 
 func BenchmarkAddIndicator(b *testing.B) {
 	var indicators []*storage.ProcessIndicator
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 15000; i++ {
 		pi := fixtures.GetProcessIndicator()
 		pi.Id = uuid.NewV4().String()
 		indicators = append(indicators, pi)
