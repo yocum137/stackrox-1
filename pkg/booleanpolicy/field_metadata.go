@@ -791,5 +791,13 @@ func initializeFieldMetadata() FieldMetadata {
 		negationForbidden, operatorsForbidden,
 	)
 
+	f.registerFieldMetadata(fieldnames.Inactive,
+		querybuilders.ForFieldLabel(search.NewInactive), nil,
+		func(*validateConfiguration) *regexp.Regexp {
+			return booleanValueRegex
+		},
+		[]storage.EventSource{storage.EventSource_NOT_APPLICABLE},
+		[]RuntimeFieldType{}, negationForbidden, operatorsForbidden)
+
 	return f
 }

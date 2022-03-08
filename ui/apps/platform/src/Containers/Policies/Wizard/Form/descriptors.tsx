@@ -1176,6 +1176,18 @@ export const auditLogDescriptor: Descriptor[] = [
         ],
         canBooleanLogic: false,
     },
+    {
+        label: 'Inactive',
+        name: 'Inactive',
+        shortName: 'Inactive',
+        category: policyCriteriaCategories.NETWORKING,
+        type: 'radioGroup',
+        radioButtons: [
+            { text: 'Allow Inactive', value: true },
+            { text: 'Forbid Inactive', value: false },
+        ],
+        canBooleanLogic: false,
+    },
 ];
 
 export const networkDetectionDescriptor: Descriptor[] = [

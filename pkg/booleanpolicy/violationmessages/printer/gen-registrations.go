@@ -22,6 +22,7 @@ const (
 	ImageScanKey                    = "imageScan"
 	ImageScanAgeKey                 = "imageScanAge"
 	ImageUserKey                    = "imageUser"
+	InactiveKey                     = "inactive"
 	LineKey                         = "line"
 	LivenessProbeDefinedKey         = "livenessProbeDefined"
 	NamespaceKey                    = "namespace"
@@ -64,6 +65,7 @@ func init() {
 	registerFunc(ImageScanKey, imageScanPrinter)
 	registerFunc(ImageScanAgeKey, imageScanAgePrinter)
 	registerFunc(ImageUserKey, imageUserPrinter)
+	registerFunc(InactiveKey, inactivePrinter)
 	registerFunc(LineKey, linePrinter)
 	registerFunc(LivenessProbeDefinedKey, livenessProbeDefinedPrinter)
 	registerFunc(NamespaceKey, namespacePrinter)

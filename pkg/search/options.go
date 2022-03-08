@@ -214,6 +214,8 @@ var (
 
 	// Inactive Deployment
 	Inactive = newFieldLabel("Inactive Deployment")
+	NewInactive = newFieldLabel("Inactive")
+
 
 	// Risk Search Fields
 	RiskScore       = newFieldLabel("Risk Score")

@@ -1,6 +1,7 @@
 package pathutil
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -49,6 +50,11 @@ func (m *FieldToMetaPathMap) add(tag string, metaPath MetaPath, shouldPreferPare
 
 // Get returns the MetaPath for the given tag, and a bool indicates whether it exists.
 func (m *FieldToMetaPathMap) Get(tag string) (MetaPath, bool) {
+	fmt.Println("METADATA FIELDS:")
+	for k, v := range m.underlying {
+		fmt.Printf("%s: %v\n", k, v)
+	}
+	fmt.Println("====================")
 	metaPath, found := m.underlying[strings.ToLower(tag)]
 	if found {
 		return metaPath.metaPath, true

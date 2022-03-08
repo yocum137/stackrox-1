@@ -35,7 +35,7 @@ message Deployment {
     reserved 12;
     map<string, string> annotations            = 14 [(gogoproto.moretags) = "search:\"Annotation\""];
     int64 priority                             = 15 [(gogoproto.moretags) = "search:\"Priority,hidden\" hash:\"ignore\""];
-    bool inactive                              = 16;
+    bool inactive                              = 16 [(gogoproto.moretags) = "policy:\"Inactive\""];;
     repeated string image_pull_secrets         = 17 [(gogoproto.moretags) = "search:\"Image Pull Secret\""];
     string service_account                     = 18 [(gogoproto.moretags) = "search:\"Service Account\""];
     PermissionLevel service_account_permission_level = 28 [(gogoproto.moretags) = "search:\"Service Account Permission Level,store\""];
