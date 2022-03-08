@@ -130,8 +130,8 @@ func (s *ProcessIndicatorsStoreSuite) TestStore() {
 		s.NoError(store.UpsertMany(indicators))
 
 		delta := time.Now().Sub(a)
-		result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
-		log.Infof("%d\n", delta.Nanoseconds())
+		result = append(result, strconv.FormatInt(delta.Milliseconds(), 10))
+		log.Infof("%d\n", delta.Milliseconds())
 
 		log.Info("Multi  Value")
 		if batchSize <= 1000 {
@@ -148,11 +148,11 @@ func (s *ProcessIndicatorsStoreSuite) TestStore() {
 			s.NoError(store.UpsertManyMultiVal(indicators, batchSize))
 
 			delta = time.Now().Sub(a)
-			result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
+			result = append(result, strconv.FormatInt(delta.Milliseconds(), 10))
 		} else {
 			result = append(result, "N/A")
 		}
-		log.Infof("%d\n", delta.Nanoseconds())
+		log.Infof("%d\n", delta.Milliseconds())
 
 		processIndicatorCount, err = store.Count()
 		log.Infof("Indicator counts = %d", processIndicatorCount)
@@ -169,8 +169,8 @@ func (s *ProcessIndicatorsStoreSuite) TestStore() {
 		s.NoError(store.UpsertManyPGCopy(indicators, batchSize))
 		//s.NoError(store.UpsertManyMultiVal(indicators, batchSize))
 		delta = time.Now().Sub(a)
-		result = append(result, strconv.FormatInt(delta.Nanoseconds(), 10))
-		log.Infof("%d\n", delta.Nanoseconds())
+		result = append(result, strconv.FormatInt(delta.Milliseconds(), 10))
+		log.Infof("%d\n", delta.Milliseconds())
 
 		processIndicatorCount, err = store.Count()
 		log.Infof("Indicator counts = %d", processIndicatorCount)
