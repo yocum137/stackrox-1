@@ -17,6 +17,7 @@ import (
 	"github.com/stackrox/rox/pkg/batcher"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/debug"
+	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/process/filter"
 	"github.com/stackrox/rox/pkg/sac"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
@@ -62,6 +63,9 @@ func newDatastoreImpl(ctx context.Context, storage podStore.Store, indexer podIn
 }
 
 func (ds *datastoreImpl) buildIndex(ctx context.Context) error {
+	if features.PostgresDatastore.Enabled() {
+		return nil
+	}
 	defer debug.FreeOSMemory()
 
 	needsReindexing, err := ds.podIndexer.NeedsInitialIndexing()
@@ -112,6 +116,9 @@ func (ds *datastoreImpl) buildIndex(ctx context.Context) error {
 }
 
 func (ds *datastoreImpl) fullReindex(ctx context.Context) error {
+	if features.PostgresDatastore.Enabled() {
+		return nil
+	}
 	log.Info("[STARTUP] Reindexing all pods")
 
 	podIDs, err := ds.podStore.GetIDs(ctx)
