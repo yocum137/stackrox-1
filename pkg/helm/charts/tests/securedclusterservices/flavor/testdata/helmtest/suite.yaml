@@ -23,3 +23,5 @@ values:
   createSecrets: false
   ca:
     cert: "DUMMY CA CERTIFICATE"
+  scanner:
+    disable: true
