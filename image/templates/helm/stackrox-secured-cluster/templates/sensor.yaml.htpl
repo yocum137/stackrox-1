@@ -119,7 +119,7 @@ spec:
         {{- if ._rox.env.openshift }}
         - name: ROX_OPENSHIFT_API
           value: "true"
-        [<- if and (not .KubectlOutput) .FeatureFlags.ROX_LOCAL_IMAGE_SCANNING >]
+        [<- if not .KubectlOutput >]
         - name: ROX_USE_LOCAL_SCANNER
           value: "{{ not ._rox.scanner.disable | not | not }}"
         - name: ROX_SCANNER_GRPC_ENDPOINT
