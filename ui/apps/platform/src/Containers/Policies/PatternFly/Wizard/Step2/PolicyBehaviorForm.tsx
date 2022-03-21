@@ -173,6 +173,7 @@ function PolicyBehaviorForm() {
                                 onChange={(isChecked) => {
                                     onChangeLifecycleStage('BUILD', isChecked);
                                 }}
+                                data-testid="build-lifecycle-stage-checkbox"
                             />
                             <Checkbox
                                 label="Deploy"
@@ -181,6 +182,7 @@ function PolicyBehaviorForm() {
                                 onChange={(isChecked) => {
                                     onChangeLifecycleStage('DEPLOY', isChecked);
                                 }}
+                                data-testid="deploy-lifecycle-stage-checkbox"
                             />
                             <Checkbox
                                 label="Runtime"
@@ -189,6 +191,7 @@ function PolicyBehaviorForm() {
                                 onChange={(isChecked) => {
                                     onChangeLifecycleStage('RUNTIME', isChecked);
                                 }}
+                                data-testid="runtime-lifecycle-stage-checkbox"
                             />
                         </Flex>
                     </FormGroup>
@@ -204,6 +207,7 @@ function PolicyBehaviorForm() {
                                 name="eventSource"
                                 onChange={() => setFieldValue('eventSource', 'DEPLOYMENT_EVENT')}
                                 isDisabled={!hasRuntime}
+                                data-testid="deployment-event-source-radio"
                             />
                             <Radio
                                 label="Audit logs"
@@ -212,6 +216,7 @@ function PolicyBehaviorForm() {
                                 name="eventSource"
                                 onChange={onChangeAuditLogEventSource}
                                 isDisabled={!hasRuntime}
+                                data-testid="audit-log-event-source-radio"
                             />
                         </Flex>
                     </FormGroup>

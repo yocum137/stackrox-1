@@ -121,7 +121,11 @@ function PolicyScopeForm() {
                         </div>
                     </FlexItem>
                     <FlexItem className="pf-u-pr-md" alignSelf={{ default: 'alignSelfCenter' }}>
-                        <Button variant="secondary" onClick={addNewInclusionScope}>
+                        <Button
+                            variant="secondary"
+                            onClick={addNewInclusionScope}
+                            data-testid="add-inclusion-scope-btn"
+                        >
                             Add inclusion scope
                         </Button>
                     </FlexItem>
@@ -160,6 +164,7 @@ function PolicyScopeForm() {
                             variant="secondary"
                             isDisabled={!hasDeployOrRuntimeLifecycle}
                             onClick={addNewExclusionDeploymentScope}
+                            data-testid="add-exclusion-scope-btn"
                         >
                             Add exclusion scope
                         </Button>
@@ -198,6 +203,7 @@ function PolicyScopeForm() {
                     <FormGroup
                         label="Exclude images (Build lifecycle only)"
                         fieldId="exclude-images"
+                        data-testid="exclude-images-multiselect"
                         helperText="Select all images from the list for which you don't want to trigger a violation for the policy."
                     >
                         <Select
@@ -213,7 +219,11 @@ function PolicyScopeForm() {
                             placeholderText="Select images to exclude"
                         >
                             {images?.map((image) => (
-                                <SelectOption key={image.name} value={image.name}>
+                                <SelectOption
+                                    key={image.name}
+                                    value={image.name}
+                                    data-testid="exclude-images-multiselect-option"
+                                >
                                     {image.name}
                                 </SelectOption>
                             ))}

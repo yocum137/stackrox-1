@@ -86,8 +86,16 @@ export function editPolicy() {
 
 // Actions on policy wizard page
 
+export function goToStep2() {
+    cy.get(selectors.wizardBtns.step2).click();
+}
+
 export function goToStep3() {
     cy.get(selectors.wizardBtns.step3).click();
+}
+
+export function goToStep4() {
+    cy.get(selectors.wizardBtns.step4).click();
 }
 
 export function savePolicy() {}

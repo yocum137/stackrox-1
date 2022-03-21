@@ -88,7 +88,7 @@ function PolicyScopeCard({
     }
 
     return (
-        <Card>
+        <Card data-testid={`${type}-scope-card`}>
             <CardHeader className="pf-u-p-0">
                 <CardTitle className="pf-u-pl-lg">{type} scope</CardTitle>
                 <CardActions hasNoOffset>
@@ -97,6 +97,7 @@ function PolicyScopeCard({
                         variant="plain"
                         className="pf-u-mr-xs pf-u-px-sm pf-u-py-md"
                         onClick={onDelete}
+                        data-testid={`delete-${type}-scope-btn`}
                     >
                         <TrashIcon />
                     </Button>
@@ -107,7 +108,11 @@ function PolicyScopeCard({
                 <Form>
                     <Flex direction={{ default: 'column' }}>
                         <FlexItem>
-                            <FormGroup label="Cluster" fieldId={`${name}-cluster`}>
+                            <FormGroup
+                                label="Cluster"
+                                fieldId={`${name}-cluster`}
+                                data-testid={`${type}-scope-cluster-select`}
+                            >
                                 <Select
                                     onToggle={() => setIsClusterSelectOpen(!isClusterSelectOpen)}
                                     onSelect={handleChangeCluster}
@@ -116,7 +121,11 @@ function PolicyScopeCard({
                                     placeholderText="Select a cluster"
                                 >
                                     {clusters.map((cluster) => (
-                                        <SelectOption key={cluster.name} value={cluster.id}>
+                                        <SelectOption
+                                            key={cluster.name}
+                                            value={cluster.id}
+                                            data-testid={`${type}-scope-cluster-select-option`}
+                                        >
                                             {cluster.name}
                                         </SelectOption>
                                     ))}
@@ -131,12 +140,17 @@ function PolicyScopeCard({
                                     id={`${name}-namespace`}
                                     onChange={handleChangeNamespace}
                                     placeholder="Provide a namespace"
+                                    data-testid={`${type}-scope-namespace-input`}
                                 />
                             </FormGroup>
                         </FlexItem>
                         {type === 'exclusion' && (
                             <FlexItem>
-                                <FormGroup label="Deployment" fieldId={`${name}-deployment`}>
+                                <FormGroup
+                                    label="Deployment"
+                                    fieldId={`${name}-deployment`}
+                                    data-testid={`${type}-scope-deployment-select`}
+                                >
                                     <Select
                                         onToggle={() =>
                                             setIsDeploymentSelectOpen(!isDeploymentSelectOpen)
@@ -151,6 +165,7 @@ function PolicyScopeCard({
                                             <SelectOption
                                                 key={deployment.id}
                                                 value={deployment.name}
+                                                data-testid={`${type}-scope-deployment-select-option`}
                                             >
                                                 {deployment.name}
                                             </SelectOption>
@@ -172,6 +187,7 @@ function PolicyScopeCard({
                                         onChange={handleChangeLabelKey}
                                         placeholder="Label key"
                                         isDisabled={hasAuditLogEventSource}
+                                        data-testid={`${type}-scope-label-key-input`}
                                     />
                                     <TextInput
                                         value={value.label?.value || scope?.label?.value}
@@ -180,6 +196,7 @@ function PolicyScopeCard({
                                         onChange={handleChangeLabelValue}
                                         placeholder="Label value"
                                         isDisabled={hasAuditLogEventSource}
+                                        data-testid={`${type}-scope-label-value-input`}
                                     />
                                 </Flex>
                             </FormGroup>

@@ -31,8 +31,21 @@ export const selectors = {
         description: 'ul.pf-c-alert-group .pf-c-alert__description',
     },
     wizardBtns: {
+        step2: '.pf-c-wizard__nav-link:contains("behavior")',
         step3: '.pf-c-wizard__nav-link:contains("criteria")',
+        step4: '.pf-c-wizard__nav-link:contains("scope")',
         step5: '.pf-c-wizard__nav-link:contains("Review policy")',
+    },
+    step2: {
+        lifecycleStage: {
+            buildCheckbox: '[data-testid="build-lifecycle-stage-checkbox"]',
+            deployCheckbox: '[data-testid="deploy-lifecycle-stage-checkbox"]',
+            runtimeCheckbox: '[data-testid="runtime-lifecycle-stage-checkbox"]',
+        },
+        eventSource: {
+            deploymentRadio: '[data-testid="deployment-event-source-radio"]',
+            auditLogRadio: '[data-testid="audit-log-event-source-radio"]',
+        },
     },
     step3: {
         defaultPolicyAlert: '[data-testid="default-policy-alert"]',
@@ -71,6 +84,36 @@ export const selectors = {
             },
             deleteBtn: '[data-testid="delete-policy-criteria-btn"]',
             booleanOperator: '[data-testid="policy-criteria-boolean-operator"]',
+        },
+    },
+    step4: {
+        inclusionScope: {
+            addBtn: '[data-testid="add-inclusion-scope-btn"]',
+            deleteBtn: '[data-testid="delete-inclusion-scope-btn"]',
+            cards: '[data-testid="inclusion-scope-card"]',
+            clusterSelect: '[data-testid="inclusion-scope-cluster-select"]',
+            clusterSelectOption: '[data-testid="inclusion-scope-cluster-select-option"]',
+            namespaceInput: '[data-testid="inclusion-scope-namespace-input"]',
+            labelKeyInput: '[data-testid="inclusion-scope-label-key-input"]',
+            labelValueInput: '[data-testid="inclusion-scope-label-value-input"]',
+        },
+        exclusionScope: {
+            addBtn: '[data-testid="add-exclusion-scope-btn"]',
+            deleteBtn: '[data-testid="delete-exclusion-scope-btn"]',
+            cards: '[data-testid="exclusion-scope-card"]',
+            clusterSelect: '[data-testid="exclusion-scope-cluster-select"]',
+            clusterSelectOption: '[data-testid="exclusion-scope-cluster-select-option"]',
+            namespaceInput: '[data-testid="exclusion-scope-namespace-input"]',
+            deploymentSelect: '[data-testid="exclusion-scope-deployment-select"]',
+            deploymentSelectOption: '[data-testid="exclusion-scope-deployment-select-option"]',
+            labelKeyInput: '[data-testid="exclusion-scope-label-key-input"]',
+            labelValueInput: '[data-testid="exclusion-scope-label-value-input"]',
+        },
+        excludeImages: {
+            multiselect: '[data-testid="exclude-images-multiselect"] .pf-c-select__toggle',
+            multiselectOption: '[data-testid="exclude-images-multiselect-option"]',
+            multiselectOptionDeleteBtn:
+                '[data-testid="exclude-images-multiselect"] .pf-c-chip button',
         },
     },
     importUploadModal: {
