@@ -111,6 +111,7 @@ export const selectors = {
         },
         excludeImages: {
             multiselect: '[data-testid="exclude-images-multiselect"] .pf-c-select__toggle',
+            multiselectInput: '[data-testid="exclude-images-multiselect"] input',
             multiselectOption: '[data-testid="exclude-images-multiselect-option"]',
             multiselectOptionDeleteBtn:
                 '[data-testid="exclude-images-multiselect"] .pf-c-chip button',

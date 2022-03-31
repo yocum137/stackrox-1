@@ -182,7 +182,7 @@ describe('Policy wizard, Step 4 Policy Scope', () => {
             goToPoliciesAndCloneToStep4();
         });
 
-        it('exclude images dropdown should be enabled and allow the user to add and delete image exclusions if lifecycle stage includes BUILD', () => {
+        it.only('exclude images dropdown should be enabled and allow the user to add/delete/create image exclusions if lifecycle stage includes BUILD', () => {
             goToPoliciesAndCloneToStep2();
 
             cy.get(selectors.step2.lifecycleStage.buildCheckbox).then((buildCheckbox) => {
@@ -209,9 +209,11 @@ describe('Policy wizard, Step 4 Policy Scope', () => {
                         option.text()
                     );
                 });
+            cy.get(selectors.step4.excludeImages.multiselectInput).type('hello{enter}');
+            cy.get(selectors.step4.excludeImages.multiselect).should('contain', 'hello');
         });
 
-        it.only('exclude images dropdown should be cleared and disabled if lifecycle stage does not include BUILD', () => {
+        it('exclude images dropdown should be cleared and disabled if lifecycle stage does not include BUILD', () => {
             goToPoliciesAndCloneToStep2();
 
             cy.get(selectors.step2.lifecycleStage.buildCheckbox).then((buildCheckbox) => {
