@@ -91,6 +91,37 @@ export function fetchSummaryAlertCounts(
         }));
 }
 
+type CancelCallback = () => void;
+type CancelablePromise<T> = Promise<T> & { cancel: CancelCallback };
+export class CanceledPromiseError extends Error {
+    constructor(message = 'The network request has been canceled.') {
+        super(message);
+        this.name = 'CanceledPromise';
+    }
+}
+
+function makeCancelableAxiosRequest<T>(promiseProvider: () => Promise<T>): CancelablePromise<T> {
+    let interceptor;
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    try {
+        interceptor = axios.interceptors.request.use((config) => ({
+            ...config,
+            signal: controller.signal,
+        }));
+        const promise = promiseProvider().catch((err) => {
+            return err.message === 'canceled'
+                ? Promise.reject(new CanceledPromiseError())
+                : Promise.reject(err);
+        });
+        return Object.assign(promise, { cancel });
+    } catch (err) {
+        return Object.assign(Promise.reject(err), { cancel });
+    } finally {
+        axios.interceptors.request.eject(interceptor);
+    }
+}
+
 /*
  * Fetch a page of list alert objects.
  */
@@ -99,7 +130,7 @@ export function fetchAlerts(
     sortOption: RestSortOption,
     page: number,
     pageSize: number
-): Promise<ListAlert[]> {
+): CancelablePromise<ListAlert[]> {
     const offset = page > 0 ? page * pageSize : 0;
     const query = getRequestQueryStringForSearchFilter(searchFilter);
     const params = queryString.stringify(
@@ -113,22 +144,28 @@ export function fetchAlerts(
         },
         { arrayFormat: 'repeat', allowDots: true }
     );
-    return axios
-        .get<{ alerts: ListAlert[] }>(`${baseUrl}?${params}`)
-        .then((response) => response?.data?.alerts ?? []);
+
+    return makeCancelableAxiosRequest<ListAlert[]>(() =>
+        axios
+            .get<{ alerts: ListAlert[] }>(`${baseUrl}?${params}`)
+            .then((response) => response?.data?.alerts ?? [])
+    );
 }
 
 /*
  * Fetch count of alerts.
  */
-export function fetchAlertCount(searchFilter: SearchFilter): Promise<number> {
+export function fetchAlertCount(searchFilter: SearchFilter): CancelablePromise<number> {
     const params = queryString.stringify(
         { query: getRequestQueryStringForSearchFilter(searchFilter) },
         { arrayFormat: 'repeat' }
     );
-    return axios
-        .get<{ count: number }>(`${baseCountUrl}?${params}`)
-        .then((response) => response?.data?.count ?? 0);
+    const controller = new AbortController();
+    return makeCancelableAxiosRequest<number>(() =>
+        axios
+            .get<{ count: number }>(`${baseCountUrl}?${params}`, { signal: controller.signal })
+            .then((response) => response?.data?.count ?? 0)
+    );
 }
 
 /*
