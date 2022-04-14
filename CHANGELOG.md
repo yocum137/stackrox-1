@@ -19,6 +19,7 @@ Please avoid adding duplicate information across this changelog and JIRA/doc inp
 - Fixed permissions checks in the UI that prevented users with certain limited permissions from creating report configurations.
 - ROX-9946: Fixed default permissions for the default Vuln Reporter role to exclude the modify permission on notifiers, since it is not needed for report creation.
 - Added AllowPrivilegeEscalation as a new policy criteria.
+- The lowest version that can be upgraded from is now 3.0.56.0. If you are on a lower version, please upgrade to 3.69.1 and then upgrade to this release.
 
 ## [69.1]
 
