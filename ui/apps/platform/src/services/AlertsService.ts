@@ -100,26 +100,17 @@ export class CanceledPromiseError extends Error {
     }
 }
 
-function makeCancelableAxiosRequest<T>(promiseProvider: () => Promise<T>): CancelablePromise<T> {
-    let interceptor;
-    const controller = new AbortController();
-    const cancel = () => controller.abort();
-    try {
-        interceptor = axios.interceptors.request.use((config) => ({
-            ...config,
-            signal: controller.signal,
-        }));
-        const promise = promiseProvider().catch((err) => {
-            return err.message === 'canceled'
-                ? Promise.reject(new CanceledPromiseError())
-                : Promise.reject(err);
-        });
-        return Object.assign(promise, { cancel });
-    } catch (err) {
-        return Object.assign(Promise.reject(err), { cancel });
-    } finally {
-        axios.interceptors.request.eject(interceptor);
-    }
+function makeCancelableAxiosRequest<T>(
+    promiseProvider: (signal: AbortSignal) => Promise<T>
+): CancelablePromise<T> {
+    const abortController = new AbortController();
+    const cancel = () => abortController.abort();
+    const promise = promiseProvider(abortController.signal).catch((err) => {
+        return err.message === 'canceled'
+            ? Promise.reject(new CanceledPromiseError())
+            : Promise.reject(err);
+    });
+    return Object.assign(promise, { cancel });
 }
 
 /*
@@ -145,9 +136,9 @@ export function fetchAlerts(
         { arrayFormat: 'repeat', allowDots: true }
     );
 
-    return makeCancelableAxiosRequest<ListAlert[]>(() =>
+    return makeCancelableAxiosRequest<ListAlert[]>((signal) =>
         axios
-            .get<{ alerts: ListAlert[] }>(`${baseUrl}?${params}`)
+            .get<{ alerts: ListAlert[] }>(`${baseUrl}?${params}`, { signal })
             .then((response) => response?.data?.alerts ?? [])
     );
 }
@@ -160,10 +151,9 @@ export function fetchAlertCount(searchFilter: SearchFilter): CancelablePromise<n
         { query: getRequestQueryStringForSearchFilter(searchFilter) },
         { arrayFormat: 'repeat' }
     );
-    const controller = new AbortController();
-    return makeCancelableAxiosRequest<number>(() =>
+    return makeCancelableAxiosRequest<number>((signal) =>
         axios
-            .get<{ count: number }>(`${baseCountUrl}?${params}`, { signal: controller.signal })
+            .get<{ count: number }>(`${baseCountUrl}?${params}`, { signal })
             .then((response) => response?.data?.count ?? 0)
     );
 }
