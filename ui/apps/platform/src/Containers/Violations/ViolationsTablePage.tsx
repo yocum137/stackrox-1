@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState, ReactElement } from 'react';
 import Raven from 'raven-js';
 import { PageSection, Bullseye, Alert, Divider, Title } from '@patternfly/react-core';
+import { useQuery } from 'react-query';
 
 import { fetchAlerts, fetchAlertCount } from 'services/AlertsService';
 import { getSearchOptionsForCategory } from 'services/SearchService';
 
-import useEntitiesByIdsCache from 'hooks/useEntitiesByIdsCache';
 import LIFECYCLE_STAGES from 'constants/lifecycleStages';
 import VIOLATION_STATES from 'constants/violationStates';
 import { ENFORCEMENT_ACTIONS } from 'constants/enforcementActions';
@@ -22,12 +22,7 @@ import ViolationsTablePanel from './ViolationsTablePanel';
 import tableColumnDescriptor from './violationTableColumnDescriptors';
 
 import './ViolationsTablePage.css';
-
-function runAfter5Seconds(fn: () => void) {
-    return new Promise(() => {
-        setTimeout(fn, 5000);
-    });
-}
+import { ListAlert } from './types/violationTypes';
 
 const searchCategory = SEARCH_CATEGORIES.ALERTS;
 
@@ -45,15 +40,6 @@ function ViolationsTablePage(): ReactElement {
     // Handle changes in the current table page.
     const { page, perPage, setPage, setPerPage } = useURLPagination(50);
 
-    // Handle changes in the currently displayed violations.
-    const [currentPageAlerts, setCurrentPageAlerts] = useEntitiesByIdsCache();
-    const [currentPageAlertsErrorMessage, setCurrentPageAlertsErrorMessage] = useState('');
-    const [alertCount, setAlertCount] = useState(0);
-
-    // To handle page/count refreshing.
-    const [pollEpoch, setPollEpoch] = useState(0);
-    const [isFetching, setIsFetching] = useState(false);
-
     // To handle sort options.
     const columns = tableColumnDescriptor;
     const sortFields = useMemo(
@@ -69,6 +55,18 @@ function ViolationsTablePage(): ReactElement {
         sortFields,
         defaultSortOption,
     });
+
+    const { data: currentPageAlerts = [], error: alertsError } = useQuery<ListAlert[], Error>(
+        ['alerts', searchFilter, sortOption, page, perPage],
+        () => fetchAlerts(searchFilter, sortOption, page - 1, perPage),
+        { keepPreviousData: true, refetchInterval: 5000 }
+    );
+
+    const { data: alertCount = 0, error: alertCountError } = useQuery<number, Error>(
+        ['alertCount', searchFilter],
+        () => fetchAlertCount(searchFilter),
+        { keepPreviousData: true, refetchInterval: 5000 }
+    );
 
     useEffectAfterFirstRender(() => {
         if (hasExecutableFilter && !isViewFiltered) {
@@ -89,49 +87,10 @@ function ViolationsTablePage(): ReactElement {
         }
     }, [alertCount, perPage, setPage]);
 
-    // When any of the deps to this effect change, we want to reload the alerts and count.
-    useEffect(() => {
-        if (!isFetching) {
-            // Get the alerts that match the search request for the current page.
-            setCurrentPageAlertsErrorMessage('');
-            setIsFetching(true);
-            fetchAlerts(searchFilter, sortOption, page - 1, perPage)
-                .then((alerts) => {
-                    setCurrentPageAlerts(alerts);
-                })
-                .catch((error) => {
-                    setCurrentPageAlerts([]);
-                    const parsedMessage = checkForPermissionErrorMessage(error);
-                    setCurrentPageAlertsErrorMessage(parsedMessage);
-                })
-                .finally(() => {
-                    setIsFetching(false);
-                });
-            // Get the total count of alerts that match the search request.
-            fetchAlertCount(searchFilter)
-                .then(setAlertCount)
-                .catch((error) => {
-                    setCurrentPageAlerts([]);
-                    const parsedMessage = checkForPermissionErrorMessage(error);
-                    setCurrentPageAlertsErrorMessage(parsedMessage);
-                });
-        }
-
-        // TODO It would be nice to cancel this on unmount to avoid the "state update on an unmounted component" error
-        // We will update the poll epoch after 5 seconds to force a refresh.
-        runAfter5Seconds(() => {
-            setPollEpoch(pollEpoch + 1);
-        }).catch((error) => Raven.captureException(error));
-    }, [
-        searchFilter,
-        page,
-        sortOption,
-        pollEpoch,
-        setCurrentPageAlerts,
-        setCurrentPageAlertsErrorMessage,
-        setAlertCount,
-        perPage,
-    ]);
+    const fetchError = [alertsError, alertCountError].find((error) => Boolean(error));
+    const currentPageAlertsErrorMessage = fetchError
+        ? checkForPermissionErrorMessage(fetchError)
+        : null;
 
     useEffect(() => {
         getSearchOptionsForCategory(searchCategory)
@@ -150,7 +109,7 @@ function ViolationsTablePage(): ReactElement {
                     alert.lifecycleStage === LIFECYCLE_STAGES.RUNTIME ||
                     alert.state === VIOLATION_STATES.ATTEMPTED
             )
-            .map((alert) => alert.id as string)
+            .map((alert) => alert.id)
     );
 
     const excludableAlerts = currentPageAlerts.filter(

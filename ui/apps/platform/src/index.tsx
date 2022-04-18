@@ -10,6 +10,7 @@ import { Store } from 'redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { createBrowserHistory as createHistory } from 'history';
 import { ApolloProvider } from '@apollo/client';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import 'typeface-open-sans';
 import 'typeface-open-sans-condensed';
 import 'react-toastify/dist/ReactToastify.css';
@@ -44,18 +45,21 @@ const rootNode = document.getElementById('root');
 const history = createHistory();
 const store = configureStore(undefined, history) as Store;
 const apolloClient = configureApollo();
+const queryClient = new QueryClient();
 
 ReactDOM.render(
     <Provider store={store}>
         <ApolloProvider client={apolloClient}>
-            <ConnectedRouter history={history}>
-                <ThemeProvider>
-                    <ErrorBoundary>
-                        <AppPage />
-                        <ExportingInProgress />
-                    </ErrorBoundary>
-                </ThemeProvider>
-            </ConnectedRouter>
+            <QueryClientProvider client={queryClient}>
+                <ConnectedRouter history={history}>
+                    <ThemeProvider>
+                        <ErrorBoundary>
+                            <AppPage />
+                            <ExportingInProgress />
+                        </ErrorBoundary>
+                    </ThemeProvider>
+                </ConnectedRouter>
+            </QueryClientProvider>
         </ApolloProvider>
     </Provider>,
     rootNode
