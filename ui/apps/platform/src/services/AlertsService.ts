@@ -136,7 +136,7 @@ export function fetchAlerts(
         { arrayFormat: 'repeat', allowDots: true }
     );
 
-    return makeCancelableAxiosRequest<ListAlert[]>((signal) =>
+    return makeCancelableAxiosRequest((signal) =>
         axios
             .get<{ alerts: ListAlert[] }>(`${baseUrl}?${params}`, { signal })
             .then((response) => response?.data?.alerts ?? [])
@@ -151,7 +151,7 @@ export function fetchAlertCount(searchFilter: SearchFilter): CancelablePromise<n
         { query: getRequestQueryStringForSearchFilter(searchFilter) },
         { arrayFormat: 'repeat' }
     );
-    return makeCancelableAxiosRequest<number>((signal) =>
+    return makeCancelableAxiosRequest((signal) =>
         axios
             .get<{ count: number }>(`${baseCountUrl}?${params}`, { signal })
             .then((response) => response?.data?.count ?? 0)
