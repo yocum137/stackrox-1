@@ -3,7 +3,7 @@ import Raven from 'raven-js';
 import { PageSection, Bullseye, Alert, Divider, Title } from '@patternfly/react-core';
 import { useQuery } from 'react-query';
 
-import { fetchAlerts, fetchAlertCount } from 'services/AlertsService';
+import { fetchAlerts, fetchAlertCount, useAlertCount } from 'services/AlertsService';
 import { getSearchOptionsForCategory } from 'services/SearchService';
 
 import LIFECYCLE_STAGES from 'constants/lifecycleStages';
@@ -56,17 +56,16 @@ function ViolationsTablePage(): ReactElement {
         defaultSortOption,
     });
 
+    // Direct usage of React-Query for fetching
     const { data: currentPageAlerts = [], error: alertsError } = useQuery<ListAlert[], Error>(
         ['alerts', searchFilter, sortOption, page, perPage],
         () => fetchAlerts(searchFilter, sortOption, page - 1, perPage),
         { keepPreviousData: true, refetchInterval: 5000 }
     );
 
-    const { data: alertCount = 0, error: alertCountError } = useQuery<number, Error>(
-        ['alertCount', searchFilter],
-        () => fetchAlertCount(searchFilter),
-        { keepPreviousData: true, refetchInterval: 5000 }
-    );
+    // For requests that are re-used frequently, or for cleaner code at the component level we
+    // can export a custom hook that provides the data
+    const { data: alertCount = 0, error: alertCountError } = useAlertCount(searchFilter);
 
     useEffectAfterFirstRender(() => {
         if (hasExecutableFilter && !isViewFiltered) {

@@ -4,6 +4,7 @@ import { Alert, ListAlert } from 'Containers/Violations/types/violationTypes';
 
 import { ApiSortOption, SearchFilter } from 'types/search';
 import { getRequestQueryStringForSearchFilter } from 'utils/searchUtils';
+import { useQuery } from 'react-query';
 import axios from './instance';
 
 const baseUrl = '/v1/alerts';
@@ -120,7 +121,7 @@ export function fetchAlerts(
 /*
  * Fetch count of alerts.
  */
-export function fetchAlertCount(searchFilter: SearchFilter): Promise<number> {
+function fetchAlertCount(searchFilter: SearchFilter): Promise<number> {
     const params = queryString.stringify(
         { query: getRequestQueryStringForSearchFilter(searchFilter) },
         { arrayFormat: 'repeat' }
@@ -128,6 +129,14 @@ export function fetchAlertCount(searchFilter: SearchFilter): Promise<number> {
     return axios
         .get<{ count: number }>(`${baseCountUrl}?${params}`)
         .then((response) => response?.data?.count ?? 0);
+}
+
+export function useAlertCount(searchFilter) {
+    return useQuery<number, Error>(
+        ['alertCount', searchFilter],
+        () => fetchAlertCount(searchFilter),
+        { keepPreviousData: true, refetchInterval: 5000 }
+    );
 }
 
 /*
