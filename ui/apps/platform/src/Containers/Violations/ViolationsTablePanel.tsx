@@ -21,6 +21,7 @@ import LIFECYCLE_STAGES from 'constants/lifecycleStages';
 import TableCell from 'Components/PatternFly/TableCell';
 import { GetSortParams } from 'hooks/useURLSort';
 import { TableColumn } from 'types/table';
+import { useMutation } from 'react-query';
 import ResolveConfirmation from './Modals/ResolveConfirmation';
 import ExcludeConfirmation from './Modals/ExcludeConfirmation';
 import TagConfirmation from './Modals/TagConfirmation';
@@ -73,6 +74,22 @@ function ViolationsTablePanel({
         getSelectedIds,
     } = useTableSelection(violations);
 
+    // Return data, request state, and errors for mutations are all accessed declaratively
+    // mutation requests do not fire automatically, they must be invoked with a function call
+    const {
+        mutate: mutateAlert,
+        data,
+        error,
+        isLoading,
+        isError,
+    } = useMutation<Record<string, never>, Error, { id: string; addToBaseline: boolean }>(
+        ({ id, addToBaseline }) => resolveAlert(id, addToBaseline),
+        {
+            onError: onClearAll,
+            onSuccess: onClearAll,
+        }
+    );
+
     function onToggleSelect(toggleOpen) {
         setIsSelectOpen(toggleOpen);
     }
@@ -114,8 +131,8 @@ function ViolationsTablePanel({
         setIsSelectOpen(false);
     }
 
-    function resolveAlertAction(addToBaseline, id) {
-        return resolveAlert(id, addToBaseline).then(onClearAll, onClearAll);
+    function resolveAlertAction(addToBaseline: boolean, id: string) {
+        return mutateAlert({ addToBaseline, id });
     }
 
     const excludableAlertIds: Set<string> = new Set(excludableAlerts.map((alert) => alert.id));

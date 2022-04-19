@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState, ReactElement } from 'react';
-import Raven from 'raven-js';
 import { PageSection, Bullseye, Alert, Divider, Title } from '@patternfly/react-core';
 import { useQuery } from 'react-query';
 
-import { fetchAlerts, fetchAlertCount, useAlertCount } from 'services/AlertsService';
+import { fetchAlerts, useAlertCount } from 'services/AlertsService';
 import { getSearchOptionsForCategory } from 'services/SearchService';
 
 import LIFECYCLE_STAGES from 'constants/lifecycleStages';
