@@ -10,6 +10,7 @@ import {
     AlertVariant,
 } from '@patternfly/react-core';
 import pluralize from 'pluralize';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { policiesBasePath } from 'routePaths';
 import {
@@ -22,7 +23,6 @@ import {
 import { fetchNotifierIntegrations } from 'services/NotifierIntegrationsService';
 import useToasts, { Toast } from 'hooks/patternfly/useToasts';
 import { getSearchOptionsForCategory } from 'services/SearchService';
-import { ListPolicy } from 'types/policy.proto';
 import { NotifierIntegration } from 'types/notifier.proto';
 import { SearchFilter } from 'types/search';
 import { getAxiosErrorMessage } from 'utils/responseErrorUtils';
@@ -37,22 +37,53 @@ type PoliciesTablePageProps = {
     searchFilter?: SearchFilter;
 };
 
+type DisableStateVars = { ids: string[]; isDisabled: boolean };
+
 function PoliciesTablePage({
     hasWriteAccessForPolicy,
     handleChangeSearchFilter,
     searchFilter,
 }: PoliciesTablePageProps): React.ReactElement {
+    const query = searchFilter ? getRequestQueryStringForSearchFilter(searchFilter) : '';
     const history = useHistory();
 
     const [notifiers, setNotifiers] = useState<NotifierIntegration[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [policies, setPolicies] = useState<ListPolicy[]>([]);
-    const [errorMessage, setErrorMessage] = useState('');
     const { toasts, addToast, removeToast } = useToasts();
 
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
 
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+    const queryClient = useQueryClient();
+
+    // Note that this will automatically refetch when
+    // - the window is refocused
+    // - any search parameter changes (is this right??? Why doesn't it cache?)
+    const {
+        data: policies,
+        error: policiesError,
+        isLoading,
+        refetch,
+    } = useQuery(['policies', query], () => getPolicies(query));
+
+    const policyDisabledMutation = useMutation(
+        ({ ids, isDisabled }: DisableStateVars) => updatePoliciesDisabledState(ids, isDisabled),
+        {
+            onSuccess: (_data, { ids, isDisabled }) => {
+                const policyText = pluralize('policy', ids.length);
+                const stateText = isDisabled ? 'disabled' : 'enabled';
+                addToast(`Successfully ${stateText} ${policyText}`, 'success');
+            },
+            onError: (stateError: Error, { ids, isDisabled }) => {
+                const policyText = pluralize('policy', ids.length);
+                const stateText = isDisabled ? 'disable' : 'enable';
+                addToast(`Could not ${stateText} the ${policyText}`, 'danger', stateError.message);
+            },
+            onSettled: () => queryClient.invalidateQueries('policies'),
+        }
+    );
+
+    const errorMessage = policiesError ? getAxiosErrorMessage(policiesError) : '';
 
     function onClickCreatePolicy() {
         history.push(`${policiesBasePath}/?action=create`);
@@ -73,20 +104,9 @@ function PoliciesTablePage({
     }
 
     function fetchPolicies(query: string) {
-        setIsLoading(true);
-        getPolicies(query)
-            .then((data) => {
-                setPolicies(data);
-                setErrorMessage('');
-            })
-            .catch((error) => {
-                setPolicies([]);
-                setErrorMessage(getAxiosErrorMessage(error));
-            })
-            .finally(() => setIsLoading(false));
+        console.log('TODO');
+        refetch();
     }
-
-    const query = searchFilter ? getRequestQueryStringForSearchFilter(searchFilter) : '';
 
     function deletePoliciesHandler(ids: string[]): Promise<void> {
         const policyText = pluralize('policy', ids.length);
@@ -116,27 +136,11 @@ function PoliciesTablePage({
     }
 
     function enablePoliciesHandler(ids: string[]) {
-        const policyText = pluralize('policy', ids.length);
-        updatePoliciesDisabledState(ids, false)
-            .then(() => {
-                fetchPolicies(query);
-                addToast(`Successfully enabled ${policyText}`, 'success');
-            })
-            .catch(({ response }) => {
-                addToast(`Could not enable the ${policyText}`, 'danger', response.data.message);
-            });
+        policyDisabledMutation.mutate({ ids, isDisabled: false });
     }
 
     function disablePoliciesHandler(ids: string[]) {
-        const policyText = pluralize('policy', ids.length);
-        updatePoliciesDisabledState(ids, true)
-            .then(() => {
-                fetchPolicies(query);
-                addToast(`Successfully disabled ${policyText}`, 'success');
-            })
-            .catch(({ response }) => {
-                addToast(`Could not disable the ${policyText}`, 'danger', response.data.message);
-            });
+        policyDisabledMutation.mutate({ ids, isDisabled: true });
     }
 
     useEffect(() => {
@@ -158,10 +162,6 @@ function PoliciesTablePage({
                 // TODO
             });
     }, []);
-
-    useEffect(() => {
-        fetchPolicies(query);
-    }, [query]);
 
     if (isLoading) {
         return (
