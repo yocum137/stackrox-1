@@ -125,14 +125,18 @@ class RiskTest extends BaseSpecification {
 
         assert whenEquivalent, "SR found the deployments, containers and processes required"
 
-        def one = whenEquivalent.get(0)
-        def two = whenEquivalent.get(1)
-        println debugPriorityAndState(one)
-        println debugPriorityAndState(two)
 
         then:
         "should have the same risk"
-        risk(one.deployment) == risk(two.deployment)
+        DeploymentWithProcessInfo one = null
+        DeploymentWithProcessInfo two = null
+        withRetry(10, 5) {
+            one = listDeployments().get(0)
+            two = listDeployments().get(1)
+            println debugPriorityAndState(one)
+            println debugPriorityAndState(two)
+            assert risk(one.deployment) == risk(two.deployment)
+        }
 
         and:
         "should be at equivalent priority"
