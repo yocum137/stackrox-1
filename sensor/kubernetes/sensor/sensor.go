@@ -57,7 +57,7 @@ var (
 )
 
 // CreateSensor takes in a client interface and returns a sensor instantiation
-func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager) (*sensor.Sensor, error) {
+func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager, offline bool) (*sensor.Sensor, error) {
 	admCtrlSettingsMgr := admissioncontroller.NewSettingsManager(resources.DeploymentStoreSingleton(), resources.PodStoreSingleton())
 
 	var helmManagedConfig *central.HelmManagedConfigInit
@@ -77,7 +77,7 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 		}
 	}
 
-	if helmManagedConfig.GetClusterName() == "" {
+	if !offline && helmManagedConfig.GetClusterName() == "" {
 		certClusterID, err := clusterid.ParseClusterIDFromServiceCert(storage.ServiceType_SENSOR_SERVICE)
 		if err != nil {
 			return nil, errors.Wrap(err, "parsing cluster ID from service certificate")
@@ -106,10 +106,14 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 	policyDetector := detector.New(enforcer, admCtrlSettingsMgr, resources.DeploymentStoreSingleton(), imageCache, auditLogEventsInput, auditLogCollectionManager, resources.NetworkPolicySingleton())
 	admCtrlMsgForwarder := admissioncontroller.NewAdmCtrlMsgForwarder(admCtrlSettingsMgr, listener.New(client, configHandler, policyDetector, k8sNodeName.Setting()))
 
-	upgradeCmdHandler, err := upgrade.NewCommandHandler(configHandler)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating upgrade command handler")
+	var upgradeCmdHandler common.SensorComponent
+	if !offline {
+		upgradeCmdHandler, err = upgrade.NewCommandHandler(configHandler)
+		if err != nil {
+			return nil, errors.Wrap(err, "creating upgrade command handler")
+		}
 	}
+
 
 	imageService := image.NewService(imageCache)
 	complianceCommandHandler := compliance.NewCommandHandler(complianceService)

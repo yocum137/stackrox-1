@@ -207,6 +207,9 @@ func (s *Sensor) Start() {
 	webhookServer.Start()
 
 	for _, component := range s.components {
+		if component == nil {
+			continue
+		}
 		if err := component.Start(); err != nil {
 			_ = utils.Should(errors.Wrapf(err, "sensor component %T failed to start", component))
 		}
