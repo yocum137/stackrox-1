@@ -2,11 +2,15 @@ package integration
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
-	"net"
+	"net/http"
 	"testing"
 	"time"
+
+	"golang.stackrox.io/grpc-http1/server"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/pkg/errors"
 	v12 "github.com/stackrox/rox/generated/api/v1"
@@ -26,13 +30,13 @@ import (
 
 type StreamMock struct {
 	grpc.ClientStream
-	ctx context.Context
+	ctx          context.Context
 	sentMessages chan *central.MsgFromSensor
 }
 
 func makeStreamMock() *StreamMock {
 	return &StreamMock{
-		ctx: context.Background(),
+		ctx:          context.Background(),
 		sentMessages: make(chan *central.MsgFromSensor, 10),
 	}
 }
@@ -56,25 +60,28 @@ func (m *StreamMock) Recv() (*central.MsgFromSensor, error) {
 	return resp, nil
 }
 
-type fakeService struct{
+type fakeService struct {
 	stream central.SensorService_CommunicateServer
 }
 
-func (s *fakeService) GetMetadata(ctx context.Context, in *v12.Empty) (*v12.Metadata, error) {
+type fakeMetadataService struct {
+}
+
+func (s *fakeMetadataService) GetMetadata(ctx context.Context, in *v12.Empty) (*v12.Metadata, error) {
 	log.Printf("GetMetadata")
 	return &v12.Metadata{
-		Version:              "1.2.3",
-		BuildFlavor:          "development_build",
-		ReleaseBuild:         false,
-		LicenseStatus:        0,
+		Version:       "1.2.3",
+		BuildFlavor:   "development_build",
+		ReleaseBuild:  false,
+		LicenseStatus: 0,
 	}, nil
 }
 
-func (s *fakeService) TLSChallenge(ctx context.Context, in *v12.TLSChallengeRequest) (*v12.TLSChallengeResponse, error) {
+func (s *fakeMetadataService) TLSChallenge(ctx context.Context, in *v12.TLSChallengeRequest) (*v12.TLSChallengeResponse, error) {
 	log.Println("TLSChallenge")
 	return &v12.TLSChallengeResponse{
-		TrustInfoSerialized:  make([]byte, 30),
-		Signature:            make([]byte, 30),
+		TrustInfoSerialized: make([]byte, 30),
+		Signature:           make([]byte, 30),
 	}, nil
 }
 
@@ -96,10 +103,14 @@ func (s *fakeService) Communicate(msg central.SensorService_CommunicateServer) e
 func TestExample(t *testing.T) {
 	isolator := envisolator.NewEnvIsolator(t)
 
-	isolator.Setenv("ROX_MTLS_CERT_FILE", "certs/cert.pem")
-	isolator.Setenv("ROX_MTLS_KEY_FILE", "certs/key.pem")
-	isolator.Setenv("ROX_MTLS_CA_FILE", "certs/ca.pem")
-	isolator.Setenv("ROX_MTLS_CA_KEY_FILE", "certs/caKey.pem")
+	//isolator.Setenv("ROX_MTLS_CERT_FILE", "certs/cert.pem")
+	//isolator.Setenv("ROX_MTLS_KEY_FILE", "certs/key.pem")
+	//isolator.Setenv("ROX_MTLS_CA_FILE", "certs/ca.pem")
+	//isolator.Setenv("ROX_MTLS_CA_KEY_FILE", "certs/caKey.pem")
+	isolator.Setenv("ROX_MTLS_CERT_FILE", "cert/client1-crt.pem")
+	isolator.Setenv("ROX_MTLS_KEY_FILE", "cert/client1-key.pem")
+	isolator.Setenv("ROX_MTLS_CA_FILE", "cert/ca-crt.pem")
+	isolator.Setenv("ROX_MTLS_CA_KEY_FILE", "cert/ca-key.pem")
 
 	log.Println("RUNNING TEST")
 
@@ -108,36 +119,75 @@ func TestExample(t *testing.T) {
 	// ctx := context.Background()
 
 	fakeCentral := &fakeService{}
-	l, err := net.Listen("tcp", "localhost:9999")
+	fakeMetadata := &fakeMetadataService{}
+	//cer, err := tls.LoadX509KeyPair("certs/cert.pem", "certs/key.pem")
+	cer, err := tls.LoadX509KeyPair("cert/server-crt.pem", "cert/server-key.pem")
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := &tls.Config{
+		InsecureSkipVerify: true,
+		Certificates:       []tls.Certificate{cer},
+	}
+	l, err := tls.Listen("tcp", "localhost:9999", config)
+	//l, err := net.Listen("tcp", "localhost:9999")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	grpcv := grpc.NewServer()
+	grpcv := grpc.NewServer(
+		grpc.Creds(credentials.NewTLS(config)),
+	)
 	central.RegisterSensorServiceServer(grpcv, fakeCentral)
-	v12.RegisterMetadataServiceServer(grpcv, fakeCentral)
+	v12.RegisterMetadataServiceServer(grpcv, fakeMetadata)
 
+	//go func() {
+	//	if err := grpcv.Serve(l); err != nil {
+	//		t.Fatal(err)
+	//	}
+	//}()
 	go func() {
-		if err := grpcv.Serve(l); err != nil {
-			panic(err)
+		mux := http.NewServeMux()
+		mux.HandleFunc("v1/metadata", func(w http.ResponseWriter, _ *http.Request) {
+			meta := v12.Metadata{
+				Version:       "1.2.3",
+				BuildFlavor:   "development_build",
+				ReleaseBuild:  false,
+				LicenseStatus: 0,
+			}
+			resp, _ := meta.Marshal()
+			w.Write(resp)
+		})
+		mux.HandleFunc("v1/tls-challenge", func(w http.ResponseWriter, _ *http.Request) {
+			meta := v12.TLSChallengeResponse{
+				TrustInfoSerialized: make([]byte, 30),
+				Signature:           make([]byte, 30),
+			}
+			resp, _ := meta.Marshal()
+			w.Write(resp)
+		})
+		httpSrv := &http.Server{
+			Handler: server.CreateDowngradingHandler(grpcv, mux),
+		}
+		if err := httpSrv.Serve(l); err != nil {
+			t.Fatal(err)
 		}
 	}()
 
 	isolator.Setenv("ROX_CENTRAL_ENDPOINT", l.Addr().String())
 
-
 	c := fake.NewSimpleClientset()
 	fakeInterface := client.MustCreateInferfaceFromK8s(c)
 
 	_, err = fakeInterface.Kubernetes().CoreV1().Nodes().Create(context.Background(), &v1.Node{
-		Spec:       v1.NodeSpec{
-			PodCIDR:            "",
-			PodCIDRs:           nil,
-			ProviderID:         "",
-			Unschedulable:      false,
-			Taints:             nil,
+		Spec: v1.NodeSpec{
+			PodCIDR:       "",
+			PodCIDRs:      nil,
+			ProviderID:    "",
+			Unschedulable: false,
+			Taints:        nil,
 		},
-		Status:     v1.NodeStatus{
+		Status: v1.NodeStatus{
 			Capacity:        nil,
 			Allocatable:     nil,
 			Phase:           "",
@@ -155,7 +205,7 @@ func TestExample(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	fakeSensor, err := sensor.CreateSensor(fakeInterface, nil, true)
 	if err != nil {
 		t.Fatal(err)
