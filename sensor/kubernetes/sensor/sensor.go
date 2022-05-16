@@ -16,6 +16,7 @@ import (
 	"github.com/stackrox/rox/pkg/grpc"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/namespaces"
+	"github.com/stackrox/rox/pkg/probeupload"
 	"github.com/stackrox/rox/pkg/protoutils"
 	"github.com/stackrox/rox/pkg/satoken"
 	"github.com/stackrox/rox/sensor/common"
@@ -57,7 +58,7 @@ var (
 )
 
 // CreateSensor takes in a client interface and returns a sensor instantiation
-func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager, connFactory connection.ConnectionFactory) (*sensor.Sensor, error) {
+func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager, connFactory connection.ConnectionFactory, koCacheSource probeupload.ProbeSource, localSensor bool) (*sensor.Sensor, error) {
 	admCtrlSettingsMgr := admissioncontroller.NewSettingsManager(resources.DeploymentStoreSingleton(), resources.PodStoreSingleton())
 
 	var helmManagedConfig *central.HelmManagedConfigInit
@@ -77,7 +78,7 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 		}
 	}
 
-	if helmManagedConfig.GetClusterName() == "" {
+	if !localSensor && helmManagedConfig.GetClusterName() == "" {
 		certClusterID, err := clusterid.ParseClusterIDFromServiceCert(storage.ServiceType_SENSOR_SERVICE)
 		if err != nil {
 			return nil, errors.Wrap(err, "parsing cluster ID from service certificate")
@@ -106,9 +107,12 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 	policyDetector := detector.New(enforcer, admCtrlSettingsMgr, resources.DeploymentStoreSingleton(), imageCache, auditLogEventsInput, auditLogCollectionManager, resources.NetworkPolicySingleton())
 	admCtrlMsgForwarder := admissioncontroller.NewAdmCtrlMsgForwarder(admCtrlSettingsMgr, listener.New(client, configHandler, policyDetector, k8sNodeName.Setting()))
 
-	upgradeCmdHandler, err := upgrade.NewCommandHandler(configHandler)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating upgrade command handler")
+	var upgradeCmdHandler common.SensorComponent
+	if !localSensor {
+		upgradeCmdHandler, err = upgrade.NewCommandHandler(configHandler)
+		if err != nil {
+			return nil, errors.Wrap(err, "creating upgrade command handler")
+		}
 	}
 
 	imageService := image.NewService(imageCache)
@@ -166,6 +170,7 @@ func CreateSensor(client client.Interface, workloadHandler *fake.WorkloadManager
 		policyDetector,
 		imageService,
 		connFactory,
+		koCacheSource,
 		components...,
 	)
 

@@ -36,6 +36,12 @@ type clientSet struct {
 	openshiftRoute  routeVersioned.Interface
 }
 
+func InterfaceFromK8s(k8s kubernetes.Interface) *clientSet {
+	return &clientSet{
+		k8s: k8s,
+	}
+}
+
 func mustCreateK8sClient(config *rest.Config) kubernetes.Interface {
 	config.ContentType = clientContentType
 	client, err := kubernetes.NewForConfig(config)

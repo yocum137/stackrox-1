@@ -11,6 +11,8 @@ import (
 	"github.com/stackrox/rox/pkg/clientconn"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/env"
+	"github.com/stackrox/rox/pkg/grpc/authn"
+	serviceAuthn "github.com/stackrox/rox/pkg/grpc/authn/service"
 	"github.com/stackrox/rox/pkg/grpc/util"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/mtls"
@@ -31,6 +33,8 @@ type ConnectionFactory interface {
 	SetCentralConnectionWithRetries(ptr *util.LazyClientConn)
 	StopSignal() concurrency.ErrorSignal
 	OkSignal() concurrency.Signal
+	MtlsServiceIdExtractor() (authn.IdentityExtractor, error)
+	//GetKernelObjectHttpClient() (*http.Client, error)
 }
 
 
@@ -56,6 +60,10 @@ func NewConnectionFactor(endpoint string) (*connectionFactoryImpl, error) {
 	}, nil
 }
 
+func (f *connectionFactoryImpl) MtlsServiceIdExtractor() (authn.IdentityExtractor, error) {
+	return serviceAuthn.NewExtractor()
+}
+
 func (f *connectionFactoryImpl) OkSignal() concurrency.Signal {
 	return f.okSignal
 }
@@ -63,6 +71,15 @@ func (f *connectionFactoryImpl) OkSignal() concurrency.Signal {
 func (f *connectionFactoryImpl) StopSignal() concurrency.ErrorSignal {
 	return f.stopSignal
 }
+
+//func (f *connectionFactoryImpl) GetKernelObjectHttpClient() (*http.Client, error) {
+//	kernelObjsClient, err := clientconn.NewHTTPClient(mtls.CentralSubject, f.endpoint, 0)
+//	if err != nil {
+//		return nil, errors.Wrap(err, "instantiating central HTTP transport")
+//	}
+//	return kernelObjsClient, nil
+//}
+
 
 func (f *connectionFactoryImpl) pollMetadata() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

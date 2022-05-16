@@ -1,24 +1,19 @@
 package sensor
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/stackrox/rox/pkg/clientconn"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/features"
 	pkgGRPC "github.com/stackrox/rox/pkg/grpc"
 	"github.com/stackrox/rox/pkg/grpc/authn"
-	serviceAuthn "github.com/stackrox/rox/pkg/grpc/authn/service"
 	"github.com/stackrox/rox/pkg/grpc/authz/allow"
 	"github.com/stackrox/rox/pkg/grpc/authz/idcheck"
 	"github.com/stackrox/rox/pkg/grpc/routes"
 	grpcUtil "github.com/stackrox/rox/pkg/grpc/util"
-	"github.com/stackrox/rox/pkg/kocache"
 	"github.com/stackrox/rox/pkg/logging"
-	"github.com/stackrox/rox/pkg/mtls"
 	"github.com/stackrox/rox/pkg/mtls/verifier"
 	"github.com/stackrox/rox/pkg/probeupload"
 	"github.com/stackrox/rox/pkg/utils"
@@ -60,14 +55,15 @@ type Sensor struct {
 
 	centralConnection    *grpcUtil.LazyClientConn
 	centralCommunication CentralCommunication
-	//centralRestClient    *centralclient.Client
 	connectionFactory connection.ConnectionFactory
+
+	koCacheSource probeupload.ProbeSource
 
 	stoppedSig concurrency.ErrorSignal
 }
 
 // NewSensor initializes a Sensor, including reading configurations from the environment.
-func NewSensor(configHandler config.Handler, detector detector.Detector, imageService image.Service, factory connection.ConnectionFactory, components ...common.SensorComponent) *Sensor {
+func NewSensor(configHandler config.Handler, detector detector.Detector, imageService image.Service, factory connection.ConnectionFactory, koCacheSource probeupload.ProbeSource, components ...common.SensorComponent) *Sensor {
 	return &Sensor{
 		centralEndpoint:    env.CentralEndpoint.Setting(),
 		advertisedEndpoint: env.AdvertisedEndpoint.Setting(),
@@ -79,6 +75,8 @@ func NewSensor(configHandler config.Handler, detector detector.Detector, imageSe
 
 		connectionFactory: factory,
 		centralConnection: grpcUtil.NewLazyClientConn(),
+
+		koCacheSource: koCacheSource,
 
 		stoppedSig: concurrency.NewErrorSignal(),
 	}
@@ -101,15 +99,6 @@ func (s *Sensor) startProfilingServer() *http.Server {
 		}
 	}()
 	return srv
-}
-
-func createKOCacheSource(centralEndpoint string) (probeupload.ProbeSource, error) {
-	kernelObjsBaseURL := "/kernel-objects"
-	kernelObjsClient, err := clientconn.NewHTTPClient(mtls.CentralSubject, centralEndpoint, 0)
-	if err != nil {
-		return nil, errors.Wrap(err, "instantiating central HTTP transport")
-	}
-	return kocache.New(context.Background(), kernelObjsClient, kernelObjsBaseURL, kocache.Options{}), nil
 }
 
 // Start registers APIs and starts background tasks.
@@ -148,19 +137,14 @@ func (s *Sensor) Start() {
 
 	customRoutes := []routes.CustomRoute{readinessRoute, legacyAdmissionControllerRoute}
 
-	koCacheSource, err := createKOCacheSource(s.centralEndpoint)
-	if err != nil {
-		utils.Should(errors.Wrap(err, "Failed to create kernel object download/caching layer"))
-	} else {
-		probeDownloadHandler := probeupload.NewProbeServerHandler(probeupload.LogCallback(log), koCacheSource)
-		koCacheRoute := routes.CustomRoute{
-			Route:         "/kernel-objects/",
-			Authorizer:    idcheck.CollectorOnly(),
-			ServerHandler: http.StripPrefix("/kernel-objects", probeDownloadHandler),
-			Compression:   false, // kernel objects are compressed
-		}
-		customRoutes = append(customRoutes, koCacheRoute)
+	probeDownloadHandler := probeupload.NewProbeServerHandler(probeupload.LogCallback(log), s.koCacheSource)
+	koCacheRoute := routes.CustomRoute{
+		Route:         "/kernel-objects/",
+		Authorizer:    idcheck.CollectorOnly(),
+		ServerHandler: http.StripPrefix("/kernel-objects", probeDownloadHandler),
+		Compression:   false, // kernel objects are compressed
 	}
+	customRoutes = append(customRoutes, koCacheRoute)
 
 	// Enable endpoint to retrieve vulnerability definitions if local image scanning is enabled.
 	if features.LocalImageScanning.Enabled() && env.LocalImageScanningEnabled.BooleanSetting() {
@@ -172,7 +156,7 @@ func (s *Sensor) Start() {
 	}
 
 	// Create grpc server with custom routes
-	mtlsServiceIDExtractor, err := serviceAuthn.NewExtractor()
+	mtlsServiceIDExtractor, err := s.connectionFactory.MtlsServiceIdExtractor()
 	if err != nil {
 		log.Panicf("Error creating mTLS-based service identity extractor: %v", err)
 	}
@@ -211,6 +195,9 @@ func (s *Sensor) Start() {
 	webhookServer.Start()
 
 	for _, component := range s.components {
+		if component == nil {
+			continue
+		}
 		if err := component.Start(); err != nil {
 			_ = utils.Should(errors.Wrapf(err, "sensor component %T failed to start", component))
 		}

@@ -19,6 +19,7 @@ var (
 )
 
 // ProbeSource is an interface that abstracts the functionality of loading a kernel probe.
+//go:generate mockgen-wrapper
 type ProbeSource interface {
 	// LoadProbe tries to load a probe, with `fileName` in the format `<module version>/<gzipped probe file>`.
 	// If the size cannot be determined in advance, -1 should be returned as the second value.

@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 
+	"github.com/pkg/errors"
+	"github.com/stackrox/rox/pkg/clientconn"
 	"github.com/stackrox/rox/pkg/devmode"
 	"github.com/stackrox/rox/pkg/env"
+	"github.com/stackrox/rox/pkg/kocache"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/metrics"
+	"github.com/stackrox/rox/pkg/mtls"
 	"github.com/stackrox/rox/pkg/premain"
+	"github.com/stackrox/rox/pkg/probeupload"
 	"github.com/stackrox/rox/pkg/utils"
 	"github.com/stackrox/rox/pkg/version"
 	"github.com/stackrox/rox/sensor/common/connection"
@@ -21,6 +27,14 @@ import (
 var (
 	log = logging.LoggerForModule()
 )
+
+func createKOCacheSource(endpoint string) (probeupload.ProbeSource, error) {
+	kernelObjsClient, err := clientconn.NewHTTPClient(mtls.CentralSubject, endpoint, 0)
+	if err != nil {
+		return nil, errors.Wrap(err, "instantiating central HTTP transport")
+	}
+	return kocache.New(context.Background(), kernelObjsClient, "/kernel-objects", kocache.Options{}), nil
+}
 
 func main() {
 	premain.StartMain()
@@ -45,12 +59,20 @@ func main() {
 	} else {
 		sharedClientInterface = client.MustCreateInterface()
 	}
-	connFactory, err := connection.NewConnectionFactor(env.CentralEndpoint.Setting())
+
+	centralEndpoint := env.CentralEndpoint.Setting()
+
+	connFactory, err := connection.NewConnectionFactor(centralEndpoint)
 	if err != nil {
 		log.Fatalf("Failed to create connection factory: %v", err)
 	}
 
-	s, err := sensor.CreateSensor(sharedClientInterface, workloadManager, connFactory)
+	koCacheSource, err := createKOCacheSource(centralEndpoint)
+	if err != nil {
+		utils.Should(errors.Wrap(err, "Failed to create kernel object download/caching layer"))
+	}
+
+	s, err := sensor.CreateSensor(sharedClientInterface, workloadManager, connFactory, koCacheSource, false)
 	utils.CrashOnError(err)
 
 	s.Start()
