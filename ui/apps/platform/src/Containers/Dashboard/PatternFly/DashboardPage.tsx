@@ -1,6 +1,8 @@
 import React from 'react';
-import { Divider, PageSection, Text, Title } from '@patternfly/react-core';
+import { Divider, Grid, GridItem, PageSection, Text, Title } from '@patternfly/react-core';
+
 import SummaryCounts from './SummaryCounts';
+import ViolationsByPolicyCategory from './Widgets/ViolationsByPolicyCategory';
 
 function DashboardPage() {
     return (
@@ -14,6 +16,17 @@ function DashboardPage() {
                 <Text>Review security metrics across all or select resources</Text>
             </PageSection>
             <Divider component="div" />
+            <PageSection>
+                {/* TODO Plan out responsive grid */}
+                <Grid hasGutter>
+                    <GridItem span={6}>
+                        <ViolationsByPolicyCategory />
+                    </GridItem>
+                    <GridItem span={6}>
+                        <ViolationsByPolicyCategory />
+                    </GridItem>
+                </Grid>
+            </PageSection>
         </>
     );
 }

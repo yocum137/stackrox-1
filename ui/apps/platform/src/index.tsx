@@ -25,6 +25,11 @@ import '@patternfly/react-styles/css/utilities/Sizing/sizing.css';
 import '@patternfly/react-styles/css/utilities/Spacing/spacing.css';
 import '@patternfly/react-styles/css/utilities/Text/text.css';
 
+// TODO This is needed to pull in chart CSS variables.
+// If we would rather hard code hex values, it would save us ~16k uncompressed CSS
+// and the need to install this dependency.
+import '@patternfly/patternfly/patternfly-charts.css';
+
 // Advanced Cluster Security extensions to PatternFly styles
 import 'css/acs.css';
 // We need the following file, to smooth out rough edges, as we migrate to PatternFly

@@ -60,7 +60,7 @@ export function fetchAlertsByTimeseries(
 
 export type AlertCountBySeverity = {
     severity: Severity;
-    count: number;
+    count: string;
 };
 
 export type AlertGroup = {
