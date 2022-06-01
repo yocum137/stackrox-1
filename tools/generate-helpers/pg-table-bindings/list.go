@@ -17,8 +17,14 @@ var typeRegistry = make(map[string]string)
 func init() {
 	for s, r := range map[proto.Message]permissions.ResourceHandle{
 		&storage.ClusterHealthStatus{}:                          resources.Cluster,
+		&storage.ComplianceOperatorCheckResult{}:                resources.ComplianceOperator,
+		&storage.ComplianceOperatorScan{}:                       resources.ComplianceOperator,
+		&storage.ComplianceOperatorScanSettingBinding{}:         resources.ComplianceOperator,
+		&storage.ComplianceOperatorProfile{}:                    resources.ComplianceOperator,
+		&storage.ComplianceOperatorRule{}:                       resources.ComplianceOperator,
 		&storage.ExternalBackup{}:                               resources.BackupPlugins,
 		&storage.ImageComponentEdge{}:                           resources.ImageComponent,
+		&storage.InstallationInfo{}:                             resources.InstallationInfo,
 		&storage.K8SRoleBinding{}:                               resources.K8sRoleBinding,
 		&storage.K8SRole{}:                                      resources.K8sRole,
 		&storage.NamespaceMetadata{}:                            resources.Namespace,
@@ -33,11 +39,6 @@ func init() {
 		&storage.ReportConfiguration{}:                          resources.VulnerabilityReports,
 		&storage.SimpleAccessScope{}:                            resources.Role,
 		&storage.TokenMetadata{}:                                resources.Integration,
-		&storage.ComplianceOperatorCheckResult{}:                resources.ComplianceOperator,
-		&storage.ComplianceOperatorScan{}:                       resources.ComplianceOperator,
-		&storage.ComplianceOperatorScanSettingBinding{}:         resources.ComplianceOperator,
-		&storage.ComplianceOperatorProfile{}:                    resources.ComplianceOperator,
-		&storage.ComplianceOperatorRule{}:                       resources.ComplianceOperator,
 
 		// Tests
 		&storage.TestMultiKeyStruct{}:  resources.Namespace,

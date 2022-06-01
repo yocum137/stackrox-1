@@ -34,7 +34,7 @@ func newCentralGatherer(installationInfoStore store.Store, databaseGatherer *dat
 // Gather returns telemetry information about this Central
 func (c *CentralGatherer) Gather(ctx context.Context) *data.CentralInfo {
 	var errList []string
-	installationInfo, err := c.installationInfoStore.GetInstallationInfo()
+	installationInfo, err := c.installationInfoStore.GetInstallationInfo(ctx)
 	if err != nil {
 		errList = append(errList, fmt.Sprintf("Installation info error: %v", err.Error()))
 	}

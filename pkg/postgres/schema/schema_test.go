@@ -177,6 +177,10 @@ func (s *SchemaTestSuite) TestGormConsistentWithSQL() {
 			createStmts: CreateTableImageCvesStmt,
 		},
 		{
+			name:        InstallationInfosTableName,
+			createStmts: CreateTableInstallationInfosStmt,
+		},
+		{
 			name:        IntegrationHealthsTableName,
 			createStmts: CreateTableIntegrationHealthsStmt,
 		},

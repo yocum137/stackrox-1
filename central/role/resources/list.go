@@ -41,6 +41,7 @@ var (
 	// SAC check is not performed directly on ImageComponent resource. It exists here for postgres sac generation to pass.
 	ImageComponent = newResourceMetadata("ImageComponent", permissions.NamespaceScope)
 	// Integration is the new  resource grouping all integration resources.
+	InstallationInfo                 = newResourceMetadata("InstallationInfo", permissions.GlobalScope)
 	Integration                      = newResourceMetadata("Integration", permissions.GlobalScope)
 	K8sRole                          = newResourceMetadata("K8sRole", permissions.NamespaceScope)
 	K8sRoleBinding                   = newResourceMetadata("K8sRoleBinding", permissions.NamespaceScope)

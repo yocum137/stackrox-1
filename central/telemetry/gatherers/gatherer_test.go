@@ -9,7 +9,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/central/globalindex"
 	"github.com/stackrox/rox/central/grpc/metrics"
-	installation "github.com/stackrox/rox/central/installation/store"
+	installationStore "github.com/stackrox/rox/central/installation/store"
+	installation "github.com/stackrox/rox/central/installation/store/bolt"
 	"github.com/stackrox/rox/central/sensorupgradeconfig/datastore/mocks"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/bolthelper"
@@ -53,14 +54,14 @@ func (s *gathererTestSuite) SetupSuite() {
 	s.Require().NoError(err, "Failed to make in-memory Bleve: %s", err)
 	s.index = index
 
-	installationStore := installation.New(s.bolt)
+	boltStore := installation.New(s.bolt)
 	s.Require().NoError(err, "Failed to make installation store")
 
 	s.sensorUpgradeConfigDatastore = mocks.NewMockDataStore(s.mockCtrl)
 	s.sensorUpgradeConfigDatastore.EXPECT().GetSensorUpgradeConfig(gomock.Any()).Return(&storage.SensorUpgradeConfig{
 		EnableAutoUpgrade: true,
 	}, nil)
-	s.gatherer = newCentralGatherer(installationStore, newDatabaseGatherer(newRocksDBGatherer(s.rocks), newBoltGatherer(s.bolt), newBleveGatherer(s.index)), newAPIGatherer(metrics.GRPCSingleton(), metrics.HTTPSingleton()), gatherers.NewComponentInfoGatherer(), s.sensorUpgradeConfigDatastore)
+	s.gatherer = newCentralGatherer(installationStore.NewStore(boltStore), newDatabaseGatherer(newRocksDBGatherer(s.rocks), newBoltGatherer(s.bolt), newBleveGatherer(s.index)), newAPIGatherer(metrics.GRPCSingleton(), metrics.HTTPSingleton()), gatherers.NewComponentInfoGatherer(), s.sensorUpgradeConfigDatastore)
 }
 
 func (s *gathererTestSuite) TearDownSuite() {
