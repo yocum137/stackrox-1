@@ -59,6 +59,7 @@ var (
 		Indexes: []string{
 			"create index if not exists alerts_LifecycleStage on alerts using btree(LifecycleStage)",
 			"create index if not exists alerts_Deployment_Id on alerts using hash(Deployment_Id)",
+			"create index if not exists alerts_Image_Id on alerts using hash(Image_Id)",
 			"create index if not exists alerts_State on alerts using btree(State)",
 		},
 		Children: []*postgres.CreateStmts{},
@@ -104,7 +105,7 @@ type Alerts struct {
 	DeploymentId             string                              `gorm:"column:deployment_id;type:varchar;index:alerts_deployment_id,type:hash"`
 	DeploymentName           string                              `gorm:"column:deployment_name;type:varchar"`
 	DeploymentInactive       bool                                `gorm:"column:deployment_inactive;type:bool"`
-	ImageId                  string                              `gorm:"column:image_id;type:varchar"`
+	ImageId                  string                              `gorm:"column:image_id;type:varchar;index:alerts_image_id,type:hash"`
 	ImageNameRegistry        string                              `gorm:"column:image_name_registry;type:varchar"`
 	ImageNameRemote          string                              `gorm:"column:image_name_remote;type:varchar"`
 	ImageNameTag             string                              `gorm:"column:image_name_tag;type:varchar"`

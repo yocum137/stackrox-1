@@ -20,6 +20,7 @@ type context struct {
 	column         string
 	searchDisabled bool
 	ignorePK       bool
+	ignoreIndex    bool
 	ignoreUnique   bool
 	ignoreFKs      bool
 }
@@ -45,6 +46,7 @@ func (c context) childContext(name string, searchDisabled bool, opts PostgresOpt
 		column:         c.Column(name),
 		searchDisabled: c.searchDisabled || searchDisabled,
 		ignorePK:       c.ignorePK || opts.IgnorePrimaryKey,
+		ignoreIndex:    c.ignoreIndex || opts.IgnoreIndex,
 		ignoreUnique:   c.ignoreUnique || opts.IgnoreUniqueConstraint,
 		ignoreFKs:      c.ignoreFKs || opts.IgnoreChildFKs,
 	}
@@ -148,14 +150,14 @@ func Walk(obj reflect.Type, table string) *Schema {
 
 const defaultIndex = "btree"
 
-func getPostgresOptions(tag string, topLevel bool, ignorePK, ignoreUnique, ignoreFKs bool) PostgresOptions {
+func getPostgresOptions(tag string, topLevel bool, ignorePK, ignoreUnique, ignoreFKs, ignoreIndex bool) PostgresOptions {
 	var opts PostgresOptions
 
 	for _, field := range strings.Split(tag, ",") {
 		switch {
 		case field == "-":
 			opts.Ignored = true
-		case strings.HasPrefix(field, "index"):
+		case strings.HasPrefix(field, "index") && !ignoreIndex:
 			if strings.Contains(field, "=") {
 				opts.Index = stringutils.GetAfter(field, "=")
 			} else {
@@ -169,7 +171,10 @@ func getPostgresOptions(tag string, topLevel bool, ignorePK, ignoreUnique, ignor
 			// if this is an embedded entity with a primary key of its own, we do not want to use it as a
 			// primary key since the owning entity's primary key is what we'd like to use
 			opts.IgnorePrimaryKey = true
-
+		case field == "ignore_index":
+			// if this is an embedded entity with indexes that will be wasteful, then we don't want to
+			// index it in the embedded context
+			opts.IgnoreIndex = true
 		case field == "id":
 			opts.ID = true
 		case field == "pk":
@@ -264,8 +269,7 @@ func handleStruct(ctx context, schema *Schema, original reflect.Type) {
 		if strings.HasPrefix(structField.Name, "XXX") {
 			continue
 		}
-		opts := getPostgresOptions(structField.Tag.Get("sql"), schema.Parent == nil, ctx.ignorePK, ctx.ignoreUnique, ctx.ignoreFKs)
-
+		opts := getPostgresOptions(structField.Tag.Get("sql"), schema.Parent == nil, ctx.ignorePK, ctx.ignoreUnique, ctx.ignoreFKs, ctx.ignoreIndex)
 		if opts.Ignored {
 			continue
 		}

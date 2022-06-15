@@ -70,6 +70,7 @@ var (
 				GormModel: (*DeploymentsContainers)(nil),
 				Indexes: []string{
 					"create index if not exists deploymentsContainers_idx on deployments_containers using btree(idx)",
+					"create index if not exists deploymentsContainers_Image_Id on deployments_containers using hash(Image_Id)",
 				},
 				Children: []*postgres.CreateStmts{
 					&postgres.CreateStmts{
@@ -234,7 +235,7 @@ type Deployments struct {
 type DeploymentsContainers struct {
 	DeploymentsId                         string          `gorm:"column:deployments_id;type:varchar;primaryKey"`
 	Idx                                   int             `gorm:"column:idx;type:integer;primaryKey;index:deploymentscontainers_idx,type:btree"`
-	ImageId                               string          `gorm:"column:image_id;type:varchar"`
+	ImageId                               string          `gorm:"column:image_id;type:varchar;index:deploymentscontainers_image_id,type:hash"`
 	ImageNameRegistry                     string          `gorm:"column:image_name_registry;type:varchar"`
 	ImageNameRemote                       string          `gorm:"column:image_name_remote;type:varchar"`
 	ImageNameTag                          string          `gorm:"column:image_name_tag;type:varchar"`

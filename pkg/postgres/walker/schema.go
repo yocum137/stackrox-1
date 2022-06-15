@@ -371,6 +371,7 @@ type PostgresOptions struct {
 	PrimaryKey             bool
 	Unique                 bool
 	IgnorePrimaryKey       bool
+	IgnoreIndex            bool
 	IgnoreUniqueConstraint bool
 	Reference              *foreignKeyRef
 
