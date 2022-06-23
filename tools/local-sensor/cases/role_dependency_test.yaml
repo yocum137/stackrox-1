@@ -1,0 +1,50 @@
+testCase:
+- name: Role dependency on deployments namespace
+  config:
+    # how long should the test wait between resource creation
+    resourceBackoff: 1s
+    # how long should the test wait before starting to check assertions
+    extraWaitTimer: 2s
+    # runs all the possible permutations of the input files (will make the test run for much longer depending
+    # on how many inputs are there
+    permutateInput: true
+  # all input files are stored in
+  inputFiles:
+    # kind of resource being applied. This is required to apply the resource using klient
+  - kind: Binding
+    # file to be applied. Must be in /tools/local-sensor/cases/resources
+    file: "nginx-binding.yaml"
+  - kind: Role
+    file: "nginx-role.yaml"
+  - kind: Deployment
+    file: "nginx.yaml"
+  assertions:
+  - description: "NGINX should have role elevated in namespace"
+    # type of event to be checked. E.g. 'Role' or 'Alert'
+    kind: Deployment
+    # the name of event to be filtered. This will be used to get the correct last event sent for this resource kind
+    name: "nginx-deployment"
+    # generic assertion function. Applied using reflection. Check `tester/message.go`
+    assertion: CheckPermissionLevel
+    # assertion n
+    value: 3
+#---
+#testCase:
+#  name: Role dependency on deployments (cluster)
+#  config:
+#    runAllCombinations: false
+#    extraWaitTimer: 5s
+#    resourceBackoff: 1s
+#    namespace: sensor-integration
+#  inputFiles:
+#  - "nginx.yaml"
+#  - "nginx-binding-cluster.yaml"
+#  - "nginx-role-cluster.yaml"
+#  assertions:
+#  - description: "NGINX should have role elevated in cluster"
+#    lastResource:
+#    - kind: deployment
+#      event: update
+#      has:
+#      - key: "service_account_permission_level"
+#        value: 4

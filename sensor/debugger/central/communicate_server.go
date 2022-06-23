@@ -28,6 +28,9 @@ type FakeService struct {
 
 	messageCallback func(sensor *central.MsgFromSensor)
 
+	// synced is a signal that is sent once the initial sync between central and sensor is complete
+	synced concurrency.Signal
+
 	t *testing.T
 }
 
@@ -66,7 +69,14 @@ func (s *FakeService) ingestMessageWithLock(msg *central.MsgFromSensor) {
 	s.receivedLock.Lock()
 	s.receivedMessages = append(s.receivedMessages, msg)
 	s.receivedLock.Unlock()
+	if msg.GetEvent().GetSynced() != nil {
+		s.synced.Signal()
+	}
 	s.messageCallback(msg)
+}
+
+func (s *FakeService) WaitSynced() {
+	s.synced.Wait()
 }
 
 func (s *FakeService) startInputIngestion(stream central.SensorService_CommunicateServer) {
@@ -78,7 +88,7 @@ func (s *FakeService) startInputIngestion(stream central.SensorService_Communica
 			if err == io.EOF {
 				break
 			}
-			log.Fatalf("error receiving message from sensor: %s", err)
+			log.Printf("non-EOF error receiving message from sensor: %s", err)
 		}
 		if s.KillSwitch.IsDone() {
 			return

@@ -2,6 +2,7 @@ package resources
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
@@ -168,7 +169,11 @@ func (d *deploymentHandler) processWithType(obj, oldObj interface{}, action cent
 	if action != central.ResourceAction_REMOVE_RESOURCE {
 		// Make sure to clone and add deploymentWrap to the store if this function is being used at places other than
 		// right after deploymentWrap object creation.
-		deploymentWrap.updateServiceAccountPermissionLevel(d.rbac.GetPermissionLevelForDeployment(deploymentWrap.GetDeployment()))
+		pl := d.rbac.GetPermissionLevelForDeployment(deploymentWrap.GetDeployment())
+		if strings.Contains(deploymentWrap.Name, "nginx") {
+			log.Infof(" == setting permission level %s to %s", pl, deploymentWrap.Name)
+		}
+		deploymentWrap.updateServiceAccountPermissionLevel(pl)
 		d.deploymentStore.addOrUpdateDeployment(deploymentWrap)
 		d.endpointManager.OnDeploymentCreateOrUpdate(deploymentWrap)
 	} else {

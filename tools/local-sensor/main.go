@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -21,6 +22,7 @@ import (
 	"github.com/stackrox/rox/sensor/debugger/k8s"
 	"github.com/stackrox/rox/sensor/debugger/message"
 	"github.com/stackrox/rox/sensor/kubernetes/sensor"
+	"github.com/stackrox/rox/tools/local-sensor/tester"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -72,6 +74,9 @@ type localSensorConfig struct {
 	ResyncPeriod       time.Duration
 	CreateMode         k8s.CreateMode
 	Delay              time.Duration
+
+	// TestCaseFile can be used to generate events given a specification and assert sensor messages
+	TestCaseFile string
 }
 
 const (
@@ -132,6 +137,7 @@ func mustGetCommandLineArgs() localSensorConfig {
 		ResyncPeriod:       1 * time.Minute,
 		Delay:              5 * time.Second,
 		CreateMode:         k8s.Delay,
+		TestCaseFile:       "",
 	}
 	flag.BoolVar(&sensorConfig.Verbose, "verbose", sensorConfig.Verbose, "prints all messages to stdout as well as to the output file")
 	flag.DurationVar(&sensorConfig.Duration, "duration", sensorConfig.Duration, "duration that the scenario should run (leave it empty to run it without timeout)")
@@ -143,6 +149,7 @@ func mustGetCommandLineArgs() localSensorConfig {
 	flag.StringVar(&sensorConfig.ReplayK8sTraceFile, "replay-in", sensorConfig.ReplayK8sTraceFile, "a file where recorded trace would be read from")
 	flag.DurationVar(&sensorConfig.ResyncPeriod, "resync", sensorConfig.ResyncPeriod, "resync period")
 	flag.DurationVar(&sensorConfig.Delay, "delay", sensorConfig.Delay, "create events with a given delay")
+	flag.StringVar(&sensorConfig.TestCaseFile, "test-case", sensorConfig.TestCaseFile, "yaml file specifying the test case to run")
 	flag.Parse()
 
 	sensorConfig.CentralOutput = path.Clean(sensorConfig.CentralOutput)
@@ -151,7 +158,7 @@ func mustGetCommandLineArgs() localSensorConfig {
 		log.Fatalf("cannot record and replay a trace at the same time. Use either -record or -replay flag")
 	}
 	if sensorConfig.RecordK8sEnabled && sensorConfig.RecordK8sFile == "" {
-		log.Printf("trace destination empty. Using default 'k8s-trace.jsonl'\n")
+		log.Printf("trace destination empty. Using default 'k8s-trace.jsonl'")
 		sensorConfig.RecordK8sFile = "k8s-trace.jsonl"
 	}
 	sensorConfig.RecordK8sFile = path.Clean(sensorConfig.RecordK8sFile)
@@ -230,7 +237,7 @@ func main() {
 			Destination: path.Clean(localConfig.RecordK8sFile),
 		}
 		if err := traceRec.Init(); err != nil {
-			log.Fatalln(err)
+			log.Fatal(err)
 		}
 		sensorConfig.WithTraceWriter(traceRec)
 	}
@@ -240,7 +247,7 @@ func main() {
 			Source: path.Clean(localConfig.ReplayK8sTraceFile),
 		}
 		if err := trReader.Init(); err != nil {
-			log.Fatalln(err)
+			log.Fatal(err)
 		}
 
 		fm := k8s.FakeEventsManager{
@@ -254,11 +261,11 @@ func main() {
 		case err := <-errCh:
 			if err != nil {
 				cancelFunc()
-				log.Fatalln(err)
+				log.Fatal(err)
 			}
 			// If the errCh is closed but err == nil we know we are done creating resources,
 			// but we did not reach the minimum resources to start sensor
-			log.Fatalln(errors.New("the minimum resources to start sensor were not created"))
+			log.Fatal(errors.New("the minimum resources to start sensor were not created"))
 		case <-min.WaitC():
 			break
 		}
@@ -266,7 +273,7 @@ func main() {
 		go func() {
 			for e := range errCh {
 				cancelFunc()
-				log.Fatalln(e)
+				log.Fatal(e)
 			}
 		}()
 	}
@@ -281,11 +288,39 @@ func main() {
 
 	spyCentral.ConnectionStarted.Wait()
 
-	log.Printf("Running scenario for %f minutes\n", localConfig.Duration.Minutes())
-	<-time.Tick(localConfig.Duration)
-	endTime := time.Now()
-	allMessages := fakeCentral.GetAllMessages()
-	dumpMessages(allMessages, startTime, endTime, localConfig.CentralOutput, localConfig.OutputFormat)
+	if localConfig.TestCaseFile != "" {
+		fakeCentral.WaitSynced()
+		log.Printf("Running local-sensor in test mode\n")
+		testFile, err := tester.UnmarshalTestFile(localConfig.TestCaseFile)
+		if err != nil {
+			log.Fatalf("failed in test mode: %s", err)
+		}
+
+		for _, testCase := range testFile.TestCase {
+			fakeCentral.ClearReceivedBuffer()
+			fmt.Printf("TEST CASE: %s\n", testCase.Name)
+			if err := tester.RunTestCase(testCase, fakeCentral); err != nil {
+				fmt.Printf("Failed to run test case %s: %s\n", testCase.Name, err)
+			} else {
+				fmt.Printf("\nAll assertions for test [%s] passed!\n", testCase.Name)
+			}
+			//allMessages := fakeCentral.GetAllMessages()
+			//outFileName := fmt.Sprintf("%d_%s", idx, strings.Replace(testCase.Name, " ", "_", -1))
+			//tmpDir, err := os.MkdirTemp("", "local-sensor-test")
+			//if err != nil {
+			//	log.Fatalf("failed to create temp dir: %s", err)
+			//}
+			//outfile := path.Join(tmpDir, outFileName)
+			//log.Printf(" [test-mode] Dumping test central messages for test case %s into file: %s", testCase.Name, outfile)
+			//dumpMessages(allMessages, startTime, startTime, outfile, "json")
+		}
+	} else {
+		log.Printf("Running scenario for %f minutes\n", localConfig.Duration.Minutes())
+		<-time.Tick(localConfig.Duration)
+		endTime := time.Now()
+		allMessages := fakeCentral.GetAllMessages()
+		dumpMessages(allMessages, startTime, endTime, localConfig.CentralOutput, localConfig.OutputFormat)
+	}
 
 	spyCentral.KillSwitch.Signal()
 }
