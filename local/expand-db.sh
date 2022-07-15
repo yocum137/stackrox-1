@@ -9,12 +9,16 @@ if [[ -z $1 ]]; then
   exit 1
 fi
 
+rm "${DIR}/fixed_db_export.zip" || true
 rm -rf "${DIR}/database-restore"
 mkdir -p "${DIR}/database-restore"
 unzip -d "${DIR}/database-restore/expanded" $1
 mkdir -p "${DIR}/database-restore/expanded/rocksdb"
 tar -xvf "${DIR}/database-restore/expanded/rocks.db" -C "${DIR}/database-restore/expanded/rocksdb"
-mkdir -p "${DIR}/database-restore/full/rocksdb"
-go run "${DIR}/expand/main.go" --backup  "${DIR}/database-restore/expanded/rocksdb" --restored "${DIR}/database-restore/full/rocksdb"
-mv "${DIR}/database-restore/expanded/bolt.db" "${DIR}/database-restore/full/bolt.db"
+mkdir -p "${DIR}/database-restore/full/current/rocksdb"
+go run "${DIR}/expand/main.go" --backup  "${DIR}/database-restore/expanded/rocksdb" --restored "${DIR}/database-restore/full/current/rocksdb"
+mv "${DIR}/database-restore/expanded/bolt.db" "${DIR}/database-restore/full/current/stackrox.db"
+#mkdir -p "${DIR}/database-restore/full/current/keys"
+mv "${DIR}/database-restore/expanded/keys/" "${DIR}/database-restore/full/current/"
+mv "${DIR}/database-restore/expanded/migration_version.yaml" "${DIR}/database-restore/full/current/migration_version.yaml"
 rm -rf "${DIR}/database-restore/expanded"

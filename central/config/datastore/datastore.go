@@ -61,7 +61,8 @@ func (d *datastoreImpl) UpsertConfig(ctx context.Context, config *storage.Config
 				return err
 			}
 			if oldConf != nil {
-				clusterRetentionConf.CreatedAt = oldConf.GetCreatedAt()
+				// Commented out just for this test!
+				//clusterRetentionConf.CreatedAt = oldConf.GetCreatedAt()
 			} else {
 				clusterRetentionConf.CreatedAt = types.TimestampNow()
 			}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/pkg/fileutils"
-	"github.com/stackrox/rox/pkg/migrations/internal"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
@@ -17,15 +16,21 @@ const (
 	PreviousReplica = ".previous"
 )
 
+var (
+	// DBMountPathInt is the directory path (within a container) where database storage device is mounted.
+	DBMountPathInt = "/var/lib/stackrox"
+)
+
+
 // DBMountPath is the directory path (within a container) where database storage device is mounted.
 func DBMountPath() string {
-	return internal.DBMountPath
+	return DBMountPathInt
 }
 
 // CurrentPath is the link (within a container) to current migration directory. This directory contains
 // databases and other migration related contents.
 func CurrentPath() string {
-	return filepath.Join(internal.DBMountPath, Current)
+	return filepath.Join(DBMountPathInt, Current)
 }
 
 // SafeRemoveDBWithSymbolicLink removes databases in path if it exists, it protects current database and remove only the databases that is not in use.

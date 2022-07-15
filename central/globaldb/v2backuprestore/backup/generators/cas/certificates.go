@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	caCert      = "/run/secrets/stackrox.io/certs/ca.pem"
-	caKey       = "/run/secrets/stackrox.io/certs/ca-key.pem"
-	jwtKeyInDer = "/run/secrets/stackrox.io/certs/jwt-key.der"
-	jwtKeyInPem = "/run/secrets/stackrox.io/certs/jwt-key.pem"
+	caCert      = "/Users/nchander/go/src/github.com/stackrox/stackrox/local/database-restore/full/current/keys/ca.pem"
+	caKey       = "/Users/nchander/go/src/github.com/stackrox/stackrox/local/database-restore/full/current/keys/ca-key.pem"
+	jwtKeyInDer = "/Users/nchander/go/src/github.com/stackrox/stackrox/local/database-restore/full/current/keys/jwt-key.der"
+	jwtKeyInPem = "/Users/nchander/go/src/github.com/stackrox/stackrox/local/database-restore/full/current/keys/jwt-key.pem"
 )
 
 // NewCertsBackup returns a generator of certificate backups.
