@@ -19,8 +19,7 @@ build_operator_bundle_and_binary() {
 
     openshift_ci_mods
 
-    go mod download
-    make -C operator bundle bundle-post-process build SILENT=
+    make -C operator bundle bundle-post-process smuggled-status-sh SILENT=
     # TODO(porridge): a hack to get opm to build an index based on bundle directory before bundle image is pushed
     # The hacked opm tool will first see if a directory named as the reference exists, and if so, use its content as if it's an unpacked image of that name.
     mkdir -p operator/"$(make --quiet default-image-registry)"
