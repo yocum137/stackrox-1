@@ -5,5 +5,10 @@ Run operator e2e tests in a openshift 4 cluster provided via a hive cluster_clai
 """
 from runners import ClusterTestRunner
 from ci_tests import OperatorE2eTest
+from pre_tests import PreSystemTests
 
-ClusterTestRunner(test=OperatorE2eTest()).run()
+
+ClusterTestRunner(
+    pre_test=PreSystemTests(),
+    test=OperatorE2eTest()
+).run()
