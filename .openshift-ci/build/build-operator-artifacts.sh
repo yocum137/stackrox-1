@@ -19,6 +19,8 @@ build_operator_bundle_and_binary() {
 
     openshift_ci_mods
 
+    # Otherwise we get the cryptic "Missing value for flag: -I" error when running protoc (depended on by bundle -> manifests).
+    go mod download
     make -C operator bundle bundle-post-process smuggled-status-sh SILENT=
     # TODO(porridge): a hack to get opm to build an index based on bundle directory before bundle image is pushed
     # The hacked opm tool will first see if a directory named as the reference exists, and if so, use its content as if it's an unpacked image of that name.
