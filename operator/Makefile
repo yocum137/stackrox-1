@@ -240,7 +240,7 @@ test-e2e: build install validate-crs kuttl ensure-rox-main-image-exists ## Run e
 
 test-e2e-deployed: validate-crs kuttl ## Run e2e tests with manager deployed on cluster.
 	mkdir -p $(PROJECT_DIR)/build/kuttl-test-artifacts
-	KUTTL=$(KUTTL) SKIP_MANAGER_START=1 $(KUTTL) test
+	KUTTL=$(KUTTL) REAL_KUBECONFIG=$${KUBECONFIG} SKIP_MANAGER_START=1 $(KUTTL) test
 
 test-upgrade: kuttl bundle-post-process ## Run OLM-based operator upgrade tests.
 	mkdir -p $(PROJECT_DIR)/build/kuttl-test-artifacts
