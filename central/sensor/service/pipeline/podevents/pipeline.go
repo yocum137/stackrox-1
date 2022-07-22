@@ -65,6 +65,13 @@ func (s *pipelineImpl) Run(ctx context.Context, _ string, msg *central.MsgFromSe
 	case central.ResourceAction_REMOVE_RESOURCE:
 		return s.runRemovePipeline(ctx, pod)
 	default:
+		existingPod, exists, err := s.pods.GetPod(ctx, pod.GetId())
+		if err != nil {
+			return err
+		}
+		if exists && pod.Equal(existingPod) {
+			return nil
+		}
 		// Create and Update events solely trigger an upsert.
 		return s.pods.UpsertPod(ctx, pod)
 	}

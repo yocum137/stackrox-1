@@ -13,6 +13,8 @@ import "gogoproto/gogo.proto";
 
 package storage;
 
+option (gogoproto.equal_all) = true;
+
 // Next available tag: 35
 message Deployment {
     string id                                  = 1 [(gogoproto.moretags) = 'search:"Deployment ID,store,hidden" sql:"pk"'];

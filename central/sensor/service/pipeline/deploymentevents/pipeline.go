@@ -184,9 +184,13 @@ func (s *pipelineImpl) runGeneralPipeline(ctx context.Context, deployment *stora
 		if err != nil {
 			return err
 		}
+		deployment.StateTimestamp = 0
+		deployment.Hash = 0
 		// If it exists, check to see if we can dedupe it
 		if exists {
-			if oldDeployment.GetHash() == deployment.GetHash() {
+			oldDeployment.StateTimestamp = 0
+			oldDeployment.Hash = 0
+			if oldDeployment.Equal(deployment) {
 				// There is a separate handler for ContainerInstances,
 				// so there is no longer a need to continue from this point.
 				// This will only be reached upon a re-sync event from k8s.
