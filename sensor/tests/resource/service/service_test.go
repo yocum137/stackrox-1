@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	NginxDeployment  = resource.YamlTestFile{Kind: "Deployment", File: "nginx.yaml"}
-	NginxRole        = resource.YamlTestFile{Kind: "Pod", File: "nginx-pod.yaml"}
-	NginxRoleBinding = resource.YamlTestFile{Kind: "Service", File: "nginx-service.yaml"}
+	NginxDeployment = resource.YamlTestFile{Kind: "Deployment", File: "nginx.yaml"}
+	NginxPod        = resource.YamlTestFile{Kind: "Pod", File: "nginx-pod.yaml"}
+	NginxService    = resource.YamlTestFile{Kind: "Service", File: "nginx-service.yaml"}
 )
 
 func GetLastMessageWithDeploymentName(messages []*central.MsgFromSensor, n string) *central.MsgFromSensor {
@@ -48,7 +48,7 @@ type ServiceDependencySuite struct {
 	suite.Suite
 }
 
-func Test_RoleDependency(t *testing.T) {
+func Test_ServiceDependency(t *testing.T) {
 	suite.Run(t, new(ServiceDependencySuite))
 }
 
@@ -72,8 +72,8 @@ func (s *ServiceDependencySuite) Test_PermutationTest() {
 	s.testContext.RunWithResourcesPermutation(
 		[]resource.YamlTestFile{
 			NginxDeployment,
-			NginxRole,
-			NginxRoleBinding,
+			NginxService,
+			NginxPod,
 		}, "Role Dependency", func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
 			// Test context already takes care of creating and destroying resources
 			time.Sleep(2 * time.Second)
@@ -85,4 +85,37 @@ func (s *ServiceDependencySuite) Test_PermutationTest() {
 			testC.GetFakeCentral().ClearReceivedBuffer()
 		},
 	)
+}
+
+func (s *ServiceDependencySuite) Test_ServiceSelectorAndPodLabelsMatch() {
+	s.testContext.RunWithResources(
+		[]resource.YamlTestFile{
+			NginxDeployment,
+			NginxPod,
+		}, func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
+
+		})
+	/*
+		s.testContext.RunWithResources(
+			[]resource.YamlTestFile{
+				NginxDeployment,
+				NginxService,
+				NginxPod,
+			}, func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
+				/*
+					time.Sleep(10 * time.Second)
+					messages := testC.GetFakeCentral().GetAllMessages()
+					deployment := resource.GetLastMessageWithDeploymentName(messages, "sensor-integration", "nginx-deployment").
+						GetEvent().
+						GetDeployment()
+					require.NotNil(t, deployment, "Deployment object can't be nil")
+
+					pod := resource.GetLastMessageWithPodName(messages, "sensor-integration", "nginx-rogue").
+						GetEvent().
+						GetPod()
+					require.NotNil(t, pod, "Pod object can't be nil")
+
+				//TODO(JS): get pod and service and assert labels / selector equality
+			})
+	*/
 }

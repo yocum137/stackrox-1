@@ -321,6 +321,18 @@ func GetLastMessageWithDeploymentName(messages []*central.MsgFromSensor, ns, nam
 	return lastMessage
 }
 
+func GetLastMessageWithPodName(messages []*central.MsgFromSensor, ns, name string) *central.MsgFromSensor {
+	var lastMessage *central.MsgFromSensor
+	for i := len(messages) - 1; i > 0; i-- {
+		pod := messages[i].GetEvent().GetPod()
+		if pod.GetName() == name && pod.GetNamespace() == ns {
+			lastMessage = messages[i]
+			break
+		}
+	}
+	return lastMessage
+}
+
 func GetUniquePodNamesFromPrefix(messages []*central.MsgFromSensor, ns, prefix string) []string {
 	uniqueNames := set.NewStringSet()
 	for _, msg := range messages {
