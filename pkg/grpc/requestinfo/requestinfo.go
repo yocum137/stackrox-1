@@ -18,7 +18,6 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/pkg/errors"
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/pkg/cryptoutils"
 	"github.com/stackrox/rox/pkg/devbuild"
 	"github.com/stackrox/rox/pkg/env"
@@ -40,6 +39,9 @@ const (
 	remoteAddr       = "Remote-Addr"
 	host             = "Host"
 	userAgent        = "User-Agent"
+
+	refererUI  = "UI"
+	refererAPI = "API"
 )
 
 var (
@@ -307,9 +309,9 @@ func logRequest(request *http.Request) {
 
 	var referer string
 	if request.Header.Get(refererKey) != "" {
-		referer = v1.Audit_UI.String()
+		referer = refererUI
 	} else {
-		referer = v1.Audit_API.String()
+		referer = refererAPI
 	}
 	destHost := stringutils.FirstNonEmpty(request.Header.Get(host), request.Host, "N/A")
 	uri := stringutils.OrDefault(request.URL.RequestURI(), "N/A")
