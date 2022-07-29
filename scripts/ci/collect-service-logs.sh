@@ -73,6 +73,7 @@ main() {
                 if kubectl -n "${namespace}" logs "${object}/${item}" -p -c "${ctr}" > "${prev_log_file}"; then
                   echo "Found a previous log for ${item}"
                   exit_code="$(kubectl -n "${namespace}" get "${object}/${item}" -o jsonpath='{.status.containerStatuses}' | jq --arg ctr "$ctr" '.[] | select(.name == $ctr) | .lastState.terminated.exitCode')"
+                  echo "Exit code was ${exit_code}"
                   if [ "$exit_code" -eq "0" ]; then
                     mv "${prev_log_file}" "${log_dir}/${object}/${item}-${ctr}-prev-success.log"
                   fi
