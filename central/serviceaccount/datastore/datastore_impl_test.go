@@ -66,7 +66,7 @@ func (suite *ServiceAccountDataStoreTestSuite) TearDownSuite() {
 	suite.NoError(suite.bleveIndex.Close())
 }
 
-func (suite *ServiceAccountDataStoreTestSuite) assertSearchResults(q *aux.Query, s *storage.ServiceAccount) {
+func (suite *ServiceAccountDataStoreTestSuite) assertSearchResults(q *auxpb.Query, s *storage.ServiceAccount) {
 	results, err := suite.datastore.SearchServiceAccounts(suite.ctx, q)
 	suite.Require().NoError(err)
 	if s != nil {

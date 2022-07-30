@@ -58,7 +58,7 @@ func (ds *datastoreImpl) buildIndex() error {
 	return ds.indexer.AddPolicies(policies)
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -74,12 +74,12 @@ func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 }
 
 // SearchPolicies
-func (ds *datastoreImpl) SearchPolicies(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchPolicies(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchPolicies(ctx, q)
 }
 
 // SearchRawPolicies
-func (ds *datastoreImpl) SearchRawPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
+func (ds *datastoreImpl) SearchRawPolicies(ctx context.Context, q *auxpb.Query) ([]*storage.Policy, error) {
 	return ds.searcher.SearchRawPolicies(ctx, q)
 }
 

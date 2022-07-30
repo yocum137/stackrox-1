@@ -196,8 +196,8 @@ func (resolver *Resolver) TopNodeVulnerability(ctx context.Context, args RawQuer
 	if err != nil {
 		return nil, err
 	}
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -235,7 +235,7 @@ func (resolver *Resolver) TopNodeVulnerability(ctx context.Context, args RawQuer
 Utility Functions
 */
 
-func (resolver *nodeCVEResolver) getNodeCVEQuery() *aux.Query {
+func (resolver *nodeCVEResolver) getNodeCVEQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -325,7 +325,7 @@ func (resolver *nodeCVEResolver) IsFixable(ctx context.Context, args RawQuery) (
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*auxpb.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(resolver.ctx); !ok || scope.Level != v1.SearchCategory_NODE_VULNERABILITIES {
@@ -354,10 +354,10 @@ func (resolver *nodeCVEResolver) LastScanned(ctx context.Context) (*graphql.Time
 	}
 
 	q := resolver.getNodeCVEQuery()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*aux.QuerySortOption{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.NodeScanTime.String(),
 				Reversed: true,

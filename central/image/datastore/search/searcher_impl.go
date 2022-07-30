@@ -35,7 +35,7 @@ import (
 )
 
 var (
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field: search.LastUpdatedTime.String(),
 	}
 	componentOptionsMap = search.CombineOptionsMaps(componentMappings.OptionsMap)
@@ -61,7 +61,7 @@ type searcherImpl struct {
 }
 
 // SearchImages retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchImages(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	images, results, err := ds.searchImages(ctx, q)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (ds *searcherImpl) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.S
 	return protoResults, nil
 }
 
-func (ds *searcherImpl) SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error) {
+func (ds *searcherImpl) SearchListImages(ctx context.Context, q *auxpb.Query) ([]*storage.ListImage, error) {
 	images, _, err := ds.searchImages(ctx, q)
 	listImages := make([]*storage.ListImage, 0, len(images))
 	for _, image := range images {
@@ -83,7 +83,7 @@ func (ds *searcherImpl) SearchListImages(ctx context.Context, q *aux.Query) ([]*
 }
 
 // SearchRawImages retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error) {
+func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *aux.Query) ([]*s
 	return images, nil
 }
 
-func (ds *searcherImpl) searchImages(ctx context.Context, q *aux.Query) ([]*storage.Image, []search.Result, error) {
+func (ds *searcherImpl) searchImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -118,7 +118,7 @@ func (ds *searcherImpl) searchImages(ctx context.Context, q *aux.Query) ([]*stor
 	return images, newResults, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -126,7 +126,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (count int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (count int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		count, err = ds.searcher.Count(inner, q)
 	})

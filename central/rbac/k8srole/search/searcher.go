@@ -19,10 +19,10 @@ var (
 // Searcher provides search functionality on existing k8s roles.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchRoles(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawRoles(ctx context.Context, query *aux.Query) ([]*storage.K8SRole, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchRoles(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawRoles(ctx context.Context, query *auxpb.Query) ([]*storage.K8SRole, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

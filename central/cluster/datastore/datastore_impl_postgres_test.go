@@ -142,7 +142,7 @@ func (s *ClusterPostgresDataStoreTestSuite) TestSearchWithPostgres() {
 	for _, tc := range []struct {
 		desc        string
 		ctx         context.Context
-		query       *aux.Query
+		query       *auxpb.Query
 		expectedIDs []string
 		queryNs     bool
 	}{

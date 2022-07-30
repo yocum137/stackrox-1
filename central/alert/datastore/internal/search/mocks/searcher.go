@@ -39,7 +39,7 @@ func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockSearcher) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockSearcher) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -54,7 +54,7 @@ func (mr *MockSearcherMockRecorder) Count(ctx, q interface{}) *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockSearcher) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockSearcher) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -69,7 +69,7 @@ func (mr *MockSearcherMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchAlerts mocks base method.
-func (m *MockSearcher) SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockSearcher) SearchAlerts(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchAlerts", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -84,7 +84,7 @@ func (mr *MockSearcherMockRecorder) SearchAlerts(ctx, q interface{}) *gomock.Cal
 }
 
 // SearchListAlerts mocks base method.
-func (m *MockSearcher) SearchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
+func (m *MockSearcher) SearchListAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListAlerts", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListAlert)
@@ -99,7 +99,7 @@ func (mr *MockSearcherMockRecorder) SearchListAlerts(ctx, q interface{}) *gomock
 }
 
 // SearchRawAlerts mocks base method.
-func (m *MockSearcher) SearchRawAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error) {
+func (m *MockSearcher) SearchRawAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.Alert, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawAlerts", ctx, q)
 	ret0, _ := ret[0].([]*storage.Alert)

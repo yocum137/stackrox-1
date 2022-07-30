@@ -33,7 +33,7 @@ type SingleIndexSuite struct {
 	pool    *pgxpool.Pool
 	store   postgres.Store
 	indexer interface {
-		Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+		Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 	}
 }
 

@@ -39,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -100,7 +100,7 @@ func (mr *MockDataStoreMockRecorder) GetBatch(ctx, id interface{}) *gomock.Call 
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -115,7 +115,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchImageComponents mocks base method.
-func (m *MockDataStore) SearchImageComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchImageComponents(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchImageComponents", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -130,7 +130,7 @@ func (mr *MockDataStoreMockRecorder) SearchImageComponents(ctx, q interface{}) *
 }
 
 // SearchRawImageComponents mocks base method.
-func (m *MockDataStore) SearchRawImageComponents(ctx context.Context, q *aux.Query) ([]*storage.ImageComponent, error) {
+func (m *MockDataStore) SearchRawImageComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ImageComponent, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawImageComponents", ctx, q)
 	ret0, _ := ret[0].([]*storage.ImageComponent)

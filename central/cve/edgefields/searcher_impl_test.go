@@ -13,20 +13,20 @@ import (
 )
 
 func TestGetCVEEdgeQuery(t *testing.T) {
-	query := &aux.Query{
-		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
-			Queries: []*aux.Query{
-				{Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Fixable.String(), Value: "true"},
+	query := &auxpb.Query{
+		Query: &auxpb.Query_Conjunction{Conjunction: &auxpb.ConjunctionQuery{
+			Queries: []*auxpb.Query{
+				{Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Fixable.String(), Value: "true"},
 						},
 					},
 				}},
-				{Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &aux.MatchFieldQuery{Field: search.ClusterID.String(), Value: "cluster1"},
+				{Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.ClusterID.String(), Value: "cluster1"},
 						},
 					},
 				}},
@@ -34,33 +34,33 @@ func TestGetCVEEdgeQuery(t *testing.T) {
 		}},
 	}
 
-	expectedQuery := &aux.Query{
-		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
-			Queries: []*aux.Query{
-				{Query: &aux.Query_Disjunction{
-					Disjunction: &aux.DisjunctionQuery{
-						Queries: []*aux.Query{
-							{Query: &aux.Query_BaseQuery{
-								BaseQuery: &aux.BaseQuery{
-									Query: &aux.BaseQuery_MatchFieldQuery{
-										MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Fixable.String(), Value: "true"},
+	expectedQuery := &auxpb.Query{
+		Query: &auxpb.Query_Conjunction{Conjunction: &auxpb.ConjunctionQuery{
+			Queries: []*auxpb.Query{
+				{Query: &auxpb.Query_Disjunction{
+					Disjunction: &auxpb.DisjunctionQuery{
+						Queries: []*auxpb.Query{
+							{Query: &auxpb.Query_BaseQuery{
+								BaseQuery: &auxpb.BaseQuery{
+									Query: &auxpb.BaseQuery_MatchFieldQuery{
+										MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Fixable.String(), Value: "true"},
 									},
 								},
 							}},
-							{Query: &aux.Query_BaseQuery{
-								BaseQuery: &aux.BaseQuery{
-									Query: &aux.BaseQuery_MatchFieldQuery{
-										MatchFieldQuery: &aux.MatchFieldQuery{Field: search.ClusterCVEFixable.String(), Value: "true"},
+							{Query: &auxpb.Query_BaseQuery{
+								BaseQuery: &auxpb.BaseQuery{
+									Query: &auxpb.BaseQuery_MatchFieldQuery{
+										MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.ClusterCVEFixable.String(), Value: "true"},
 									},
 								},
 							}},
 						},
 					},
 				}},
-				{Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &aux.MatchFieldQuery{Field: search.ClusterID.String(), Value: "cluster1"},
+				{Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.ClusterID.String(), Value: "cluster1"},
 						},
 					},
 				}},
@@ -84,8 +84,8 @@ func TestSnoozedQueryHandler(t *testing.T) {
 
 	for _, c := range []struct {
 		desc     string
-		incoming *aux.Query
-		expected *aux.Query
+		incoming *auxpb.Query
+		expected *auxpb.Query
 		ctx      context.Context
 	}{
 		{

@@ -158,7 +158,7 @@ func (suite *SecretServiceTestSuite) TestSearchSecret() {
 	}
 
 	emptyWithPag := search.EmptyQuery()
-	emptyWithPag.Pagination = &aux.QueryPagination{
+	emptyWithPag.Pagination = &auxpb.QueryPagination{
 		Limit: maxSecretsReturned,
 	}
 	suite.mockSecretStore.EXPECT().SearchListSecrets(gomock.Any(), emptyWithPag).Return(expectedReturns, nil)
@@ -172,7 +172,7 @@ func (suite *SecretServiceTestSuite) TestSearchSecretFailure() {
 	expectedError := errors.New("failure")
 
 	emptyWithPag := search.EmptyQuery()
-	emptyWithPag.Pagination = &aux.QueryPagination{
+	emptyWithPag.Pagination = &auxpb.QueryPagination{
 		Limit: maxSecretsReturned,
 	}
 	suite.mockSecretStore.EXPECT().SearchListSecrets(gomock.Any(), emptyWithPag).Return(([]*storage.ListSecret)(nil), expectedError)

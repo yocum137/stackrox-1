@@ -356,7 +356,7 @@ func (l *loopImpl) waitForIndexing() {
 }
 
 func (l *loopImpl) reprocessImagesAndResyncDeployments(fetchOpt imageEnricher.FetchOption,
-	imgReprocessingFunc imageReprocessingFunc, imageQuery *aux.Query) {
+	imgReprocessingFunc imageReprocessingFunc, imageQuery *auxpb.Query) {
 	if l.stopSig.IsDone() {
 		return
 	}

@@ -19,10 +19,10 @@ var (
 // Searcher provides search functionality on existing alerts
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchCategories(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

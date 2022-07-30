@@ -28,7 +28,7 @@ type searcherImpl struct {
 }
 
 // SearchClusterCVEEdges returns the search results from indexed cves for the query.
-func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.Se
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -45,16 +45,16 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchRawClusterCVEEdges retrieves cves from the indexer and storage
-func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ClusterCVEEdge, error) {
+func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.ClusterCVEEdge, error) {
 	return ds.searchClusterCVEEdges(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
@@ -103,7 +103,7 @@ func getCompoundCVESearcher(
 	})
 }
 
-func (ds *searcherImpl) searchClusterCVEEdges(ctx context.Context, q *aux.Query) ([]*storage.ClusterCVEEdge, error) {
+func (ds *searcherImpl) searchClusterCVEEdges(ctx context.Context, q *auxpb.Query) ([]*storage.ClusterCVEEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

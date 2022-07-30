@@ -24,8 +24,8 @@ import (
 // DataStore wraps storage, indexer, and searcher for ProcessBaselines.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error)
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	SearchRawProcessBaselines(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessBaseline, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
 
 	GetProcessBaseline(ctx context.Context, key *storage.ProcessBaselineKey) (*storage.ProcessBaseline, bool, error)
 	AddProcessBaseline(ctx context.Context, baseline *storage.ProcessBaseline) (string, error)

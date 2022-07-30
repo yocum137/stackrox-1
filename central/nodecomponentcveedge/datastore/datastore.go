@@ -15,13 +15,13 @@ import (
 // DataStore is an intermediary to Component/CVE edge storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentCVEEdge, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponentCVEEdge, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.NodeComponentCVEEdge, bool, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 }
 
 // New returns a new instance of a DataStore.

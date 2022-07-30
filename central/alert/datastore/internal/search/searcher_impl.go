@@ -25,7 +25,7 @@ import (
 var (
 	log = logging.LoggerForModule()
 
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field:    search.ViolationTime.String(),
 		Reversed: true,
 	}
@@ -42,7 +42,7 @@ type searcherImpl struct {
 }
 
 // SearchAlerts retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchAlerts(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	alerts, results, err := ds.searchListAlerts(ctx, q)
 	if err != nil {
 		return nil, err
@@ -55,18 +55,18 @@ func (ds *searcherImpl) SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.S
 }
 
 // SearchRawAlerts retrieves Alerts from the indexer and storage
-func (ds *searcherImpl) SearchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
+func (ds *searcherImpl) SearchListAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error) {
 	alerts, _, err := ds.searchListAlerts(ctx, q)
 	return alerts, err
 }
 
 // SearchRawAlerts retrieves Alerts from the indexer and storage
-func (ds *searcherImpl) SearchRawAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error) {
+func (ds *searcherImpl) SearchRawAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.Alert, error) {
 	alerts, err := ds.searchAlerts(ctx, q)
 	return alerts, err
 }
 
-func (ds *searcherImpl) searchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, []search.Result, error) {
+func (ds *searcherImpl) searchListAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -83,7 +83,7 @@ func (ds *searcherImpl) searchListAlerts(ctx context.Context, q *aux.Query) ([]*
 	return listAlerts, results, nil
 }
 
-func (ds *searcherImpl) searchAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error) {
+func (ds *searcherImpl) searchAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.Alert, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -96,12 +96,12 @@ func (ds *searcherImpl) searchAlerts(ctx context.Context, q *aux.Query) ([]*stor
 }
 
 // Search takes a SearchRequest and finds any matches
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return ds.formattedSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return ds.formattedSearcher.Count(ctx, q)
 }
 
@@ -163,10 +163,10 @@ type defaultViolationStateSearcher struct {
 	searcher search.Searcher
 }
 
-func (ds *defaultViolationStateSearcher) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *defaultViolationStateSearcher) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	var querySpecifiesStateField bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -188,10 +188,10 @@ func (ds *defaultViolationStateSearcher) Search(ctx context.Context, q *aux.Quer
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *defaultViolationStateSearcher) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *defaultViolationStateSearcher) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	var querySpecifiesStateField bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

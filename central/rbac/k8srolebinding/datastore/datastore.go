@@ -25,10 +25,10 @@ import (
 // DataStore is an intermediary to RoleBindingStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRoleBindings(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRoleBindings(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawRoleBindings(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRoleBinding, error)
 
 	GetRoleBinding(ctx context.Context, id string) (*storage.K8SRoleBinding, bool, error)
 	UpsertRoleBinding(ctx context.Context, request *storage.K8SRoleBinding) error

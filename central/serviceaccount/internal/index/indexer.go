@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddServiceAccount(serviceaccount *storage.ServiceAccount) error
 	AddServiceAccounts(serviceaccounts []*storage.ServiceAccount) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteServiceAccount(id string) error
 	DeleteServiceAccounts(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

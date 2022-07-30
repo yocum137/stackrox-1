@@ -247,7 +247,7 @@ func (s *storeImpl) UpsertMany(ctx context.Context, objs []*storage.NetworkPolic
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Count, "NetworkPolicyApplicationUndoRecord")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -267,7 +267,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 func (s *storeImpl) Exists(ctx context.Context, clusterId string) (bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Exists, "NetworkPolicyApplicationUndoRecord")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
 	if err != nil {
@@ -293,7 +293,7 @@ func (s *storeImpl) Exists(ctx context.Context, clusterId string) (bool, error) 
 func (s *storeImpl) Get(ctx context.Context, clusterId string) (*storage.NetworkPolicyApplicationUndoRecord, bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Get, "NetworkPolicyApplicationUndoRecord")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -335,7 +335,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 func (s *storeImpl) Delete(ctx context.Context, clusterId string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Remove, "NetworkPolicyApplicationUndoRecord")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
 	if err != nil {
@@ -357,7 +357,7 @@ func (s *storeImpl) Delete(ctx context.Context, clusterId string) error {
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.GetAll, "storage.NetworkPolicyApplicationUndoRecordIDs")
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -389,7 +389,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Netwo
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.ResourceWithAccess{
@@ -445,7 +445,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Netwo
 func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.RemoveMany, "NetworkPolicyApplicationUndoRecord")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
@@ -467,7 +467,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.NetworkPolicyApplicationUndoRecord) error) error {
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	fetcher, closer, err := postgres.RunCursorQueryForSchema(ctx, schema, sacQueryFilter, s.db)
 	if err != nil {
 		return err

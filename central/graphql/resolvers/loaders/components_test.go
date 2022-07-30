@@ -122,7 +122,7 @@ func (suite *ComponentLoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &aux.Query{}
+	query := &auxpb.Query{}
 
 	// Get a preloaded component from id.
 	results := []search.Result{

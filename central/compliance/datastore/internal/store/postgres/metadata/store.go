@@ -275,7 +275,7 @@ func (s *storeImpl) UpsertMany(ctx context.Context, objs []*storage.ComplianceRu
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Count, "ComplianceRunMetadata")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -295,7 +295,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 func (s *storeImpl) Exists(ctx context.Context, runId string) (bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Exists, "ComplianceRunMetadata")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
 	if err != nil {
@@ -321,7 +321,7 @@ func (s *storeImpl) Exists(ctx context.Context, runId string) (bool, error) {
 func (s *storeImpl) Get(ctx context.Context, runId string) (*storage.ComplianceRunMetadata, bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Get, "ComplianceRunMetadata")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -363,7 +363,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 func (s *storeImpl) Delete(ctx context.Context, runId string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Remove, "ComplianceRunMetadata")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
 	if err != nil {
@@ -385,7 +385,7 @@ func (s *storeImpl) Delete(ctx context.Context, runId string) error {
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.GetAll, "storage.ComplianceRunMetadataIDs")
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -417,7 +417,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Compl
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.ResourceWithAccess{
@@ -473,7 +473,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Compl
 func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.RemoveMany, "ComplianceRunMetadata")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
@@ -495,7 +495,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.ComplianceRunMetadata) error) error {
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.ResourceWithAccess{
 		Resource: targetResource,

@@ -69,7 +69,7 @@ func TestMultiTableQueries(t *testing.T) {
 	deploymentBaseSchema.SetOptionsMap(mappings.OptionsMap)
 	for _, c := range []struct {
 		desc                 string
-		q                    *aux.Query
+		q                    *auxpb.Query
 		expectedQueryPortion string
 		expectedFrom         string
 		expectedWhere        string

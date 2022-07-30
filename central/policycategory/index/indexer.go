@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddPolicyCategory(policycategory *storage.PolicyCategory) error
 	AddPolicyCategories(policycategories []*storage.PolicyCategory) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeletePolicyCategory(id string) error
 	DeletePolicyCategories(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

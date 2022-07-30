@@ -76,7 +76,7 @@ func (resolver *alertResolver) UnusedVarSink(ctx context.Context, args RawQuery)
 	return nil
 }
 
-func getLatestViolationTime(ctx context.Context, root *Resolver, q *aux.Query) (*graphql.Time, error) {
+func getLatestViolationTime(ctx context.Context, root *Resolver, q *auxpb.Query) (*graphql.Time, error) {
 	if err := readAlerts(ctx); err != nil {
 		return nil, err
 	}
@@ -85,8 +85,8 @@ func getLatestViolationTime(ctx context.Context, root *Resolver, q *aux.Query) (
 		search.NewQueryBuilder().
 			AddExactMatches(search.ViolationState, storage.ViolationState_ACTIVE.String()).ProtoQuery())
 
-	q.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	q.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.ViolationTime.String(),
 				Reversed: true,
@@ -104,7 +104,7 @@ func getLatestViolationTime(ctx context.Context, root *Resolver, q *aux.Query) (
 	return timestamp(alerts[0].GetTime())
 }
 
-func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *aux.Query) (bool, error) {
+func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *auxpb.Query) (bool, error) {
 	if err := readAlerts(ctx); err != nil {
 		return false, err
 	}
@@ -117,7 +117,7 @@ func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *aux.Query) (b
 	if err != nil {
 		return false, err
 	}
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		Limit: 1,
 	}
 

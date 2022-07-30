@@ -54,7 +54,7 @@ func (mr *MockDataStoreMockRecorder) AddPolicy(arg0, arg1 interface{}) *gomock.C
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -162,7 +162,7 @@ func (mr *MockDataStoreMockRecorder) RemovePolicy(ctx, id interface{}) *gomock.C
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -177,7 +177,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchPolicies mocks base method.
-func (m *MockDataStore) SearchPolicies(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchPolicies(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchPolicies", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -192,7 +192,7 @@ func (mr *MockDataStoreMockRecorder) SearchPolicies(ctx, q interface{}) *gomock.
 }
 
 // SearchRawPolicies mocks base method.
-func (m *MockDataStore) SearchRawPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
+func (m *MockDataStore) SearchRawPolicies(ctx context.Context, q *auxpb.Query) ([]*storage.Policy, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawPolicies", ctx, q)
 	ret0, _ := ret[0].([]*storage.Policy)

@@ -10,8 +10,8 @@ import (
 //go:generate mockgen-wrapper
 // Indexer is the interface for indexing active component
 type Indexer interface {
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 // New creates a new active component indexer

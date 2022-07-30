@@ -23,8 +23,8 @@ func (m MockAlertsGetter) ListAlerts(ctx context.Context, req *v1.ListAlertsRequ
 	}
 
 	state := storage.ViolationState_ACTIVE.String()
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == search.ViolationState.String() {
 			state = mfQ.MatchFieldQuery.GetValue()
 		}

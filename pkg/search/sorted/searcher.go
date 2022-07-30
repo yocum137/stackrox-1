@@ -18,8 +18,8 @@ type Ranker interface {
 // Searcher returns a Searcher that applies the sort for the custom field if it exists in the input query.
 func Searcher(searcher search.Searcher, field search.FieldLabel, ranker Ranker) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
-			var indexQuery *aux.Query
+		SearchFunc: func(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
+			var indexQuery *auxpb.Query
 			var sortByRank bool
 			var reversed bool
 			if q.GetPagination() != nil && len(q.GetPagination().GetSortOptions()) == 1 {
@@ -46,7 +46,7 @@ func Searcher(searcher search.Searcher, field search.FieldLabel, ranker Ranker) 
 			})
 			return results, nil
 		},
-		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *auxpb.Query) (int, error) {
 			return searcher.Count(ctx, q)
 		},
 	}

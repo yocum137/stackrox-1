@@ -220,8 +220,8 @@ func (resolver *Resolver) TopImageVulnerability(ctx context.Context, args RawQue
 	if err != nil {
 		return nil, err
 	}
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -283,7 +283,7 @@ func (resolver *imageCVEResolver) withImageVulnerabilityScope(ctx context.Contex
 	})
 }
 
-func (resolver *imageCVEResolver) getImageCVEQuery() *aux.Query {
+func (resolver *imageCVEResolver) getImageCVEQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -342,7 +342,7 @@ func (resolver *imageCVEResolver) IsFixable(ctx context.Context, args RawQuery) 
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*auxpb.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(ctx); !ok || scope.Level != v1.SearchCategory_IMAGE_VULNERABILITIES {
@@ -369,10 +369,10 @@ func (resolver *imageCVEResolver) LastScanned(ctx context.Context) (*graphql.Tim
 	}
 
 	q := search.EmptyQuery()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*aux.QuerySortOption{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.ImageScanTime.String(),
 				Reversed: true,

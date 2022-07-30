@@ -238,10 +238,10 @@ func (resolver *Resolver) OpenShiftVulnerabilities(ctx context.Context, args Pag
 	return resolver.openShiftVulnerabilitiesV2(ctx, args)
 }
 
-func tryUnsuppressedQuery(q *aux.Query) *aux.Query {
+func tryUnsuppressedQuery(q *auxpb.Query) *auxpb.Query {
 	var isSearchBySuppressed, isSearchByVulnState bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == search.CVESuppressed.String() && mfQ.MatchFieldQuery.GetValue() == "true" {
 			isSearchBySuppressed = true
 			return

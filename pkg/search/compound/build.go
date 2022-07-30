@@ -11,7 +11,7 @@ import (
 
 // build walks the query and maps every base query field to a single SearcherSpec. This way we know which parts of the
 // query are concerned with which searcher.
-func build(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
+func build(q *auxpb.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
 	if len(specs) == 0 {
 		return nil, errors.New("searcher specs are required for building a search request")
 	}
@@ -23,7 +23,7 @@ func build(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
 	return buildMultiSpec(q, specs)
 }
 
-func buildSingleSpec(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
+func buildSingleSpec(q *auxpb.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
 	return &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec:  &specs[0],
@@ -32,7 +32,7 @@ func buildSingleSpec(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, er
 	}, nil
 }
 
-func buildDefaultSpec(query *aux.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
+func buildDefaultSpec(query *auxpb.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
 	spec := getDefaultSpec(specs)
 	if query == nil {
 		query = search.EmptyQuery()
@@ -45,7 +45,7 @@ func buildDefaultSpec(query *aux.Query, specs []SearcherSpec) (*searchRequestSpe
 	}, nil
 }
 
-func buildMultiSpec(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
+func buildMultiSpec(q *auxpb.Query, specs []SearcherSpec) (*searchRequestSpec, error) {
 	spec, err := treeBuilder(specs).walkSpecsRec(q)
 	if err != nil {
 		return nil, err
@@ -58,24 +58,24 @@ func buildMultiSpec(q *aux.Query, specs []SearcherSpec) (*searchRequestSpec, err
 // treeBuilder object stores the specs for each when walking the query.
 type treeBuilder []SearcherSpec
 
-func (tb treeBuilder) walkSpecsRec(q *aux.Query) (*searchRequestSpec, error) {
+func (tb treeBuilder) walkSpecsRec(q *auxpb.Query) (*searchRequestSpec, error) {
 	if q == nil || q.GetQuery() == nil {
 		return buildDefaultSpec(nil, tb)
 	}
 
-	if _, isDisjunction := q.GetQuery().(*aux.Query_Disjunction); isDisjunction {
+	if _, isDisjunction := q.GetQuery().(*auxpb.Query_Disjunction); isDisjunction {
 		return tb.or(q.GetDisjunction().GetQueries())
-	} else if _, isConjunction := q.GetQuery().(*aux.Query_Conjunction); isConjunction {
+	} else if _, isConjunction := q.GetQuery().(*auxpb.Query_Conjunction); isConjunction {
 		return tb.and(q.GetConjunction().GetQueries())
-	} else if _, isBool := q.GetQuery().(*aux.Query_BooleanQuery); isBool {
+	} else if _, isBool := q.GetQuery().(*auxpb.Query_BooleanQuery); isBool {
 		return tb.boolean(q.GetBooleanQuery())
-	} else if _, isBase := q.GetQuery().(*aux.Query_BaseQuery); isBase {
+	} else if _, isBase := q.GetQuery().(*auxpb.Query_BaseQuery); isBase {
 		return tb.base(q.GetBaseQuery())
 	}
 	return buildDefaultSpec(q, tb)
 }
 
-func (tb treeBuilder) or(queries []*aux.Query) (*searchRequestSpec, error) {
+func (tb treeBuilder) or(queries []*auxpb.Query) (*searchRequestSpec, error) {
 	ret := make([]*searchRequestSpec, 0, len(queries))
 	for _, dis := range queries {
 		next, err := tb.walkSpecsRec(dis)
@@ -95,7 +95,7 @@ func (tb treeBuilder) or(queries []*aux.Query) (*searchRequestSpec, error) {
 	}, nil
 }
 
-func (tb treeBuilder) and(queries []*aux.Query) (*searchRequestSpec, error) {
+func (tb treeBuilder) and(queries []*auxpb.Query) (*searchRequestSpec, error) {
 	ret := make([]*searchRequestSpec, 0, len(queries))
 	for _, dis := range queries {
 		next, err := tb.walkSpecsRec(dis)
@@ -115,7 +115,7 @@ func (tb treeBuilder) and(queries []*aux.Query) (*searchRequestSpec, error) {
 	}, nil
 }
 
-func (tb treeBuilder) boolean(q *aux.BooleanQuery) (*searchRequestSpec, error) {
+func (tb treeBuilder) boolean(q *auxpb.BooleanQuery) (*searchRequestSpec, error) {
 	must, err := tb.and(q.GetMust().GetQueries())
 	if err != nil || must == nil {
 		return nil, err
@@ -134,29 +134,29 @@ func (tb treeBuilder) boolean(q *aux.BooleanQuery) (*searchRequestSpec, error) {
 	}, nil
 }
 
-func (tb treeBuilder) base(q *aux.BaseQuery) (*searchRequestSpec, error) {
+func (tb treeBuilder) base(q *auxpb.BaseQuery) (*searchRequestSpec, error) {
 	// For DocId and MatchNone queries, we can always rely on the primary searcher.
-	if _, isDocID := q.GetQuery().(*aux.BaseQuery_DocIdQuery); isDocID {
+	if _, isDocID := q.GetQuery().(*auxpb.BaseQuery_DocIdQuery); isDocID {
 		return tb.docID(q.GetDocIdQuery()), nil
-	} else if _, isMatchNone := q.GetQuery().(*aux.BaseQuery_MatchNoneQuery); isMatchNone {
+	} else if _, isMatchNone := q.GetQuery().(*auxpb.BaseQuery_MatchNoneQuery); isMatchNone {
 		return tb.matchNone(q.GetMatchNoneQuery()), nil
-	} else if _, isMatchField := q.GetQuery().(*aux.BaseQuery_MatchFieldQuery); isMatchField {
+	} else if _, isMatchField := q.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery); isMatchField {
 		return tb.match(q.GetMatchFieldQuery()), nil
-	} else if _, isMatchLinkedField := q.GetQuery().(*aux.BaseQuery_MatchLinkedFieldsQuery); isMatchLinkedField {
+	} else if _, isMatchLinkedField := q.GetQuery().(*auxpb.BaseQuery_MatchLinkedFieldsQuery); isMatchLinkedField {
 		return tb.matchLinked(q.GetMatchLinkedFieldsQuery())
 	}
 	return nil, fmt.Errorf("cannot handle base query of type %T", q.GetQuery())
 }
 
-func (tb treeBuilder) docID(q *aux.DocIDQuery) *searchRequestSpec {
+func (tb treeBuilder) docID(q *auxpb.DocIDQuery) *searchRequestSpec {
 	spec := getDefaultSpec(tb)
 	return &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec: spec,
-			Query: &aux.Query{
-				Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_DocIdQuery{
+			Query: &auxpb.Query{
+				Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_DocIdQuery{
 							DocIdQuery: q,
 						},
 					},
@@ -166,7 +166,7 @@ func (tb treeBuilder) docID(q *aux.DocIDQuery) *searchRequestSpec {
 	}
 }
 
-func (tb treeBuilder) matchNone(q *aux.MatchNoneQuery) *searchRequestSpec {
+func (tb treeBuilder) matchNone(q *auxpb.MatchNoneQuery) *searchRequestSpec {
 	spec := getDefaultSpec(tb)
 	return &searchRequestSpec{
 		base: &baseRequestSpec{
@@ -176,7 +176,7 @@ func (tb treeBuilder) matchNone(q *aux.MatchNoneQuery) *searchRequestSpec {
 	}
 }
 
-func (tb treeBuilder) match(q *aux.MatchFieldQuery) *searchRequestSpec {
+func (tb treeBuilder) match(q *auxpb.MatchFieldQuery) *searchRequestSpec {
 	spec, match := getMatchedSpec(q, tb)
 	if !match {
 		return nil
@@ -184,10 +184,10 @@ func (tb treeBuilder) match(q *aux.MatchFieldQuery) *searchRequestSpec {
 	return &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec: spec,
-			Query: &aux.Query{
-				Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_MatchFieldQuery{
+			Query: &auxpb.Query{
+				Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_MatchFieldQuery{
 							MatchFieldQuery: q,
 						},
 					},
@@ -197,7 +197,7 @@ func (tb treeBuilder) match(q *aux.MatchFieldQuery) *searchRequestSpec {
 	}
 }
 
-func (tb treeBuilder) matchLinked(q *aux.MatchLinkedFieldsQuery) (*searchRequestSpec, error) {
+func (tb treeBuilder) matchLinked(q *auxpb.MatchLinkedFieldsQuery) (*searchRequestSpec, error) {
 	spec := tb.matchLinkedSingle(q)
 	if spec != nil {
 		return spec, nil
@@ -205,7 +205,7 @@ func (tb treeBuilder) matchLinked(q *aux.MatchLinkedFieldsQuery) (*searchRequest
 	return tb.matchLinkedSequence(q)
 }
 
-func (tb treeBuilder) matchLinkedSingle(q *aux.MatchLinkedFieldsQuery) *searchRequestSpec {
+func (tb treeBuilder) matchLinkedSingle(q *auxpb.MatchLinkedFieldsQuery) *searchRequestSpec {
 	// For other query types, we need to find the searcher that can handle it.
 	spec, match := getLinkedMatchedSpec(q, tb)
 	if !match {
@@ -214,10 +214,10 @@ func (tb treeBuilder) matchLinkedSingle(q *aux.MatchLinkedFieldsQuery) *searchRe
 	return &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec: spec,
-			Query: &aux.Query{
-				Query: &aux.Query_BaseQuery{
-					BaseQuery: &aux.BaseQuery{
-						Query: &aux.BaseQuery_MatchLinkedFieldsQuery{
+			Query: &auxpb.Query{
+				Query: &auxpb.Query_BaseQuery{
+					BaseQuery: &auxpb.BaseQuery{
+						Query: &auxpb.BaseQuery_MatchLinkedFieldsQuery{
 							MatchLinkedFieldsQuery: q,
 						},
 					},
@@ -227,7 +227,7 @@ func (tb treeBuilder) matchLinkedSingle(q *aux.MatchLinkedFieldsQuery) *searchRe
 	}
 }
 
-func (tb treeBuilder) matchLinkedSequence(q *aux.MatchLinkedFieldsQuery) (*searchRequestSpec, error) {
+func (tb treeBuilder) matchLinkedSequence(q *auxpb.MatchLinkedFieldsQuery) (*searchRequestSpec, error) {
 	// We need to find the first searcher that handles one of the fields.
 	offset := -1
 	for i := len(tb) - 1; i >= 0; i-- {
@@ -247,12 +247,12 @@ func (tb treeBuilder) matchLinkedSequence(q *aux.MatchLinkedFieldsQuery) (*searc
 	}
 
 	// Transform linked to a conjunction.
-	conjuncts := make([]*aux.Query, 0, len(q.GetQuery()))
+	conjuncts := make([]*auxpb.Query, 0, len(q.GetQuery()))
 	for _, matchField := range q.GetQuery() {
-		conjuncts = append(conjuncts, &aux.Query{
-			Query: &aux.Query_BaseQuery{
-				BaseQuery: &aux.BaseQuery{
-					Query: &aux.BaseQuery_MatchFieldQuery{
+		conjuncts = append(conjuncts, &auxpb.Query{
+			Query: &auxpb.Query_BaseQuery{
+				BaseQuery: &auxpb.BaseQuery{
+					Query: &auxpb.BaseQuery_MatchFieldQuery{
 						MatchFieldQuery: matchField,
 					},
 				},
@@ -325,7 +325,7 @@ func getDefaultSpec(specs []SearcherSpec) *SearcherSpec {
 	return &specs[0]
 }
 
-func getMatchedSpec(query *aux.MatchFieldQuery, specs []SearcherSpec) (*SearcherSpec, bool) {
+func getMatchedSpec(query *auxpb.MatchFieldQuery, specs []SearcherSpec) (*SearcherSpec, bool) {
 	for _, spec := range specs {
 		if matchQueryMatchesOptions(query, spec.Options) {
 			return &spec, true
@@ -334,7 +334,7 @@ func getMatchedSpec(query *aux.MatchFieldQuery, specs []SearcherSpec) (*Searcher
 	return getDefaultSpec(specs), false
 }
 
-func getLinkedMatchedSpec(query *aux.MatchLinkedFieldsQuery, specs []SearcherSpec) (*SearcherSpec, bool) {
+func getLinkedMatchedSpec(query *auxpb.MatchLinkedFieldsQuery, specs []SearcherSpec) (*SearcherSpec, bool) {
 	for _, spec := range specs {
 		if linkedMatchQueryMatchesOptions(query, spec.Options) {
 			return &spec, true
@@ -344,7 +344,7 @@ func getLinkedMatchedSpec(query *aux.MatchLinkedFieldsQuery, specs []SearcherSpe
 }
 
 // Base match query is chill if it matches a field in the option map.
-func matchQueryMatchesOptions(q *aux.MatchFieldQuery, merp search.OptionsMap) bool {
+func matchQueryMatchesOptions(q *auxpb.MatchFieldQuery, merp search.OptionsMap) bool {
 	_, matches := merp.Get(q.GetField())
 	return matches
 }
@@ -352,7 +352,7 @@ func matchQueryMatchesOptions(q *aux.MatchFieldQuery, merp search.OptionsMap) bo
 // For a set of linked fields, they all need to match the same index, or the query doesn't make sense.
 // Linked fields are for items in a single list as part of an object, like a key:value pair in a map. Having a key match
 // in one object, and a value match in another is the same as failing the linked query in a single object.
-func linkedMatchQueryMatchesOptions(q *aux.MatchLinkedFieldsQuery, merp search.OptionsMap) bool {
+func linkedMatchQueryMatchesOptions(q *auxpb.MatchLinkedFieldsQuery, merp search.OptionsMap) bool {
 	for _, mq := range q.GetQuery() {
 		if !matchQueryMatchesOptions(mq, merp) {
 			return false

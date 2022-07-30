@@ -73,27 +73,27 @@ func (s *alertDataStoreTestSuite) SetupTest() {
 }
 
 func (s *alertDataStoreTestSuite) TestSearchAlerts() {
-	s.searcher.EXPECT().SearchAlerts(s.hasReadCtx, &aux.Query{}).Return([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, errFake)
+	s.searcher.EXPECT().SearchAlerts(s.hasReadCtx, &auxpb.Query{}).Return([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, errFake)
 
-	result, err := s.dataStore.SearchAlerts(s.hasReadCtx, &aux.Query{})
+	result, err := s.dataStore.SearchAlerts(s.hasReadCtx, &auxpb.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, result)
 }
 
 func (s *alertDataStoreTestSuite) TestSearchRawAlerts() {
-	s.searcher.EXPECT().SearchRawAlerts(s.hasReadCtx, &aux.Query{}).Return([]*storage.Alert{{Id: alerttest.FakeAlertID}}, errFake)
+	s.searcher.EXPECT().SearchRawAlerts(s.hasReadCtx, &auxpb.Query{}).Return([]*storage.Alert{{Id: alerttest.FakeAlertID}}, errFake)
 
-	result, err := s.dataStore.SearchRawAlerts(s.hasReadCtx, &aux.Query{})
+	result, err := s.dataStore.SearchRawAlerts(s.hasReadCtx, &auxpb.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal([]*storage.Alert{{Id: alerttest.FakeAlertID}}, result)
 }
 
 func (s *alertDataStoreTestSuite) TestSearchListAlerts() {
-	s.searcher.EXPECT().SearchListAlerts(s.hasReadCtx, &aux.Query{}).Return(alerttest.NewFakeListAlertSlice(), errFake)
+	s.searcher.EXPECT().SearchListAlerts(s.hasReadCtx, &auxpb.Query{}).Return(alerttest.NewFakeListAlertSlice(), errFake)
 
-	result, err := s.dataStore.SearchListAlerts(s.hasReadCtx, &aux.Query{})
+	result, err := s.dataStore.SearchListAlerts(s.hasReadCtx, &auxpb.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal(alerttest.NewFakeListAlertSlice(), result)

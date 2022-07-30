@@ -18,8 +18,8 @@ func TestGetQueries(t *testing.T) {
 		desc   string
 		rawQ   string
 		scope  *v1.NetworkGraphScope
-		depQ   *aux.Query
-		scopeQ *aux.Query
+		depQ   *auxpb.Query
+		scopeQ *auxpb.Query
 	}{
 		{
 			desc:   "query; no scope",

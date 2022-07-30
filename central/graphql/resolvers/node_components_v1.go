@@ -183,7 +183,7 @@ func (encr *EmbeddedNodeScanComponentResolver) VulnCounter(ctx context.Context, 
 //////////////////
 
 // Map the nodes that matched a query to the node components it contains.
-func mapNodesToComponentResolvers(root *Resolver, nodes []*storage.Node, query *aux.Query) ([]*EmbeddedNodeScanComponentResolver, error) {
+func mapNodesToComponentResolvers(root *Resolver, nodes []*storage.Node, query *auxpb.Query) ([]*EmbeddedNodeScanComponentResolver, error) {
 	query, _ = search.FilterQueryWithMap(query, mappings.ComponentOptionsMap)
 	componentPred, err := componentPredicateFactory.GeneratePredicate(query)
 	if err != nil {

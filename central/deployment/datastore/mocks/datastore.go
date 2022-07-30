@@ -54,7 +54,7 @@ func (mr *MockDataStoreMockRecorder) AddTagsToProcessKey(ctx, key, tags interfac
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -204,7 +204,7 @@ func (mr *MockDataStoreMockRecorder) RemoveTagsFromProcessKey(ctx, key, tags int
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -219,7 +219,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchDeployments mocks base method.
-func (m *MockDataStore) SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchDeployments", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -234,7 +234,7 @@ func (mr *MockDataStoreMockRecorder) SearchDeployments(ctx, q interface{}) *gomo
 }
 
 // SearchListDeployments mocks base method.
-func (m *MockDataStore) SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error) {
+func (m *MockDataStore) SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListDeployments", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListDeployment)
@@ -249,7 +249,7 @@ func (mr *MockDataStoreMockRecorder) SearchListDeployments(ctx, q interface{}) *
 }
 
 // SearchRawDeployments mocks base method.
-func (m *MockDataStore) SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (m *MockDataStore) SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawDeployments", ctx, q)
 	ret0, _ := ret[0].([]*storage.Deployment)

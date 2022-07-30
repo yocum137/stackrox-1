@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field: search.LastUpdatedTime.String(),
 	}
 	componentOptionsMap = search.CombineOptionsMaps(componentMappings.OptionsMap)
@@ -52,7 +52,7 @@ type searcherImpl struct {
 }
 
 // SearchNodes retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchNodes(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	nodes, results, err := ds.searchNodes(ctx, q)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (ds *searcherImpl) SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.Se
 }
 
 // SearchRawNodes retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
+func (ds *searcherImpl) SearchRawNodes(ctx context.Context, q *auxpb.Query) ([]*storage.Node, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (ds *searcherImpl) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*st
 	return nodes, nil
 }
 
-func (ds *searcherImpl) searchNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, []search.Result, error) {
+func (ds *searcherImpl) searchNodes(ctx context.Context, q *auxpb.Query) ([]*storage.Node, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -100,7 +100,7 @@ func (ds *searcherImpl) searchNodes(ctx context.Context, q *aux.Query) ([]*stora
 	return nodes, newResults, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -108,7 +108,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (res int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (res int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Count(inner, q)
 	})

@@ -188,8 +188,8 @@ func (resolver *imageResolver) topVulnV2(ctx context.Context, args RawQuery) (*c
 	}
 
 	query = search.ConjunctionQuery(query, resolver.getImageQuery())
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -386,7 +386,7 @@ func (resolver *imageResolver) getImageRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, resolver.data.GetId()).Query()
 }
 
-func (resolver *imageResolver) getImageQuery() *aux.Query {
+func (resolver *imageResolver) getImageQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, resolver.data.GetId()).ProtoQuery()
 }
 

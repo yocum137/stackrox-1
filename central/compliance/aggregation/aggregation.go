@@ -78,10 +78,10 @@ type Aggregator interface {
 	GetResultsWithEvidence(ctx context.Context, queryString string) ([]*storage.ComplianceRunResults, error)
 
 	// Search runs search requests in the context of the aggregator.
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
 
 	// Count runs requests in the context of the aggregator and return the count of results.
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 }
 
 // New returns a new aggregator
@@ -110,7 +110,7 @@ type aggregatorImpl struct {
 	deployments deploymentStore.DataStore
 }
 
-func (a *aggregatorImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (a *aggregatorImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	var allResults []search.Result
 	specifiedFields := getSpecifiedFieldsFromQuery(q)
 	for category, searchFuncAndMap := range a.getSearchFuncs() {
@@ -127,7 +127,7 @@ func (a *aggregatorImpl) Search(ctx context.Context, q *aux.Query) ([]search.Res
 }
 
 // Count returns the number of search results from the query
-func (a *aggregatorImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (a *aggregatorImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	totalResults := 0
 	specifiedFields := getSpecifiedFieldsFromQuery(q)
 	for category, searchFuncAndMap := range a.getSearchFuncs() {
@@ -206,13 +206,13 @@ type flatCheck struct {
 	state  storage.ComplianceState
 }
 
-func getSpecifiedFieldsFromQuery(q *aux.Query) []string {
+func getSpecifiedFieldsFromQuery(q *auxpb.Query) []string {
 	var querySpecifiedFields []string
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
 		if bq == nil {
 			return
 		}
-		asMFQ, ok := bq.Query.(*aux.BaseQuery_MatchFieldQuery)
+		asMFQ, ok := bq.Query.(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -583,14 +583,14 @@ func (a *aggregatorImpl) getAggregatedResults(groupBy []storage.ComplianceAggreg
 
 type searchFuncAndOptionsMap struct {
 	// The function used for searching. Must not be nil.
-	searchFunc func(context.Context, *aux.Query) ([]search.Result, error)
+	searchFunc func(context.Context, *auxpb.Query) ([]search.Result, error)
 	// The function used for counting. In contrast to searchFunc, this may be nil, in
 	// which case counting is done via searching.
-	countFunc  func(context.Context, *aux.Query) (int, error)
+	countFunc  func(context.Context, *auxpb.Query) (int, error)
 	optionsMap search.OptionsMap
 }
 
-func (s *searchFuncAndOptionsMap) count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searchFuncAndOptionsMap) count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if s.countFunc != nil {
 		return s.countFunc(ctx, q)
 	}
@@ -601,8 +601,8 @@ func (s *searchFuncAndOptionsMap) count(ctx context.Context, q *aux.Query) (int,
 	return len(results), nil
 }
 
-func wrapContextLessSearchFunc(f func(*aux.Query) ([]search.Result, error)) func(context.Context, *aux.Query) ([]search.Result, error) {
-	return func(_ context.Context, q *aux.Query) ([]search.Result, error) {
+func wrapContextLessSearchFunc(f func(*auxpb.Query) ([]search.Result, error)) func(context.Context, *auxpb.Query) ([]search.Result, error) {
+	return func(_ context.Context, q *auxpb.Query) ([]search.Result, error) {
 		return f(q)
 	}
 }
@@ -642,7 +642,7 @@ func (a *aggregatorImpl) getSearchFuncs() map[storage.ComplianceAggregation_Scop
 	}
 }
 
-func (a *aggregatorImpl) getResultsFromScope(ctx context.Context, scope storage.ComplianceAggregation_Scope, query *aux.Query, querySpecifiedFields []string) (results []search.Result, wasApplicable bool, err error) {
+func (a *aggregatorImpl) getResultsFromScope(ctx context.Context, scope storage.ComplianceAggregation_Scope, query *auxpb.Query, querySpecifiedFields []string) (results []search.Result, wasApplicable bool, err error) {
 	funcAndMap, ok := a.getSearchFuncs()[scope]
 	// Programming error.
 	if !ok {
@@ -658,7 +658,7 @@ func (a *aggregatorImpl) getResultsFromScope(ctx context.Context, scope storage.
 }
 
 func (a *aggregatorImpl) addSetToMaskIfOptionsApplicable(ctx context.Context, scope storage.ComplianceAggregation_Scope, mask *mask,
-	query *aux.Query, querySpecifiedFields []string) error {
+	query *auxpb.Query, querySpecifiedFields []string) error {
 
 	results, wasApplicable, err := a.getResultsFromScope(ctx, scope, query, querySpecifiedFields)
 	if err != nil {
@@ -674,7 +674,7 @@ func (a *aggregatorImpl) addSetToMaskIfOptionsApplicable(ctx context.Context, sc
 
 // getCheckMask returns an array of ComplianceAggregation scopes that contains a set of IDs that are allowed
 // if the set is nil, then it means all are allowed
-func (a *aggregatorImpl) getCheckMask(ctx context.Context, query *aux.Query, querySpecifiedFields []string) (*mask, error) {
+func (a *aggregatorImpl) getCheckMask(ctx context.Context, query *auxpb.Query, querySpecifiedFields []string) (*mask, error) {
 	var mask mask
 
 	err := a.addSetToMaskIfOptionsApplicable(ctx, storage.ComplianceAggregation_NODE, &mask, query, querySpecifiedFields)
@@ -700,7 +700,7 @@ func (a *aggregatorImpl) getCheckMask(ctx context.Context, query *aux.Query, que
 	return &mask, nil
 }
 
-func (a *aggregatorImpl) getStandardsToRun(ctx context.Context, query *aux.Query, querySpecifiedFields []string) ([]string, error) {
+func (a *aggregatorImpl) getStandardsToRun(ctx context.Context, query *auxpb.Query, querySpecifiedFields []string) ([]string, error) {
 	results, wasApplicable, err := a.getResultsFromScope(ctx, storage.ComplianceAggregation_STANDARD, query, querySpecifiedFields)
 	if err != nil {
 		return nil, err
@@ -719,7 +719,7 @@ func (a *aggregatorImpl) getStandardsToRun(ctx context.Context, query *aux.Query
 	return standardIDs, nil
 }
 
-func (a *aggregatorImpl) getClustersToRun(ctx context.Context, query *aux.Query, querySpecifiedFields []string) ([]string, bool, error) {
+func (a *aggregatorImpl) getClustersToRun(ctx context.Context, query *auxpb.Query, querySpecifiedFields []string) ([]string, bool, error) {
 	results, wasApplicable, err := a.getResultsFromScope(ctx, storage.ComplianceAggregation_CLUSTER, query, querySpecifiedFields)
 	if err != nil {
 		return nil, false, err

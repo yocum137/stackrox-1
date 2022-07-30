@@ -191,7 +191,7 @@ func (resolver *k8SRoleResolver) Subjects(ctx context.Context, args PaginatedQue
 	return resolvers.([]*subjectResolver), err
 }
 
-func (resolver *k8SRoleResolver) getSubjects(ctx context.Context, filterQ *aux.Query) ([]*storage.Subject, error) {
+func (resolver *k8SRoleResolver) getSubjects(ctx context.Context, filterQ *auxpb.Query) ([]*storage.Subject, error) {
 	q := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).
 		AddExactMatches(search.RoleID, resolver.data.GetId()).ProtoQuery()
 
@@ -249,7 +249,7 @@ func (resolver *k8SRoleResolver) ServiceAccountCount(ctx context.Context, query 
 	return int32(len(serviceAccounts)), nil
 }
 
-func (resolver *k8SRoleResolver) getServiceAccounts(ctx context.Context, filterQ *aux.Query) ([]*storage.ServiceAccount, error) {
+func (resolver *k8SRoleResolver) getServiceAccounts(ctx context.Context, filterQ *auxpb.Query) ([]*storage.ServiceAccount, error) {
 	q := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).
 		AddExactMatches(search.RoleID, resolver.data.GetId()).ProtoQuery()
 	bindings, err := resolver.root.K8sRoleBindingStore.SearchRawRoleBindings(ctx, q)
@@ -288,7 +288,7 @@ func (resolver *k8SRoleResolver) RoleNamespace(ctx context.Context) (*namespaceR
 	return resolver.root.NamespaceByClusterIDAndName(ctx, clusterIDAndNameQuery{graphql.ID(role.GetClusterId()), role.GetNamespace()})
 }
 
-func (resolver *k8SRoleResolver) convertSubjectToServiceAccount(ctx context.Context, clusterID string, subject *storage.Subject, filterQ *aux.Query) (*storage.ServiceAccount, error) {
+func (resolver *k8SRoleResolver) convertSubjectToServiceAccount(ctx context.Context, clusterID string, subject *storage.Subject, filterQ *auxpb.Query) (*storage.ServiceAccount, error) {
 	q := search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).
 		AddExactMatches(search.ServiceAccountName, subject.GetName()).ProtoQuery()
 

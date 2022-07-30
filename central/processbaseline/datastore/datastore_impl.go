@@ -38,11 +38,11 @@ type datastoreImpl struct {
 	processesDataStore     processIndicatorDatastore.DataStore
 }
 
-func (ds *datastoreImpl) SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error) {
+func (ds *datastoreImpl) SearchRawProcessBaselines(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessBaseline, error) {
 	return ds.searcher.SearchRawProcessBaselines(ctx, q)
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 

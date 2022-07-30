@@ -8,7 +8,7 @@ import (
 )
 
 func TestEmptyQuery(t *testing.T) {
-	assert.Equal(t, &aux.Query{}, NewQueryBuilder().ProtoQuery())
+	assert.Equal(t, &auxpb.Query{}, NewQueryBuilder().ProtoQuery())
 }
 
 func TestDocIDs(t *testing.T) {
@@ -31,11 +31,11 @@ func TestDocIDs(t *testing.T) {
 	}
 	for _, c := range cases {
 		q := NewQueryBuilder().AddDocIDs(c.docIDs...).ProtoQuery()
-		expected := &aux.Query{
-			Query: &aux.Query_BaseQuery{
-				BaseQuery: &aux.BaseQuery{
-					Query: &aux.BaseQuery_DocIdQuery{
-						DocIdQuery: &aux.DocIDQuery{
+		expected := &auxpb.Query{
+			Query: &auxpb.Query_BaseQuery{
+				BaseQuery: &auxpb.BaseQuery{
+					Query: &auxpb.BaseQuery_DocIdQuery{
+						DocIdQuery: &auxpb.DocIDQuery{
 							Ids: c.docIDs,
 						},
 					},

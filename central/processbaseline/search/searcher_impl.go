@@ -61,7 +61,7 @@ func (s *searcherImpl) buildIndex(ctx context.Context) error {
 	return nil
 }
 
-func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error) {
+func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessBaseline, error) {
 	var (
 		results []search.Result
 		err     error
@@ -82,12 +82,12 @@ func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *aux.Que
 	return baselines, nil
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return s.formattedSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.formattedSearcher.Count(ctx, q)
 }
 

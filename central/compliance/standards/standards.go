@@ -19,6 +19,6 @@ type Repository interface {
 	GetCISDockerStandardID() (string, error)
 	GetCISKubernetesStandardID() (string, error)
 
-	SearchStandards(q *aux.Query) ([]search.Result, error)
-	SearchControls(q *aux.Query) ([]search.Result, error)
+	SearchStandards(q *auxpb.Query) ([]search.Result, error)
+	SearchControls(q *auxpb.Query) ([]search.Result, error)
 }

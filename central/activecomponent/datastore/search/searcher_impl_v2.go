@@ -29,7 +29,7 @@ type searcherImplV2 struct {
 }
 
 // SearchRawActiveComponents retrieves SearchResults from the indexer and storage
-func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error) {
+func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ActiveComponent, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -42,11 +42,11 @@ func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *aux.Q
 	return images, nil
 }
 
-func (s *searcherImplV2) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (s *searcherImplV2) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImplV2) Count(ctx context.Context, q *aux.Query) (count int, err error) {
+func (s *searcherImplV2) Count(ctx context.Context, q *auxpb.Query) (count int, err error) {
 	return s.searcher.Count(ctx, q)
 }

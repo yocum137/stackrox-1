@@ -41,7 +41,7 @@ func GetListDeploymentLoader(ctx context.Context) (ListDeploymentLoader, error) 
 // ListDeploymentLoader loads deployment data, and stores already loaded deployments for other ops in the same context to use.
 type ListDeploymentLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.ListDeployment, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ListDeployment, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ListDeployment, error)
 }
 
 // listDeploymentLoaderImpl implements the ListsDeploymentDataLoader interface.
@@ -53,7 +53,7 @@ type listDeploymentLoaderImpl struct {
 }
 
 // FromQuery loads a set of deployments that match a query.
-func (idl *listDeploymentLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ListDeployment, error) {
+func (idl *listDeploymentLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ListDeployment, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err

@@ -39,7 +39,7 @@ func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockSearcher) Count(ctx context.Context, query *aux.Query) (int, error) {
+func (m *MockSearcher) Count(ctx context.Context, query *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, query)
 	ret0, _ := ret[0].(int)
@@ -54,7 +54,7 @@ func (mr *MockSearcherMockRecorder) Count(ctx, query interface{}) *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockSearcher) Search(ctx context.Context, query *aux.Query) ([]search.Result, error) {
+func (m *MockSearcher) Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
 	ret0, _ := ret[0].([]search.Result)
@@ -69,7 +69,7 @@ func (mr *MockSearcherMockRecorder) Search(ctx, query interface{}) *gomock.Call 
 }
 
 // SearchListSecrets mocks base method.
-func (m *MockSearcher) SearchListSecrets(ctx context.Context, query *aux.Query) ([]*storage.ListSecret, error) {
+func (m *MockSearcher) SearchListSecrets(ctx context.Context, query *auxpb.Query) ([]*storage.ListSecret, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListSecrets", ctx, query)
 	ret0, _ := ret[0].([]*storage.ListSecret)
@@ -84,7 +84,7 @@ func (mr *MockSearcherMockRecorder) SearchListSecrets(ctx, query interface{}) *g
 }
 
 // SearchRawSecrets mocks base method.
-func (m *MockSearcher) SearchRawSecrets(ctx context.Context, query *aux.Query) ([]*storage.Secret, error) {
+func (m *MockSearcher) SearchRawSecrets(ctx context.Context, query *auxpb.Query) ([]*storage.Secret, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawSecrets", ctx, query)
 	ret0, _ := ret[0].([]*storage.Secret)
@@ -99,7 +99,7 @@ func (mr *MockSearcherMockRecorder) SearchRawSecrets(ctx, query interface{}) *go
 }
 
 // SearchSecrets mocks base method.
-func (m *MockSearcher) SearchSecrets(arg0 context.Context, arg1 *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockSearcher) SearchSecrets(arg0 context.Context, arg1 *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchSecrets", arg0, arg1)
 	ret0, _ := ret[0].([]*v1.SearchResult)

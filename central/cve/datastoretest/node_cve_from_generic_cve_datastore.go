@@ -28,15 +28,15 @@ func isNodeCVE(genericCVE *storage.CVE) bool {
 	return false
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (s *nodeCVEDataStoreFromGenericStore) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return s.genericStore.Search(ctx, q)
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *nodeCVEDataStoreFromGenericStore) SearchCVEs(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return s.genericStore.SearchCVEs(ctx, q)
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.NodeCVE, error) {
+func (s *nodeCVEDataStoreFromGenericStore) SearchRawCVEs(ctx context.Context, q *auxpb.Query) ([]*storage.NodeCVE, error) {
 	cves, err := s.genericStore.SearchRawCVEs(ctx, q)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (s *nodeCVEDataStoreFromGenericStore) Get(ctx context.Context, id string) (
 	return utils.ProtoCVEToNodeCVE(cve), true, nil
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *nodeCVEDataStoreFromGenericStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.genericStore.Count(ctx, q)
 }
 

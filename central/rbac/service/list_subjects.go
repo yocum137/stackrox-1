@@ -62,7 +62,7 @@ func getFilteredSubjectsByRoleBinding(rawQuery *v1.RawQuery, bindings []*storage
 	}
 
 	// Parse the query we will filter with.
-	var parsed *aux.Query
+	var parsed *auxpb.Query
 	parsed, err := search.ParseQuery(subjectQuery.GetQuery(), search.MatchAllIfEmpty())
 	if err != nil {
 		return nil, errors.Wrap(errox.InvalidArgs, err.Error())
@@ -77,7 +77,7 @@ var subjectSortAccessors = map[string]subjectSortAccessor{
 	search.SubjectName.String(): func(s *storage.Subject) string { return s.GetName() },
 }
 
-func sortSubjects(query *aux.Query, subjects []*storage.Subject) error {
+func sortSubjects(query *auxpb.Query, subjects []*storage.Subject) error {
 	// Need to sort here based on the way that the subjects are derived
 	if sortOptions := query.GetPagination().GetSortOptions(); len(sortOptions) > 0 {
 		accessors := make([]subjectSortAccessor, 0, len(sortOptions))
@@ -105,7 +105,7 @@ func sortSubjects(query *aux.Query, subjects []*storage.Subject) error {
 }
 
 // GetFilteredSubjects filters subjects based on a proto query. This function modifies subjectsToFilter
-func GetFilteredSubjects(query *aux.Query, subjectsToFilter []*storage.Subject) ([]*storage.Subject, error) {
+func GetFilteredSubjects(query *auxpb.Query, subjectsToFilter []*storage.Subject) ([]*storage.Subject, error) {
 	pred, err := subjectFactory.GeneratePredicate(query)
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func NewSubjectSearcher(k8sRoleBindingDatastore datastore.DataStore) *SubjectSea
 }
 
 // Search implements the searcher interface
-func (s *SubjectSearcher) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *SubjectSearcher) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	subjectQuery, _ := search.FilterQueryWithMap(q, mapping.OptionsMap)
 	pred, err := subjectFactory.GeneratePredicate(subjectQuery)
 	if err != nil {
@@ -166,7 +166,7 @@ func (s *SubjectSearcher) Search(ctx context.Context, q *aux.Query) ([]search.Re
 }
 
 // Count returns the number of search results from the query
-func (s *SubjectSearcher) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *SubjectSearcher) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	subjectQuery, _ := search.FilterQueryWithMap(q, mapping.OptionsMap)
 	pred, err := subjectFactory.GeneratePredicate(subjectQuery)
 	if err != nil {
@@ -191,7 +191,7 @@ func (s *SubjectSearcher) Count(ctx context.Context, q *aux.Query) (int, error) 
 }
 
 // SearchSubjects implements the search interface that returns v1.SearchResult
-func (s *SubjectSearcher) SearchSubjects(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *SubjectSearcher) SearchSubjects(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	subjectQuery, _ := search.FilterQueryWithMap(q, mapping.OptionsMap)
 	pred, err := subjectFactory.GeneratePredicate(subjectQuery)
 	if err != nil {

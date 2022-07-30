@@ -68,10 +68,10 @@ type DataStore interface {
 	// states is a map of node name to the state for that node
 	UpdateAuditLogFileStates(ctx context.Context, id string, states map[string]*storage.AuditLogFileState) error
 
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRawClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error)
-	SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRawClusters(ctx context.Context, q *auxpb.Query) ([]*storage.Cluster, error)
+	SearchResults(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
 
 	LookupOrCreateClusterFromConfig(ctx context.Context, clusterID, bundleID string, hello *central.SensorHello) (*storage.Cluster, error)
 }

@@ -57,15 +57,15 @@ func (ds *datastoreImpl) buildSuppressedCache() error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchImageCVEs(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchImageCVEs(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
+func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *auxpb.Query) ([]*storage.ImageCVE, error) {
 	cves, err := ds.searcher.SearchRawImageCVEs(ctx, q)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *aux.Query) (
 	return cves, nil
 }
 
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if q == nil {
 		q = pkgSearch.EmptyQuery()
 	}

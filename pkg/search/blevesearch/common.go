@@ -29,7 +29,7 @@ var (
 	log = logging.LoggerForModule()
 
 	defaultSubQueryContext = bleveContext{
-		pagination: &aux.QueryPagination{},
+		pagination: &auxpb.QueryPagination{},
 	}
 )
 
@@ -39,7 +39,7 @@ type relationship struct {
 }
 
 type bleveContext struct {
-	pagination        *aux.QueryPagination
+	pagination        *auxpb.QueryPagination
 	renderedSortOrder search.SortOrder
 	searchAfter       []string
 
@@ -256,7 +256,7 @@ func resolveMatchFieldQuery(ctx bleveContext, index bleve.Index, category v1.Sea
 }
 
 // RunSearchRequest builds a query and runs it against the index.
-func RunSearchRequest(category v1.SearchCategory, q *aux.Query, index bleve.Index, optionsMap searchPkg.OptionsMap, searchOpts ...SearchOption) ([]searchPkg.Result, error) {
+func RunSearchRequest(category v1.SearchCategory, q *auxpb.Query, index bleve.Index, optionsMap searchPkg.OptionsMap, searchOpts ...SearchOption) ([]searchPkg.Result, error) {
 	sortOrder, searchAfter, err := getSortOrderAndSearchAfter(q.GetPagination(), optionsMap)
 	if err != nil {
 		return nil, err
@@ -287,7 +287,7 @@ func RunSearchRequest(category v1.SearchCategory, q *aux.Query, index bleve.Inde
 }
 
 // RunCountRequest builds a query and runs it to get the count of matches against the index.
-func RunCountRequest(category v1.SearchCategory, q *aux.Query, index bleve.Index, optionsMap searchPkg.OptionsMap, searchOpts ...SearchOption) (int, error) {
+func RunCountRequest(category v1.SearchCategory, q *auxpb.Query, index bleve.Index, optionsMap searchPkg.OptionsMap, searchOpts ...SearchOption) (int, error) {
 	var ctx bleveContext
 	var opts opts
 	for _, opt := range searchOpts {
@@ -317,7 +317,7 @@ func RunCountRequest(category v1.SearchCategory, q *aux.Query, index bleve.Index
 	return int(result.Total), nil
 }
 
-func getSortOrderAndSearchAfter(pagination *aux.QueryPagination, optionsMap searchPkg.OptionsMap) (search.SortOrder, []string, error) {
+func getSortOrderAndSearchAfter(pagination *auxpb.QueryPagination, optionsMap searchPkg.OptionsMap) (search.SortOrder, []string, error) {
 	if len(pagination.GetSortOptions()) == 0 {
 		return nil, nil, nil
 	}
@@ -350,7 +350,7 @@ func getSortOrderAndSearchAfter(pagination *aux.QueryPagination, optionsMap sear
 
 		sortOrder = append(sortOrder, sortField)
 
-		if saOpt, ok := so.GetSearchAfterOpt().(*aux.QuerySortOption_SearchAfter); ok {
+		if saOpt, ok := so.GetSearchAfterOpt().(*auxpb.QuerySortOption_SearchAfter); ok {
 			if !allowSearchAfter {
 				return nil, nil, errors.New("invalid SearchAfter state: SearchAfter values must start from the beginning of SortOptions and must follow without gaps")
 			}
@@ -418,7 +418,7 @@ func runQuery(ctx bleveContext, q query.Query, index bleve.Index, highlightCtx h
 
 // buildQuery builds a bleve query for the input query
 // It is okay for the input query to be nil or empty; in this case, a query matching all documents of the given category will be returned.
-func buildQuery(ctx bleveContext, index bleve.Index, category v1.SearchCategory, q *aux.Query, optionsMap searchPkg.OptionsMap) (query.Query, highlightContext, error) {
+func buildQuery(ctx bleveContext, index bleve.Index, category v1.SearchCategory, q *auxpb.Query, optionsMap searchPkg.OptionsMap) (query.Query, highlightContext, error) {
 	if q.GetQuery() == nil {
 		return typeQuery(category), nil, nil
 	}

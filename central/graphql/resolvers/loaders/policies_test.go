@@ -124,7 +124,7 @@ func (suite *PolicyLoaderTestSuite) TestFromQuery() {
 		},
 		policyDS: suite.mockDataStore,
 	}
-	query := &aux.Query{}
+	query := &auxpb.Query{}
 
 	// Get a preloaded policy from id.
 	results := []search.Result{

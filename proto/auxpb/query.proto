@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-option go_package = "aux";
-option java_package = "io.stackrox.proto.aux";
+option go_package = "auxpb";
+option java_package = "io.stackrox.proto.auxpb";
 
-package aux;
+package auxpb;
 
 message QuerySortOption {
   string field    = 1;

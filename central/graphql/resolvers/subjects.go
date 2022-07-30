@@ -95,7 +95,7 @@ func (resolver *Resolver) SubjectCount(ctx context.Context, args RawQuery) (int3
 	return int32(len(filteredSubjects)), nil
 }
 
-func (resolver *Resolver) getFilteredSubjects(ctx context.Context, query *aux.Query) ([]*storage.Subject, error) {
+func (resolver *Resolver) getFilteredSubjects(ctx context.Context, query *auxpb.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (resolver *subjectResolver) K8sRoles(ctx context.Context, args PaginatedQue
 	return resolvers.([]*k8SRoleResolver), err
 }
 
-func (resolver *subjectResolver) getRolesForSubject(ctx context.Context, filterQ *aux.Query) ([]*storage.K8SRole, error) {
+func (resolver *subjectResolver) getRolesForSubject(ctx context.Context, filterQ *auxpb.Query) ([]*storage.K8SRole, error) {
 	q := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).
 		AddExactMatches(search.SubjectName, resolver.data.GetName()).
 		AddExactMatches(search.SubjectKind, resolver.data.GetKind().String()).

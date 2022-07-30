@@ -1814,7 +1814,7 @@ func testDackBoxInstance(t *testing.T, db *rocksdb.RocksDB, index bleve.Index) (
 	return dacky, reg, indexingQ
 }
 
-func getAllAlerts() *aux.Query {
+func getAllAlerts() *auxpb.Query {
 	return search.NewQueryBuilder().AddStrings(
 		search.ViolationState,
 		storage.ViolationState_ACTIVE.String(),

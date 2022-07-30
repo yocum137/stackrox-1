@@ -118,7 +118,7 @@ func (mr *MockDataStoreMockRecorder) RemoveProcessIndicatorsByPod(ctx, id interf
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -133,7 +133,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawProcessIndicators mocks base method.
-func (m *MockDataStore) SearchRawProcessIndicators(ctx context.Context, q *aux.Query) ([]*storage.ProcessIndicator, error) {
+func (m *MockDataStore) SearchRawProcessIndicators(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessIndicator, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawProcessIndicators", ctx, q)
 	ret0, _ := ret[0].([]*storage.ProcessIndicator)

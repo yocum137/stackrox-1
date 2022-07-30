@@ -513,7 +513,7 @@ func (suite *ServiceTestSuite) TestGetNetworkPoliciesWitDeploymentQuery() {
 	// Mock that we receive deployments for the cluster
 	deps := make([]*storage.Deployment, 0)
 	var networkTree tree.ReadOnlyNetworkTree
-	suite.deployments.EXPECT().SearchRawDeployments(gomock.Any(), testutils.PredMatcher("deployment search is for cluster", func(query *aux.Query) bool {
+	suite.deployments.EXPECT().SearchRawDeployments(gomock.Any(), testutils.PredMatcher("deployment search is for cluster", func(query *auxpb.Query) bool {
 		// Should be a conjunction with cluster and deployment id.
 		conj := query.GetConjunction()
 		if len(conj.GetQueries()) != 2 {
@@ -809,7 +809,7 @@ func (suite *ServiceTestSuite) getSampleNetworkGraph(deps ...*storage.Deployment
 // deploymentSearchIsForCluster returns a function that returns true if the in input ParsedSearchRequest has the
 // ClusterID field set to the input clusterID.
 func deploymentSearchIsForCluster(clusterID string) gomock.Matcher {
-	return testutils.PredMatcher("deployment search is for cluster", func(query *aux.Query) bool {
+	return testutils.PredMatcher("deployment search is for cluster", func(query *auxpb.Query) bool {
 		// Should be a single conjunction with a base string query inside.
 		return query.GetBaseQuery().GetMatchFieldQuery().GetValue() == search.ExactMatchString(clusterID)
 	})
@@ -823,14 +823,14 @@ func networkPolicyGetIsForCluster(expectedClusterID string) gomock.Matcher {
 	})
 }
 
-func queryIsForClusterID(query *aux.Query, clusterID string) bool {
+func queryIsForClusterID(query *auxpb.Query, clusterID string) bool {
 	if query.GetBaseQuery().GetMatchFieldQuery().GetField() != search.ClusterID.String() {
 		return false
 	}
 	return query.GetBaseQuery().GetMatchFieldQuery().GetValue() == search.ExactMatchString(clusterID)
 }
 
-func queryIsForDeploymentID(query *aux.Query, deploymentID string) bool {
+func queryIsForDeploymentID(query *auxpb.Query, deploymentID string) bool {
 	if query.GetBaseQuery().GetMatchFieldQuery().GetField() != search.DeploymentID.String() {
 		return false
 	}

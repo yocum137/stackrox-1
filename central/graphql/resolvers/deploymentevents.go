@@ -216,7 +216,7 @@ func (resolver *ProcessActivityEventResolver) InBaseline() bool {
 	return true
 }
 
-func (resolver *Resolver) getProcessActivityEvents(ctx context.Context, query *aux.Query) ([]*ProcessActivityEventResolver, error) {
+func (resolver *Resolver) getProcessActivityEvents(ctx context.Context, query *auxpb.Query) ([]*ProcessActivityEventResolver, error) {
 	if err := readIndicators(ctx); err != nil {
 		return nil, err
 	}
@@ -350,7 +350,7 @@ func (resolver *PolicyViolationEventResolver) Timestamp() *graphql.Time {
 	return &graphql.Time{Time: resolver.timestamp}
 }
 
-func (resolver *Resolver) getPolicyViolationEvents(ctx context.Context, query *aux.Query, predicateFn func(*storage.Alert) bool) ([]*PolicyViolationEventResolver, error) {
+func (resolver *Resolver) getPolicyViolationEvents(ctx context.Context, query *auxpb.Query, predicateFn func(*storage.Alert) bool) ([]*PolicyViolationEventResolver, error) {
 	if err := readAlerts(ctx); err != nil {
 		return nil, err
 	}

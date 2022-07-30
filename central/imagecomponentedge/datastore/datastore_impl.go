@@ -23,15 +23,15 @@ type datastoreImpl struct {
 	graphProvider graph.Provider
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchEdges(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageComponentEdge, error) {
+func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.ImageComponentEdge, error) {
 	edges, err := ds.searcher.SearchRawEdges(ctx, q)
 	if err != nil {
 		return nil, err

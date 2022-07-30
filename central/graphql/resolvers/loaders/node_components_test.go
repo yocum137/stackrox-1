@@ -119,7 +119,7 @@ func (suite *NodeComponentLoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &aux.Query{}
+	query := &auxpb.Query{}
 
 	results := []search.Result{
 		{

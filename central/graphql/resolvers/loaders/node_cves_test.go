@@ -122,7 +122,7 @@ func (suite *NodeCVELoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &aux.Query{}
+	query := &auxpb.Query{}
 
 	// Get a preloaded cve from id.
 	results := []search.Result{

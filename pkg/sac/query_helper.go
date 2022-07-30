@@ -13,17 +13,17 @@ var (
 
 // BuildClusterLevelSACQueryFilter builds a Scoped Access Control query filter that can be
 // injected in search queries for resource types that have direct cluster scope level.
-func BuildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*aux.Query, error) {
+func BuildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*auxpb.Query, error) {
 	return buildClusterLevelSACQueryFilter(root, true)
 }
 
 // BuildNonVerboseClusterLevelSACQueryFilter builds a Scoped Access Control query filter that can be
 // injected in search queries for resource types that have direct cluster scope level.
-func BuildNonVerboseClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*aux.Query, error) {
+func BuildNonVerboseClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*auxpb.Query, error) {
 	return buildClusterLevelSACQueryFilter(root, false)
 }
 
-func buildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbose bool) (*aux.Query, error) {
+func buildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbose bool) (*auxpb.Query, error) {
 	if root == nil {
 		return getMatchNoneQuery(), nil
 	}
@@ -34,7 +34,7 @@ func buildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbo
 		return getMatchNoneQuery(), nil
 	}
 	clusterIDs := root.GetClusterIDs()
-	clusterFilters := make([]*aux.Query, 0, len(clusterIDs))
+	clusterFilters := make([]*auxpb.Query, 0, len(clusterIDs))
 	for _, clusterID := range clusterIDs {
 		clusterAccessScope := root.GetClusterByID(clusterID)
 		if clusterAccessScope == nil {
@@ -56,17 +56,17 @@ func buildClusterLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbo
 
 // BuildClusterNamespaceLevelSACQueryFilter builds a Scoped Access Control query filter that can be
 // injected in search queries for resource types that have direct namespace scope level.
-func BuildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*aux.Query, error) {
+func BuildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*auxpb.Query, error) {
 	return buildClusterNamespaceLevelSACQueryFilter(root, true)
 }
 
 // BuildNonVerboseClusterNamespaceLevelSACQueryFilter builds a Scoped Access Control query filter that can be
 // injected in search queries for resource types that have direct namespace scope level.
-func BuildNonVerboseClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*aux.Query, error) {
+func BuildNonVerboseClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree) (*auxpb.Query, error) {
 	return buildClusterNamespaceLevelSACQueryFilter(root, false)
 }
 
-func buildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbose bool) (*aux.Query, error) {
+func buildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTree, verbose bool) (*auxpb.Query, error) {
 	if root == nil {
 		return getMatchNoneQuery(), nil
 	}
@@ -77,7 +77,7 @@ func buildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTr
 		return nil, nil
 	}
 	clusterIDs := root.GetClusterIDs()
-	clusterFilters := make([]*aux.Query, 0, len(clusterIDs))
+	clusterFilters := make([]*auxpb.Query, 0, len(clusterIDs))
 	for _, clusterID := range clusterIDs {
 		clusterAccessScope := root.GetClusterByID(clusterID)
 		if clusterAccessScope == nil {
@@ -89,7 +89,7 @@ func buildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTr
 		} else if clusterAccessScope.State == effectiveaccessscope.Partial {
 			clusterQuery := getClusterMatchQuery(clusterID, verbose)
 			namespaces := clusterAccessScope.Namespaces
-			namespaceFilters := make([]*aux.Query, 0, len(namespaces))
+			namespaceFilters := make([]*auxpb.Query, 0, len(namespaces))
 			for namespaceName, namespaceAccessScope := range namespaces {
 				if namespaceAccessScope.State == effectiveaccessscope.Included {
 					namespaceFilters = append(namespaceFilters, getNamespaceMatchQuery(namespaceName, verbose))
@@ -112,32 +112,32 @@ func buildClusterNamespaceLevelSACQueryFilter(root *effectiveaccessscope.ScopeTr
 	}
 }
 
-func getMatchNoneQuery() *aux.Query {
-	return &aux.Query{
-		Query: &aux.Query_BaseQuery{
-			BaseQuery: &aux.BaseQuery{
-				Query: &aux.BaseQuery_MatchNoneQuery{
-					MatchNoneQuery: &aux.MatchNoneQuery{},
+func getMatchNoneQuery() *auxpb.Query {
+	return &auxpb.Query{
+		Query: &auxpb.Query_BaseQuery{
+			BaseQuery: &auxpb.BaseQuery{
+				Query: &auxpb.BaseQuery_MatchNoneQuery{
+					MatchNoneQuery: &auxpb.MatchNoneQuery{},
 				},
 			},
 		},
 	}
 }
 
-func getClusterMatchQuery(clusterID string, verbose bool) *aux.Query {
+func getClusterMatchQuery(clusterID string, verbose bool) *auxpb.Query {
 	if verbose {
 		return search.NewQueryBuilder().AddExactMatches(clusterIDField, clusterID).MarkHighlighted(clusterIDField).ProtoQuery()
 	}
 	return search.NewQueryBuilder().AddExactMatches(clusterIDField, clusterID).ProtoQuery()
 }
 
-func getNamespaceMatchQuery(namespace string, verbose bool) *aux.Query {
+func getNamespaceMatchQuery(namespace string, verbose bool) *auxpb.Query {
 	if verbose {
 		return search.NewQueryBuilder().AddExactMatches(namespaceField, namespace).MarkHighlighted(namespaceField).ProtoQuery()
 	}
 	return search.NewQueryBuilder().AddExactMatches(namespaceField, namespace).ProtoQuery()
 }
 
-func getAnyNamespaceMatchQuery() *aux.Query {
+func getAnyNamespaceMatchQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddStringsHighlighted(namespaceField, search.WildcardString).ProtoQuery()
 }

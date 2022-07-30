@@ -25,10 +25,10 @@ var (
 // Searcher provides search functionality on existing node component edges.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchEdges(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawEdges(ctx context.Context, query *aux.Query) ([]*storage.NodeComponentEdge, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchEdges(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawEdges(ctx context.Context, query *auxpb.Query) ([]*storage.NodeComponentEdge, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

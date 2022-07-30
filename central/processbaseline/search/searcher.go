@@ -20,9 +20,9 @@ var (
 // Searcher provides search functionality on existing alerts
 //go:generate mockgen-wrapper
 type Searcher interface {
-	SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error)
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRawProcessBaselines(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessBaseline, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

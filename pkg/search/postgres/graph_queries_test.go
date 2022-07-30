@@ -248,7 +248,7 @@ func (s *GraphQueriesTestSuite) initializeTestGraph() {
 	}))
 }
 
-func (s *GraphQueriesTestSuite) mustRunQuery(typeName string, q *aux.Query) []search.Result {
+func (s *GraphQueriesTestSuite) mustRunQuery(typeName string, q *auxpb.Query) []search.Result {
 	res, err := postgres.RunSearchRequestForSchema(getTestSchema(s.T(), typeName), q, s.pool)
 	s.Require().NoError(err)
 	return res
@@ -274,7 +274,7 @@ type graphQueryTestCase struct {
 	// search.NewQueryBuilder().AddStrings() with the values
 	// in queryStrings.
 	// Exactly one of q and queryStrings must be provided.
-	q            *aux.Query
+	q            *auxpb.Query
 	queryStrings map[search.FieldLabel][]string
 
 	expectedResultIDs []string
@@ -372,42 +372,42 @@ func (s *GraphQueriesTestSuite) TestDerivedPagination() {
 		{
 			desc:              "one-hop count",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestParent1Count.String()}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestParent1Count.String()}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"2", "1"},
 		},
 		{
 			desc:              "one-hop count (reversed)",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestParent1Count.String(), Reversed: true}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestParent1Count.String(), Reversed: true}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"1", "2"},
 		},
 		{
 			desc:              "two-hop count",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestChild1Count.String()}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestChild1Count.String()}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"2", "1"},
 		},
 		{
 			desc:              "two-hop count (reversed)",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestChild1Count.String(), Reversed: true}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestChild1Count.String(), Reversed: true}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"1", "2"},
 		},
 		{
 			desc:              "priority sorting",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestGrandParentPriority.String()}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestGrandParentPriority.String()}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"2", "1"},
 		},
 		{
 			desc:              "priority sorting reversed",
 			queriedType:       "testgrandparent",
-			q:                 &aux.Query{Pagination: &aux.QueryPagination{SortOptions: []*aux.QuerySortOption{{Field: search.TestGrandParentPriority.String(), Reversed: true}}}},
+			q:                 &auxpb.Query{Pagination: &auxpb.QueryPagination{SortOptions: []*auxpb.QuerySortOption{{Field: search.TestGrandParentPriority.String(), Reversed: true}}}},
 			orderMatters:      true,
 			expectedResultIDs: []string{"1", "2"},
 		},

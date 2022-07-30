@@ -19,10 +19,10 @@ var (
 // Searcher provides search functionality on existing service accounts.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchServiceAccounts(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawServiceAccounts(context.Context, *aux.Query) ([]*storage.ServiceAccount, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchServiceAccounts(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawServiceAccounts(context.Context, *auxpb.Query) ([]*storage.ServiceAccount, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

@@ -25,10 +25,10 @@ import (
 // DataStore is an intermediary to ServiceAccountStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRawServiceAccounts(ctx context.Context, q *aux.Query) ([]*storage.ServiceAccount, error)
-	SearchServiceAccounts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRawServiceAccounts(ctx context.Context, q *auxpb.Query) ([]*storage.ServiceAccount, error)
+	SearchServiceAccounts(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
 
 	GetServiceAccount(ctx context.Context, id string) (*storage.ServiceAccount, bool, error)
 	UpsertServiceAccount(ctx context.Context, request *storage.ServiceAccount) error

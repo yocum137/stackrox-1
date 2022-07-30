@@ -42,11 +42,11 @@ import (
 // DataStore is an intermediary to AlertStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error)
-	SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error)
+	SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error)
 
 	ListDeployment(ctx context.Context, id string) (*storage.ListDeployment, bool, error)
 

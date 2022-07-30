@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddPod(pod *storage.Pod) error
 	AddPods(pods []*storage.Pod) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeletePod(id string) error
 	DeletePods(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

@@ -11,8 +11,8 @@ import (
 type Indexer interface {
 	AddNodeComponent(components *storage.NodeComponent) error
 	AddNodeComponents(components []*storage.NodeComponent) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNodeComponent(id string) error
 	DeleteNodeComponents(ids []string) error
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

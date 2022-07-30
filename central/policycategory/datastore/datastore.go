@@ -15,10 +15,10 @@ import (
 // DataStore is an intermediary to policy category storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRawPolicyCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error)
-	SearchPolicyCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRawPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, error)
+	SearchPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
 
 	GetPolicyCategory(ctx context.Context, id string) (*storage.PolicyCategory, bool, error)
 	GetAllPolicyCategories(ctx context.Context) ([]*storage.PolicyCategory, error)

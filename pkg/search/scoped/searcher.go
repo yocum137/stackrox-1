@@ -25,7 +25,7 @@ type TransformationProvider interface {
 // set of DocIDs in a conjunction with the input query.
 func WithScoping(searcher search.Searcher, provider TransformationProvider) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 			scope, hasScope := GetScope(ctx)
 			if hasScope {
 				var err error
@@ -36,7 +36,7 @@ func WithScoping(searcher search.Searcher, provider TransformationProvider) sear
 			}
 			return searcher.Search(ctx, q)
 		},
-		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *auxpb.Query) (int, error) {
 			scope, hasScope := GetScope(ctx)
 			if hasScope {
 				var err error
@@ -50,7 +50,7 @@ func WithScoping(searcher search.Searcher, provider TransformationProvider) sear
 	}
 }
 
-func scopeQuery(ctx context.Context, q *aux.Query, scope Scope, provider TransformationProvider) (*aux.Query, error) {
+func scopeQuery(ctx context.Context, q *auxpb.Query, scope Scope, provider TransformationProvider) (*auxpb.Query, error) {
 	dstTransformer := provider.Get(scope.Level)
 	if dstTransformer == nil {
 		return nil, errors.Errorf("no scope transformations registered for %s", scope.Level)

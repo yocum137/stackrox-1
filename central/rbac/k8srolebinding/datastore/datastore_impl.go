@@ -73,11 +73,11 @@ func (d *datastoreImpl) GetRoleBinding(ctx context.Context, id string) (*storage
 	return binding, true, nil
 }
 
-func (d *datastoreImpl) SearchRoleBindings(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (d *datastoreImpl) SearchRoleBindings(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return d.searcher.SearchRoleBindings(ctx, q)
 }
 
-func (d *datastoreImpl) SearchRawRoleBindings(ctx context.Context, request *aux.Query) ([]*storage.K8SRoleBinding, error) {
+func (d *datastoreImpl) SearchRawRoleBindings(ctx context.Context, request *auxpb.Query) ([]*storage.K8SRoleBinding, error) {
 	return d.searcher.SearchRawRoleBindings(ctx, request)
 }
 
@@ -107,10 +107,10 @@ func (d *datastoreImpl) RemoveRoleBinding(ctx context.Context, id string) error 
 	return d.indexer.DeleteK8SRoleBinding(id)
 }
 
-func (d *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (d *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
-func (d *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (d *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }

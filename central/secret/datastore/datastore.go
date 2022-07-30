@@ -24,11 +24,11 @@ import (
 // DataStore is an intermediary to SecretStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchSecrets(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawSecrets(ctx context.Context, q *aux.Query) ([]*storage.Secret, error)
-	SearchListSecrets(ctx context.Context, q *aux.Query) ([]*storage.ListSecret, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchSecrets(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawSecrets(ctx context.Context, q *auxpb.Query) ([]*storage.Secret, error)
+	SearchListSecrets(ctx context.Context, q *auxpb.Query) ([]*storage.ListSecret, error)
 
 	CountSecrets(ctx context.Context) (int, error)
 	GetSecret(ctx context.Context, id string) (*storage.Secret, bool, error)

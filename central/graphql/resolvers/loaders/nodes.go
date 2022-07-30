@@ -42,9 +42,9 @@ func GetNodeLoader(ctx context.Context) (NodeLoader, error) {
 type NodeLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.Node, error)
 	FromID(ctx context.Context, id string) (*storage.Node, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Node, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.Node, error)
 
-	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -75,7 +75,7 @@ func (ndl *nodeLoaderImpl) FromID(ctx context.Context, id string) (*storage.Node
 }
 
 // FromQuery loads a set of nodes that match a query.
-func (ndl *nodeLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Node, error) {
+func (ndl *nodeLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.Node, error) {
 	results, err := ndl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (ndl *nodeLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*
 }
 
 // CountFromQuery returns the number of nodes that match a given query.
-func (ndl *nodeLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
+func (ndl *nodeLoaderImpl) CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error) {
 	numResults, err := ndl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

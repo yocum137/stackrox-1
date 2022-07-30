@@ -54,7 +54,7 @@ func (mr *MockDataStoreMockRecorder) AddPolicyCategory(arg0, arg1 interface{}) *
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -129,7 +129,7 @@ func (mr *MockDataStoreMockRecorder) RenamePolicyCategory(ctx, id, newName inter
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -144,7 +144,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchPolicyCategories mocks base method.
-func (m *MockDataStore) SearchPolicyCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchPolicyCategories", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -159,7 +159,7 @@ func (mr *MockDataStoreMockRecorder) SearchPolicyCategories(ctx, q interface{}) 
 }
 
 // SearchRawPolicyCategories mocks base method.
-func (m *MockDataStore) SearchRawPolicyCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error) {
+func (m *MockDataStore) SearchRawPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawPolicyCategories", ctx, q)
 	ret0, _ := ret[0].([]*storage.PolicyCategory)

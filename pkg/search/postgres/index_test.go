@@ -37,7 +37,7 @@ type IndexSuite struct {
 	pool    *pgxpool.Pool
 	store   postgres.Store
 	indexer interface {
-		Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+		Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 	}
 }
 
@@ -90,7 +90,7 @@ func getID(s *storage.TestMultiKeyStruct) string {
 
 type testCase struct {
 	desc            string
-	q               *aux.Query
+	q               *auxpb.Query
 	expectedResults []*storage.TestMultiKeyStruct
 	expectErr       bool
 }
@@ -696,7 +696,7 @@ func (s *IndexSuite) TestEnumArray() {
 
 type highlightTestCase struct {
 	desc            string
-	q               *aux.Query
+	q               *auxpb.Query
 	expectedResults map[*storage.TestMultiKeyStruct]map[string][]string
 	expectErr       bool
 }

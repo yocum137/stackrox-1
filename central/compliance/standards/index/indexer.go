@@ -24,8 +24,8 @@ type Indexer interface {
 	IndexStandard(standard *v1.ComplianceStandard) error
 	DeleteStandard(id string) error
 	DeleteControl(id string) error
-	SearchStandards(q *aux.Query) ([]search.Result, error)
-	SearchControls(q *aux.Query) ([]search.Result, error)
+	SearchStandards(q *auxpb.Query) ([]search.Result, error)
+	SearchControls(q *auxpb.Query) ([]search.Result, error)
 }
 
 type controlWrapper struct {
@@ -73,11 +73,11 @@ func (i *indexer) DeleteControl(id string) error {
 }
 
 // SearchStandards searches standards
-func (i *indexer) SearchStandards(q *aux.Query) ([]search.Result, error) {
+func (i *indexer) SearchStandards(q *auxpb.Query) ([]search.Result, error) {
 	return blevesearch.RunSearchRequest(v1.SearchCategory_COMPLIANCE_STANDARD, q, i.indexer, StandardOptions)
 }
 
 // SearchControls searches controls
-func (i *indexer) SearchControls(q *aux.Query) ([]search.Result, error) {
+func (i *indexer) SearchControls(q *auxpb.Query) ([]search.Result, error) {
 	return blevesearch.RunSearchRequest(v1.SearchCategory_COMPLIANCE_CONTROL, q, i.indexer, ControlOptions)
 }

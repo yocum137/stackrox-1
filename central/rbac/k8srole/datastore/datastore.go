@@ -25,10 +25,10 @@ import (
 // DataStore is an intermediary to RoleStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawRoles(ctx context.Context, q *aux.Query) ([]*storage.K8SRole, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRoles(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawRoles(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRole, error)
 
 	GetRole(ctx context.Context, id string) (*storage.K8SRole, bool, error)
 	UpsertRole(ctx context.Context, request *storage.K8SRole) error

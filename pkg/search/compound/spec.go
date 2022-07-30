@@ -24,5 +24,5 @@ type joinRequestSpec struct {
 
 type baseRequestSpec struct {
 	Spec  *SearcherSpec
-	Query *aux.Query
+	Query *auxpb.Query
 }

@@ -31,15 +31,15 @@ func getPlottedVulnsIdsAndFixableCount(ctx context.Context, root *Resolver, args
 	return search.ResultsToIDs(all), fixable, nil
 }
 
-func getPlottedVulnsV1Query(args RawQuery) (*aux.Query, error) {
+func getPlottedVulnsV1Query(args RawQuery) (*auxpb.Query, error) {
 	q, err := args.AsV1QueryOrEmpty()
 	if err != nil {
 		return nil, err
 	}
 
 	q = tryUnsuppressedQuery(q)
-	q.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	q.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,

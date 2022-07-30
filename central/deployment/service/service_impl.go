@@ -186,9 +186,9 @@ func (s *serviceImpl) ListDeployments(ctx context.Context, request *v1.RawQuery)
 	}, nil
 }
 
-func queryForLabels() *aux.Query {
+func queryForLabels() *auxpb.Query {
 	q := search.NewQueryBuilder().AddStringsHighlighted(search.Label, search.WildcardString).ProtoQuery()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	return q

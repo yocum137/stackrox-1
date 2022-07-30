@@ -79,7 +79,7 @@ func (mr *MockIndexerMockRecorder) IndexStandard(standard interface{}) *gomock.C
 }
 
 // SearchControls mocks base method.
-func (m *MockIndexer) SearchControls(q *aux.Query) ([]search.Result, error) {
+func (m *MockIndexer) SearchControls(q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchControls", q)
 	ret0, _ := ret[0].([]search.Result)
@@ -94,7 +94,7 @@ func (mr *MockIndexerMockRecorder) SearchControls(q interface{}) *gomock.Call {
 }
 
 // SearchStandards mocks base method.
-func (m *MockIndexer) SearchStandards(q *aux.Query) ([]search.Result, error) {
+func (m *MockIndexer) SearchStandards(q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchStandards", q)
 	ret0, _ := ret[0].([]search.Result)

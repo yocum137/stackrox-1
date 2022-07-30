@@ -24,9 +24,9 @@ import (
 // DataStore is an intermediary to RiskStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRawRisks(ctx context.Context, q *auxpb.Query) ([]*storage.Risk, error)
 
 	GetRisk(ctx context.Context, subjectID string, subjectType storage.RiskSubjectType) (*storage.Risk, bool, error)
 	GetRiskForDeployment(ctx context.Context, deployment *storage.Deployment) (*storage.Risk, bool, error)

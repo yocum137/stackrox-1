@@ -18,18 +18,18 @@ func TestParseURLQuery(t *testing.T) {
 		"pagination.sortOption.reversed": []string{"true"},
 	}
 
-	expectedQuery := &aux.Query{
-		Query: &aux.Query_BaseQuery{
-			BaseQuery: &aux.BaseQuery{
-				Query: &aux.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+	expectedQuery := &auxpb.Query{
+		Query: &auxpb.Query_BaseQuery{
+			BaseQuery: &auxpb.BaseQuery{
+				Query: &auxpb.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 				},
 			},
 		},
-		Pagination: &aux.QueryPagination{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*aux.QuerySortOption{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,
@@ -53,18 +53,18 @@ func TestParseURLQueryWithExtraValues(t *testing.T) {
 		"blah":                           []string{"blah"},
 	}
 
-	expectedQuery := &aux.Query{
-		Query: &aux.Query_BaseQuery{
-			BaseQuery: &aux.BaseQuery{
-				Query: &aux.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+	expectedQuery := &auxpb.Query{
+		Query: &auxpb.Query_BaseQuery{
+			BaseQuery: &auxpb.BaseQuery{
+				Query: &auxpb.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 				},
 			},
 		},
-		Pagination: &aux.QueryPagination{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*aux.QuerySortOption{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,
@@ -87,33 +87,33 @@ func TestParseURLQueryConjunctionQuery(t *testing.T) {
 		"pagination.sortOption.reversed": []string{"true"},
 	}
 
-	expectedQuery := &aux.Query{
-		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
-			Queries: []*aux.Query{
+	expectedQuery := &auxpb.Query{
+		Query: &auxpb.Query_Conjunction{Conjunction: &auxpb.ConjunctionQuery{
+			Queries: []*auxpb.Query{
 				{
-					Query: &aux.Query_BaseQuery{
-						BaseQuery: &aux.BaseQuery{
-							Query: &aux.BaseQuery_MatchFieldQuery{
-								MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Cluster.String(), Value: "ABC"},
+					Query: &auxpb.Query_BaseQuery{
+						BaseQuery: &auxpb.BaseQuery{
+							Query: &auxpb.BaseQuery_MatchFieldQuery{
+								MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Cluster.String(), Value: "ABC"},
 							},
 						},
 					},
 				},
 				{
-					Query: &aux.Query_BaseQuery{
-						BaseQuery: &aux.BaseQuery{
-							Query: &aux.BaseQuery_MatchFieldQuery{
-								MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+					Query: &auxpb.Query_BaseQuery{
+						BaseQuery: &auxpb.BaseQuery{
+							Query: &auxpb.BaseQuery_MatchFieldQuery{
+								MatchFieldQuery: &auxpb.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 							},
 						},
 					},
 				},
 			},
 		}},
-		Pagination: &aux.QueryPagination{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*aux.QuerySortOption{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,

@@ -19,7 +19,7 @@ var (
 	podsSACSearchHelper         = sac.ForResource(resources.Deployment).MustCreateSearchHelper(mappings.OptionsMap)
 	podsSACPostgresSearchHelper = sac.ForResource(resources.Deployment).MustCreatePgSearchHelper()
 
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field:    search.DeploymentID.String(),
 		Reversed: false,
 	}
@@ -31,16 +31,16 @@ type searcherImpl struct {
 	searcher search.Searcher
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *searcherImpl) SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error) {
+func (ds *searcherImpl) SearchRawPods(ctx context.Context, q *auxpb.Query) ([]*storage.Pod, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

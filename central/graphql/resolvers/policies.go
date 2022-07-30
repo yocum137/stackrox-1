@@ -180,7 +180,7 @@ func (resolver *policyResolver) FailingDeployments(ctx context.Context, args Pag
 	return resolver.failingDeployments(ctx, q)
 }
 
-func (resolver *policyResolver) failingDeployments(ctx context.Context, q *aux.Query) ([]*deploymentResolver, error) {
+func (resolver *policyResolver) failingDeployments(ctx context.Context, q *auxpb.Query) ([]*deploymentResolver, error) {
 	alertsQuery := search.ConjunctionQuery(resolver.getPolicyQuery(),
 		search.NewQueryBuilder().AddExactMatches(search.ViolationState, storage.ViolationState_ACTIVE.String()).ProtoQuery())
 	listAlerts, err := resolver.root.ViolationsDataStore.SearchListAlerts(ctx, alertsQuery)
@@ -332,7 +332,7 @@ func (resolver *policyResolver) FullMitreAttackVectors(ctx context.Context) ([]*
 	)
 }
 
-func (resolver *policyResolver) getPolicyQuery() *aux.Query {
+func (resolver *policyResolver) getPolicyQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddStrings(search.PolicyID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -344,11 +344,11 @@ func (resolver *policyResolver) UnusedVarSink(ctx context.Context, args RawQuery
 	return nil
 }
 
-func inverseFilterFailingDeploymentsQuery(q *aux.Query) (*aux.Query, bool) {
+func inverseFilterFailingDeploymentsQuery(q *auxpb.Query) (*auxpb.Query, bool) {
 	failingDeploymentsQuery := false
 	local := q.Clone()
-	filtered, _ := search.FilterQuery(local, func(bq *aux.BaseQuery) bool {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	filtered, _ := search.FilterQuery(local, func(bq *auxpb.BaseQuery) bool {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if ok {
 			if matchFieldQuery.MatchFieldQuery.GetField() == search.PolicyViolated.String() {
 				failingDeploymentsQuery = true

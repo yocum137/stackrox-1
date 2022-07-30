@@ -46,7 +46,7 @@ type searcherImplV2 struct {
 }
 
 // SearchRawDeployments retrieves deployments from the indexer and storage
-func (ds *searcherImplV2) SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (ds *searcherImplV2) SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	deployments, err := ds.searchDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (ds *searcherImplV2) SearchRawDeployments(ctx context.Context, q *aux.Query
 }
 
 // SearchListDeployments retrieves deployments from the indexer and storage
-func (ds *searcherImplV2) SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error) {
+func (ds *searcherImplV2) SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error) {
 	deployments, _, err := ds.searchListDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (ds *searcherImplV2) SearchListDeployments(ctx context.Context, q *aux.Quer
 	return deployments, err
 }
 
-func (ds *searcherImplV2) searchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, []search.Result, error) {
+func (ds *searcherImplV2) searchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -79,7 +79,7 @@ func (ds *searcherImplV2) searchListDeployments(ctx context.Context, q *aux.Quer
 }
 
 // SearchDeployments retrieves SearchResults from the indexer and storage
-func (ds *searcherImplV2) SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImplV2) SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	deployments, results, err := ds.searchListDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (ds *searcherImplV2) SearchDeployments(ctx context.Context, q *aux.Query) (
 	return protoResults, nil
 }
 
-func (ds *searcherImplV2) searchDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (ds *searcherImplV2) searchDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -105,12 +105,12 @@ func (ds *searcherImplV2) searchDeployments(ctx context.Context, q *aux.Query) (
 	return deployments, nil
 }
 
-func (ds *searcherImplV2) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImplV2) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImplV2) Count(ctx context.Context, q *aux.Query) (res int, err error) {
+func (ds *searcherImplV2) Count(ctx context.Context, q *auxpb.Query) (res int, err error) {
 	return ds.searcher.Count(ctx, q)
 }
 

@@ -49,13 +49,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseAnd() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 		},
@@ -65,8 +65,8 @@ func (suite *CondenseRequestTestSuite) TestCondenseAnd() {
 		base: &baseRequestSpec{
 			Spec: &searcherSpecs[0],
 			Query: search.ConjunctionQuery(
-				&aux.Query{},
-				&aux.Query{},
+				&auxpb.Query{},
+				&auxpb.Query{},
 			),
 		},
 	}
@@ -91,13 +91,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseOr() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 		},
@@ -107,8 +107,8 @@ func (suite *CondenseRequestTestSuite) TestCondenseOr() {
 		base: &baseRequestSpec{
 			Spec: &searcherSpecs[0],
 			Query: search.DisjunctionQuery(
-				&aux.Query{},
-				&aux.Query{},
+				&auxpb.Query{},
+				&auxpb.Query{},
 			),
 		},
 	}
@@ -135,13 +135,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseBoolean() {
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 				},
@@ -151,13 +151,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseBoolean() {
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[1],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[1],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 				},
@@ -171,8 +171,8 @@ func (suite *CondenseRequestTestSuite) TestCondenseBoolean() {
 				base: &baseRequestSpec{
 					Spec: &searcherSpecs[0],
 					Query: search.ConjunctionQuery(
-						&aux.Query{},
-						&aux.Query{},
+						&auxpb.Query{},
+						&auxpb.Query{},
 					),
 				},
 			},
@@ -180,8 +180,8 @@ func (suite *CondenseRequestTestSuite) TestCondenseBoolean() {
 				base: &baseRequestSpec{
 					Spec: &searcherSpecs[1],
 					Query: search.DisjunctionQuery(
-						&aux.Query{},
-						&aux.Query{},
+						&auxpb.Query{},
+						&auxpb.Query{},
 					),
 				},
 			},
@@ -269,13 +269,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[0],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[0],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 						},
@@ -285,13 +285,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[1],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[0],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 						},
@@ -301,13 +301,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
@@ -315,13 +315,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 				},
@@ -337,8 +337,8 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 						base: &baseRequestSpec{
 							Spec: &searcherSpecs[0],
 							Query: search.ConjunctionQuery(
-								&aux.Query{},
-								&aux.Query{},
+								&auxpb.Query{},
+								&auxpb.Query{},
 							),
 						},
 					},
@@ -347,13 +347,13 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[1],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 							{
 								base: &baseRequestSpec{
 									Spec:  &searcherSpecs[0],
-									Query: &aux.Query{},
+									Query: &auxpb.Query{},
 								},
 							},
 						},
@@ -364,11 +364,11 @@ func (suite *CondenseRequestTestSuite) TestCondenseComplex() {
 				base: &baseRequestSpec{
 					Spec: &searcherSpecs[0],
 					Query: search.ConjunctionQuery(
-						&aux.Query{},
-						&aux.Query{},
+						&auxpb.Query{},
+						&auxpb.Query{},
 						search.DisjunctionQuery(
-							&aux.Query{},
-							&aux.Query{},
+							&auxpb.Query{},
+							&auxpb.Query{},
 						),
 					),
 				},

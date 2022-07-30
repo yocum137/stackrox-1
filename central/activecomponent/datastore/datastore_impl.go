@@ -28,11 +28,11 @@ type datastoreImpl struct {
 	searcher      search.Searcher
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, query *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, query *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, query)
 }
 
-func (ds *datastoreImpl) SearchRawActiveComponents(ctx context.Context, query *aux.Query) ([]*storage.ActiveComponent, error) {
+func (ds *datastoreImpl) SearchRawActiveComponents(ctx context.Context, query *auxpb.Query) ([]*storage.ActiveComponent, error) {
 	return ds.searcher.SearchRawActiveComponents(ctx, query)
 }
 

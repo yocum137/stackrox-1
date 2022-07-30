@@ -25,11 +25,11 @@ import (
 // DataStore is a transaction script with methods that provide the domain logic for CRUD uses cases for Alert objects.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error)
-	SearchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchAlerts(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.Alert, error)
+	SearchListAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error)
 
 	ListAlerts(ctx context.Context, request *v1.ListAlertsRequest) ([]*storage.ListAlert, error)
 	WalkAll(ctx context.Context, fn func(alert *storage.ListAlert) error) error

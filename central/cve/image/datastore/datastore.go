@@ -21,13 +21,13 @@ import (
 // DataStore is an intermediary to CVE storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	SearchImageCVEs(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawImageCVEs(ctx context.Context, q *auxpb.Query) ([]*storage.ImageCVE, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ImageCVE, bool, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 	GetBatch(ctx context.Context, id []string) ([]*storage.ImageCVE, error)
 
 	Suppress(ctx context.Context, start *types.Timestamp, duration *types.Duration, cves ...string) error

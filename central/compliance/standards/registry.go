@@ -266,14 +266,14 @@ func (r *Registry) GetCISKubernetesStandardID() (string, error) {
 }
 
 // SearchStandards searches across standards
-func (r *Registry) SearchStandards(q *aux.Query) ([]search.Result, error) {
+func (r *Registry) SearchStandards(q *auxpb.Query) ([]search.Result, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return r.indexer.SearchStandards(q)
 }
 
 // SearchControls searches across controls
-func (r *Registry) SearchControls(q *aux.Query) ([]search.Result, error) {
+func (r *Registry) SearchControls(q *auxpb.Query) ([]search.Result, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return r.indexer.SearchControls(q)

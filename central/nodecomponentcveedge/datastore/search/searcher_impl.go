@@ -18,7 +18,7 @@ type searcherImpl struct {
 }
 
 // SearchEdges returns the search results from indexed edges for the query.
-func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -27,17 +27,17 @@ func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.Se
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (count int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (count int, err error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchRawEdges retrieves edges from the indexer and storage
-func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentCVEEdge, error) {
+func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponentCVEEdge, error) {
 	return ds.searchComponentCVEEdges(ctx, q)
 }
 
@@ -72,7 +72,7 @@ func convertOne(obj *storage.NodeComponentCVEEdge, result *search.Result) *v1.Se
 	}
 }
 
-func (ds *searcherImpl) searchComponentCVEEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentCVEEdge, error) {
+func (ds *searcherImpl) searchComponentCVEEdges(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponentCVEEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

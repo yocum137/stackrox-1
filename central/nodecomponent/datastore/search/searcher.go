@@ -24,10 +24,10 @@ var (
 // Searcher provides search functionality on existing image components.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchNodeComponents(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawNodeComponents(ctx context.Context, query *aux.Query) ([]*storage.NodeComponent, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchNodeComponents(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawNodeComponents(ctx context.Context, query *auxpb.Query) ([]*storage.NodeComponent, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

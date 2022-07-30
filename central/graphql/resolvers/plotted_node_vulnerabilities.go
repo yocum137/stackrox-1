@@ -53,8 +53,8 @@ func (resolver *Resolver) PlottedNodeVulnerabilities(ctx context.Context, args R
 	}
 	logErrorOnQueryContainingField(query, search.Fixable, "PlottedNodeVulnerabilities")
 
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,

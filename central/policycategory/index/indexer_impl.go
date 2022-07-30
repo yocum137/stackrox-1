@@ -70,7 +70,7 @@ func (b *indexerImpl) processBatch(policycategories []*storage.PolicyCategory) e
 	return b.index.Batch(batch)
 }
 
-func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "PolicyCategory")
 	return blevesearch.RunCountRequest(v1.SearchCategory_POLICY_CATEGORIES, q, b.index, mappings.OptionsMap, opts...)
 }
@@ -107,7 +107,7 @@ func (b *indexerImpl) NeedsInitialIndexing() (bool, error) {
 	return !bytes.Equal([]byte("old"), data), nil
 }
 
-func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "PolicyCategory")
 	return blevesearch.RunSearchRequest(v1.SearchCategory_POLICY_CATEGORIES, q, b.index, mappings.OptionsMap, opts...)
 }

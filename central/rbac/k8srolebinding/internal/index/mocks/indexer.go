@@ -66,7 +66,7 @@ func (mr *MockIndexerMockRecorder) AddK8SRoleBindings(k8srolebindings interface{
 }
 
 // Count mocks base method.
-func (m *MockIndexer) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (m *MockIndexer) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{q}
 	for _, a := range opts {
@@ -143,7 +143,7 @@ func (mr *MockIndexerMockRecorder) NeedsInitialIndexing() *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockIndexer) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (m *MockIndexer) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{q}
 	for _, a := range opts {

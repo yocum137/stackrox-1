@@ -188,7 +188,7 @@ func (resolver *imageComponentResolver) withImageComponentScope(ctx context.Cont
 	})
 }
 
-func (resolver *imageComponentResolver) componentQuery() *aux.Query {
+func (resolver *imageComponentResolver) componentQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -196,13 +196,13 @@ func (resolver *imageComponentResolver) componentRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).Query()
 }
 
-func getDeploymentIDFromQuery(q *aux.Query) string {
+func getDeploymentIDFromQuery(q *auxpb.Query) string {
 	if q == nil {
 		return ""
 	}
 	var deploymentID string
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -215,7 +215,7 @@ func getDeploymentIDFromQuery(q *aux.Query) string {
 	return deploymentID
 }
 
-func getDeploymentScope(scopeQuery *aux.Query, contexts ...context.Context) string {
+func getDeploymentScope(scopeQuery *auxpb.Query, contexts ...context.Context) string {
 	for _, ctx := range contexts {
 		if scope, ok := scoped.GetScope(ctx); ok && scope.Level == v1.SearchCategory_DEPLOYMENTS {
 			return scope.ID
@@ -344,10 +344,10 @@ func (resolver *imageComponentResolver) LastScanned(_ context.Context) (*graphql
 	}
 
 	q := resolver.componentQuery()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*aux.QuerySortOption{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.ImageScanTime.String(),
 				Reversed: true,

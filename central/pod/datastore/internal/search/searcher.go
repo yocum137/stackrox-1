@@ -18,9 +18,9 @@ var (
 // Searcher provides search functionality on existing pods
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchRawPods(ctx context.Context, q *auxpb.Query) ([]*storage.Pod, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

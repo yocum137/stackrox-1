@@ -35,13 +35,13 @@ import (
 // DataStore is an intermediary to ImageComponent storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	SearchImageComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawImageComponents(ctx context.Context, q *aux.Query) ([]*storage.ImageComponent, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	SearchImageComponents(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawImageComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ImageComponent, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ImageComponent, bool, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 	GetBatch(ctx context.Context, id []string) ([]*storage.ImageComponent, error)
 }
 

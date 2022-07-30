@@ -86,7 +86,7 @@ func (suite *ListDeploymentLoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &aux.Query{}
+	query := &auxpb.Query{}
 
 	// Get a preloaded deployment from id.
 	results := []search.Result{

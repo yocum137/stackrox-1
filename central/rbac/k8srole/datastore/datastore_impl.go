@@ -73,11 +73,11 @@ func (d *datastoreImpl) GetRole(ctx context.Context, id string) (*storage.K8SRol
 	return role, true, nil
 }
 
-func (d *datastoreImpl) SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (d *datastoreImpl) SearchRoles(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return d.searcher.SearchRoles(ctx, q)
 }
 
-func (d *datastoreImpl) SearchRawRoles(ctx context.Context, request *aux.Query) ([]*storage.K8SRole, error) {
+func (d *datastoreImpl) SearchRawRoles(ctx context.Context, request *auxpb.Query) ([]*storage.K8SRole, error) {
 	return d.searcher.SearchRawRoles(ctx, request)
 }
 
@@ -107,11 +107,11 @@ func (d *datastoreImpl) RemoveRole(ctx context.Context, id string) error {
 	return d.indexer.DeleteK8SRole(id)
 }
 
-func (d *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (d *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (d *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (d *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }

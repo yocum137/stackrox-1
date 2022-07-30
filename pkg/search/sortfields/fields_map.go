@@ -6,21 +6,21 @@ import (
 )
 
 // SortFieldMapper represents helper function that returns an array of query sort options to fulfill sorting by incoming sort option.
-type SortFieldMapper func(option *aux.QuerySortOption) []*aux.QuerySortOption
+type SortFieldMapper func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption
 
 var (
 	// SortFieldsMap represents the mapping from searchable fields to sort field helper function
 	SortFieldsMap = map[search.FieldLabel]SortFieldMapper{
-		search.PolicyName: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.PolicyName: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.SORTPolicyName.String(),
 					Reversed: option.GetReversed(),
 				},
 			}
 		},
-		search.ImageName: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.ImageName: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.ImageRegistry.String(),
 					Reversed: option.GetReversed(),
@@ -35,8 +35,8 @@ var (
 				},
 			}
 		},
-		search.Component: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.Component: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.Component.String(),
 					Reversed: option.GetReversed(),
@@ -47,40 +47,40 @@ var (
 				},
 			}
 		},
-		search.LifecycleStage: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.LifecycleStage: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.SORTLifecycleStage.String(),
 					Reversed: option.GetReversed(),
 				},
 			}
 		},
-		search.NodePriority: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.NodePriority: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.NodeRiskScore.String(),
 					Reversed: !option.GetReversed(),
 				},
 			}
 		},
-		search.DeploymentPriority: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.DeploymentPriority: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.DeploymentRiskScore.String(),
 					Reversed: !option.GetReversed(),
 				},
 			}
 		},
-		search.ImagePriority: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.ImagePriority: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.ImageRiskScore.String(),
 					Reversed: !option.GetReversed(),
 				},
 			}
 		},
-		search.ComponentPriority: func(option *aux.QuerySortOption) []*aux.QuerySortOption {
-			return []*aux.QuerySortOption{
+		search.ComponentPriority: func(option *auxpb.QuerySortOption) []*auxpb.QuerySortOption {
+			return []*auxpb.QuerySortOption{
 				{
 					Field:    search.ComponentRiskScore.String(),
 					Reversed: !option.GetReversed(),

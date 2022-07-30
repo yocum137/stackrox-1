@@ -110,15 +110,15 @@ func (b *indexerImpl) NeedsInitialIndexing() (bool, error) {
 	return !bytes.Equal([]byte("old"), data), nil
 }
 
-func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "Deployment")
 
 	// Has process option
 	// if has process option
 	index := b.index
 	var hasProcessComponent bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -134,15 +134,15 @@ func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]
 }
 
 // Count returns the number of search results from the query
-func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "Deployment")
 
 	// Has process option
 	// if has process option
 	index := b.index
 	var hasProcessComponent bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

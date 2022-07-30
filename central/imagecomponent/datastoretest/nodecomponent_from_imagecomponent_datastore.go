@@ -26,15 +26,15 @@ func convertImageComponentToNodeComponent(imageComponent *storage.ImageComponent
 	}
 }
 
-func (s *nodeComponentFromImageComponentDataStore) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (s *nodeComponentFromImageComponentDataStore) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return s.imageComponentStore.Search(ctx, q)
 }
 
-func (s *nodeComponentFromImageComponentDataStore) SearchNodeComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *nodeComponentFromImageComponentDataStore) SearchNodeComponents(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return s.imageComponentStore.SearchImageComponents(ctx, q)
 }
 
-func (s *nodeComponentFromImageComponentDataStore) SearchRawNodeComponents(ctx context.Context, q *aux.Query) ([]*storage.NodeComponent, error) {
+func (s *nodeComponentFromImageComponentDataStore) SearchRawNodeComponents(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponent, error) {
 	components, err := s.imageComponentStore.SearchRawImageComponents(ctx, q)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (s *nodeComponentFromImageComponentDataStore) Get(ctx context.Context, id s
 	return convertImageComponentToNodeComponent(component), true, nil
 }
 
-func (s *nodeComponentFromImageComponentDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *nodeComponentFromImageComponentDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.imageComponentStore.Count(ctx, q)
 }
 

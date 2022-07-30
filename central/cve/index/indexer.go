@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddCVE(cve *storage.CVE) error
 	AddCVEs(cves []*storage.CVE) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteCVE(id string) error
 	DeleteCVEs(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

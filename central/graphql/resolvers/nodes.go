@@ -392,7 +392,7 @@ func (resolver *nodeResolver) TopNodeVulnerability(ctx context.Context, args Raw
 	return resolver.root.TopNodeVulnerability(resolver.withNodeScopeContext(ctx), args)
 }
 
-func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*aux.Query, error) {
+func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*auxpb.Query, error) {
 	query, err := args.AsV1QueryOrEmpty()
 	if err != nil {
 		return nil, err
@@ -403,8 +403,8 @@ func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*aux.Query, e
 	}
 
 	query = search.ConjunctionQuery(query, resolver.getNodeQuery())
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -420,7 +420,7 @@ func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*aux.Query, e
 	return query, nil
 }
 
-func (resolver *nodeResolver) unwrappedTopVulnQuery(ctx context.Context, query *aux.Query) (*cVEResolver, error) {
+func (resolver *nodeResolver) unwrappedTopVulnQuery(ctx context.Context, query *auxpb.Query) (*cVEResolver, error) {
 	vulnLoader, err := loaders.GetCVELoader(ctx)
 	if err != nil {
 		return nil, err
@@ -440,7 +440,7 @@ func (resolver *nodeResolver) getNodeRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.NodeID, resolver.data.GetId()).Query()
 }
 
-func (resolver *nodeResolver) getNodeQuery() *aux.Query {
+func (resolver *nodeResolver) getNodeQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.NodeID, resolver.data.GetId()).ProtoQuery()
 }
 

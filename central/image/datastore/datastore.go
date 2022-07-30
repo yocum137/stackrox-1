@@ -31,13 +31,13 @@ import (
 // DataStore is an intermediary to AlertStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error)
+	SearchListImages(ctx context.Context, q *auxpb.Query) ([]*storage.ListImage, error)
 	ListImage(ctx context.Context, sha string) (*storage.ListImage, bool, error)
 
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchImages(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, error)
 
 	CountImages(ctx context.Context) (int, error)
 	GetImage(ctx context.Context, sha string) (*storage.Image, bool, error)

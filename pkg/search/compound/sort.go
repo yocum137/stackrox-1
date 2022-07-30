@@ -7,7 +7,7 @@ import (
 	"github.com/stackrox/rox/pkg/search"
 )
 
-func addSorting(rs *searchRequestSpec, p *aux.QueryPagination, specs []SearcherSpec) (*searchRequestSpec, error) {
+func addSorting(rs *searchRequestSpec, p *auxpb.QueryPagination, specs []SearcherSpec) (*searchRequestSpec, error) {
 	// No pagination no problems.
 	if p == nil {
 		return rs, nil
@@ -32,7 +32,7 @@ func addSorting(rs *searchRequestSpec, p *aux.QueryPagination, specs []SearcherS
 }
 
 // We can just add sorting info if the top level is a single query on a single searcher.
-func trySortBase(rs *searchRequestSpec, p *aux.QueryPagination) (*searchRequestSpec, bool) {
+func trySortBase(rs *searchRequestSpec, p *auxpb.QueryPagination) (*searchRequestSpec, bool) {
 	if rs.base != nil && paginationMatchesOptions(p, rs.base.Spec.Options) {
 		rs.base.Query.Pagination = p
 		return rs, true
@@ -41,7 +41,7 @@ func trySortBase(rs *searchRequestSpec, p *aux.QueryPagination) (*searchRequestS
 }
 
 // If the top level is a Conjunction/And, then we can add the sorting there.
-func trySortAnd(rs *searchRequestSpec, p *aux.QueryPagination) (*searchRequestSpec, bool) {
+func trySortAnd(rs *searchRequestSpec, p *auxpb.QueryPagination) (*searchRequestSpec, bool) {
 	if len(rs.and) > 0 {
 		for _, sr := range rs.and {
 			if sr.base != nil && paginationMatchesOptions(p, sr.base.Spec.Options) {
@@ -55,7 +55,7 @@ func trySortAnd(rs *searchRequestSpec, p *aux.QueryPagination) (*searchRequestSp
 
 // If the top level isn't a base nor a conjunction with a base that operated on the searcher we want to sort with,
 // then we need to do the sorting as a separate query.
-func trySortComplex(rs *searchRequestSpec, p *aux.QueryPagination, specs []SearcherSpec) (*searchRequestSpec, bool) {
+func trySortComplex(rs *searchRequestSpec, p *auxpb.QueryPagination, specs []SearcherSpec) (*searchRequestSpec, bool) {
 	// Add a layer with an and, and sort.
 	for i := range specs {
 		spec := specs[i]
@@ -80,7 +80,7 @@ func trySortComplex(rs *searchRequestSpec, p *aux.QueryPagination, specs []Searc
 
 // For simplicity's sake, we only allow sorting from a single child searcher. If we are sorting on fields across
 // multiple, it would be complicated to implement, so update this if you need that.
-func paginationMatchesOptions(p *aux.QueryPagination, merp search.OptionsMap) bool {
+func paginationMatchesOptions(p *auxpb.QueryPagination, merp search.OptionsMap) bool {
 	for _, so := range p.GetSortOptions() {
 		if _, matches := merp.Get(so.GetField()); !matches {
 			return false

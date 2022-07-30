@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddProcessBaseline(processbaseline *storage.ProcessBaseline) error
 	AddProcessBaselines(processbaselines []*storage.ProcessBaseline) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteProcessBaseline(id string) error
 	DeleteProcessBaselines(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

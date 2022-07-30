@@ -25,10 +25,10 @@ var (
 // Searcher provides search functionality on existing cves.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchClusterCVEs(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawClusterCVEs(ctx context.Context, query *aux.Query) ([]*storage.ClusterCVE, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchClusterCVEs(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawClusterCVEs(ctx context.Context, query *auxpb.Query) ([]*storage.ClusterCVE, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

@@ -45,9 +45,9 @@ func GetNodeComponentLoader(ctx context.Context) (NodeComponentLoader, error) {
 type NodeComponentLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.NodeComponent, error)
 	FromID(ctx context.Context, id string) (*storage.NodeComponent, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.NodeComponent, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.NodeComponent, error)
 
-	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -75,7 +75,7 @@ func (idl *nodeComponentLoaderImpl) FromID(ctx context.Context, id string) (*sto
 	return components[0], nil
 }
 
-func (idl *nodeComponentLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.NodeComponent, error) {
+func (idl *nodeComponentLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.NodeComponent, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (idl *nodeComponentLoaderImpl) FromQuery(ctx context.Context, query *aux.Qu
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *nodeComponentLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
+func (idl *nodeComponentLoaderImpl) CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error) {
 	numResults, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

@@ -136,7 +136,7 @@ func (s *DeploymentPostgresDataStoreTestSuite) TestSearchWithPostgres() {
 	for _, tc := range []struct {
 		desc         string
 		ctx          context.Context
-		query        *aux.Query
+		query        *auxpb.Query
 		orderMatters bool
 		expectedIDs  []string
 		queryImages  bool

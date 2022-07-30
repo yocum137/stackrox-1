@@ -153,11 +153,11 @@ func (ds *datastoreImpl) fullReindex(ctx context.Context) error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.podSearcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error) {
+func (ds *datastoreImpl) SearchRawPods(ctx context.Context, q *auxpb.Query) ([]*storage.Pod, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), resourceType, "SearchRawPods")
 
 	return ds.podSearcher.SearchRawPods(ctx, q)

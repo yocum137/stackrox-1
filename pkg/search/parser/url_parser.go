@@ -13,7 +13,7 @@ import (
 )
 
 // ParseURLQuery parses the URL raw query values into a v1.Query object
-func ParseURLQuery(values url.Values) (*aux.Query, *v1.RawQuery, error) {
+func ParseURLQuery(values url.Values) (*auxpb.Query, *v1.RawQuery, error) {
 	var rawQuery v1.RawQuery
 	if err := runtime.PopulateQueryParameters(&rawQuery, values, &utilities.DoubleArray{}); err != nil {
 		return nil, nil, err

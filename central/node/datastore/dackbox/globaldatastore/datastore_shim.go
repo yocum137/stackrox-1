@@ -32,7 +32,7 @@ func newDatastoreShim(clusterID string, dacky dackboxDatastore.DataStore) datast
 	}
 }
 
-func (d *datastoreShim) clusterQuery() *aux.Query {
+func (d *datastoreShim) clusterQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ClusterID, d.clusterID).ProtoQuery()
 }
 

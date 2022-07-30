@@ -390,8 +390,8 @@ func (suite *NodePostgresDataStoreTestSuite) TestSortByComponent() {
 
 	// Verify sort by Component search label is transformed to sort by Component+Version.
 	query := pkgSearch.EmptyQuery()
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: pkgSearch.Component.String(),
 			},
@@ -419,8 +419,8 @@ func (suite *NodePostgresDataStoreTestSuite) TestSortByComponent() {
 	suite.NoError(err)
 	suite.Equal(1, len(results))
 
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: pkgSearch.CVE.String(),
 			},

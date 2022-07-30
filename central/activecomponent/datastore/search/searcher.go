@@ -17,10 +17,10 @@ import (
 // Searcher provides search functionality on active components
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 
-	SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error)
+	SearchRawActiveComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ActiveComponent, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

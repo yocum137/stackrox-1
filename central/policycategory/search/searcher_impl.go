@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field: search.PolicyCategoryName.String(),
 	}
 
@@ -32,7 +32,7 @@ type searcherImpl struct {
 	searcher search.Searcher
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Resul
 	return s.searcher.Search(ctx, q)
 }
 
-func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -48,12 +48,12 @@ func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.searcher.Count(ctx, q)
 }
 
-func (s searcherImpl) SearchRawCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error) {
+func (s searcherImpl) SearchRawCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, error) {
 	categories, _, err := s.searchCategories(ctx, q)
 	return categories, err
 }
 
-func (s searcherImpl) SearchCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s searcherImpl) SearchCategories(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	categories, results, err := s.searchCategories(ctx, q)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (s searcherImpl) SearchCategories(ctx context.Context, q *aux.Query) ([]*v1
 	return protoResults, nil
 }
 
-func (s *searcherImpl) searchCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, []search.Result, error) {
+func (s *searcherImpl) searchCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, []search.Result, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err

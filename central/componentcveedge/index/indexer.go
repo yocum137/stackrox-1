@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddComponentCVEEdge(componentcveedge *storage.ComponentCVEEdge) error
 	AddComponentCVEEdges(componentcveedges []*storage.ComponentCVEEdge) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteComponentCVEEdge(id string) error
 	DeleteComponentCVEEdges(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

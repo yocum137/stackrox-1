@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func emptyPaginatedQuery() *aux.Query {
+func emptyPaginatedQuery() *auxpb.Query {
 	q := search.EmptyQuery()
 	paginated.FillPagination(q, nil, math.MaxInt32)
 	return q

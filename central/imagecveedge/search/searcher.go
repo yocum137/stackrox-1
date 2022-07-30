@@ -21,10 +21,10 @@ import (
 // Searcher provides search functionality on existing CVEs (for the attributes pertaining to direct image-cve relationship).
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchEdges(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawEdges(ctx context.Context, query *aux.Query) ([]*storage.ImageCVEEdge, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchEdges(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawEdges(ctx context.Context, query *auxpb.Query) ([]*storage.ImageCVEEdge, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

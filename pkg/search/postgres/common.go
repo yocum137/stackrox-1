@@ -220,7 +220,7 @@ func (p *parsedPaginationQuery) AsSQL() string {
 	return paginationSB.String()
 }
 
-func populatePagination(querySoFar *query, pagination *aux.QueryPagination, schema *walker.Schema, queryFields map[string]searchFieldMetadata) error {
+func populatePagination(querySoFar *query, pagination *auxpb.QueryPagination, schema *walker.Schema, queryFields map[string]searchFieldMetadata) error {
 	if pagination == nil {
 		return nil
 	}
@@ -304,7 +304,7 @@ func applyPaginationForSearchAfter(query *query) error {
 	return nil
 }
 
-func standardizeQueryAndPopulatePath(q *aux.Query, schema *walker.Schema, queryType QueryType) (*query, error) {
+func standardizeQueryAndPopulatePath(q *auxpb.Query, schema *walker.Schema, queryType QueryType) (*query, error) {
 	nowForQuery := time.Now()
 	standardizeFieldNamesInQuery(q)
 	innerJoins, dbFields := getJoinsAndFields(schema, q)
@@ -385,7 +385,7 @@ func combineQueryEntries(entries []*pgsearch.QueryEntry, separator string) *pgse
 
 func entriesFromQueries(
 	table *walker.Schema,
-	queries []*aux.Query,
+	queries []*auxpb.Query,
 	queryFields map[string]searchFieldMetadata,
 	nowForQuery time.Time,
 ) ([]*pgsearch.QueryEntry, error) {
@@ -403,16 +403,16 @@ func entriesFromQueries(
 	return entries, nil
 }
 
-func compileQueryToPostgres(schema *walker.Schema, q *aux.Query, queryFields map[string]searchFieldMetadata, nowForQuery time.Time) (*pgsearch.QueryEntry, error) {
+func compileQueryToPostgres(schema *walker.Schema, q *auxpb.Query, queryFields map[string]searchFieldMetadata, nowForQuery time.Time) (*pgsearch.QueryEntry, error) {
 	switch sub := q.GetQuery().(type) {
-	case *aux.Query_BaseQuery:
+	case *auxpb.Query_BaseQuery:
 		switch subBQ := q.GetBaseQuery().Query.(type) {
-		case *aux.BaseQuery_DocIdQuery:
+		case *auxpb.BaseQuery_DocIdQuery:
 			return &pgsearch.QueryEntry{Where: pgsearch.WhereClause{
 				Query:  fmt.Sprintf("%s.%s = ANY($$::text[])", schema.Table, schema.ID().ColumnName),
 				Values: []interface{}{subBQ.DocIdQuery.GetIds()},
 			}}, nil
-		case *aux.BaseQuery_MatchFieldQuery:
+		case *auxpb.BaseQuery_MatchFieldQuery:
 			queryFieldMetadata := queryFields[subBQ.MatchFieldQuery.GetField()]
 			qe, err := pgsearch.MatchFieldQuery(
 				queryFieldMetadata.baseField,
@@ -425,9 +425,9 @@ func compileQueryToPostgres(schema *walker.Schema, q *aux.Query, queryFields map
 				return nil, err
 			}
 			return qe, nil
-		case *aux.BaseQuery_MatchNoneQuery:
+		case *auxpb.BaseQuery_MatchNoneQuery:
 			return pgsearch.NewFalseQuery(), nil
-		case *aux.BaseQuery_MatchLinkedFieldsQuery:
+		case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 			var entries []*pgsearch.QueryEntry
 			for _, q := range subBQ.MatchLinkedFieldsQuery.Query {
 				queryFieldMetadata := queryFields[q.GetField()]
@@ -443,19 +443,19 @@ func compileQueryToPostgres(schema *walker.Schema, q *aux.Query, queryFields map
 		default:
 			panic("unsupported")
 		}
-	case *aux.Query_Conjunction:
+	case *auxpb.Query_Conjunction:
 		entries, err := entriesFromQueries(schema, sub.Conjunction.Queries, queryFields, nowForQuery)
 		if err != nil {
 			return nil, err
 		}
 		return combineQueryEntries(entries, " and "), nil
-	case *aux.Query_Disjunction:
+	case *auxpb.Query_Disjunction:
 		entries, err := entriesFromQueries(schema, sub.Disjunction.Queries, queryFields, nowForQuery)
 		if err != nil {
 			return nil, err
 		}
 		return combineQueryEntries(entries, " or "), nil
-	case *aux.Query_BooleanQuery:
+	case *auxpb.Query_BooleanQuery:
 		entries, err := entriesFromQueries(schema, sub.BooleanQuery.Must.Queries, queryFields, nowForQuery)
 		if err != nil {
 			return nil, err
@@ -487,16 +487,16 @@ func valueFromStringPtrInterface(value interface{}) string {
 	return *(value.(*string))
 }
 
-func standardizeFieldNamesInQuery(q *aux.Query) {
+func standardizeFieldNamesInQuery(q *auxpb.Query) {
 	// Lowercase all field names in the query, for standardization.
 	// There are certain places where we operate on the query fields directly as strings,
 	// without access to the options map.
 	// TODO: this could be made cleaner by refactoring the v1.Query object to directly have FieldLabels.
-	searchPkg.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+	searchPkg.ApplyFnToAllBaseQueries(q, func(bq *auxpb.BaseQuery) {
 		switch bq := bq.Query.(type) {
-		case *aux.BaseQuery_MatchFieldQuery:
+		case *auxpb.BaseQuery_MatchFieldQuery:
 			bq.MatchFieldQuery.Field = strings.ToLower(bq.MatchFieldQuery.Field)
-		case *aux.BaseQuery_MatchLinkedFieldsQuery:
+		case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 			for _, q := range bq.MatchLinkedFieldsQuery.Query {
 				q.Field = strings.ToLower(q.Field)
 			}
@@ -509,13 +509,13 @@ func standardizeFieldNamesInQuery(q *aux.Query) {
 }
 
 // RunSearchRequest executes a request against the database for given category
-func RunSearchRequest(category v1.SearchCategory, q *aux.Query, db *pgxpool.Pool) ([]searchPkg.Result, error) {
+func RunSearchRequest(category v1.SearchCategory, q *auxpb.Query, db *pgxpool.Pool) ([]searchPkg.Result, error) {
 	schema := mapping.GetTableFromCategory(category)
 	return RunSearchRequestForSchema(schema, q, db)
 }
 
 // RunSearchRequestForSchema executes a request against the database for given schema
-func RunSearchRequestForSchema(schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) (searchResults []searchPkg.Result, err error) {
+func RunSearchRequestForSchema(schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) (searchResults []searchPkg.Result, err error) {
 	var query *query
 	// Add this to be safe and convert panics to errors,
 	// since we do a lot of casting and other operations that could potentially panic in this code.
@@ -624,13 +624,13 @@ func RunSearchRequestForSchema(schema *walker.Schema, q *aux.Query, db *pgxpool.
 }
 
 // RunCountRequest executes a request for just the count against the database
-func RunCountRequest(category v1.SearchCategory, q *aux.Query, db *pgxpool.Pool) (int, error) {
+func RunCountRequest(category v1.SearchCategory, q *auxpb.Query, db *pgxpool.Pool) (int, error) {
 	schema := mapping.GetTableFromCategory(category)
 	return RunCountRequestForSchema(schema, q, db)
 }
 
 // RunCountRequestForSchema executes a request for just the count against the database
-func RunCountRequestForSchema(schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) (int, error) {
+func RunCountRequestForSchema(schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) (int, error) {
 	query, err := standardizeQueryAndPopulatePath(q, schema, COUNT)
 	if err != nil || query == nil {
 		return 0, err
@@ -648,7 +648,7 @@ func RunCountRequestForSchema(schema *walker.Schema, q *aux.Query, db *pgxpool.P
 }
 
 // RunGetQueryForSchema executes a request for just the search against the database
-func RunGetQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) ([]byte, error) {
+func RunGetQueryForSchema(ctx context.Context, schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) ([]byte, error) {
 	query, err := standardizeQueryAndPopulatePath(q, schema, GET)
 	if err != nil {
 		return nil, err
@@ -666,7 +666,7 @@ func RunGetQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux.Que
 }
 
 // RunGetManyQueryForSchema executes a request for just the search against the database
-func RunGetManyQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) ([][]byte, error) {
+func RunGetManyQueryForSchema(ctx context.Context, schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) ([][]byte, error) {
 	query, err := standardizeQueryAndPopulatePath(q, schema, GET)
 	if err != nil {
 		return nil, err
@@ -694,7 +694,7 @@ func RunGetManyQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux
 }
 
 // RunCursorQueryForSchema creates a cursor against the database
-func RunCursorQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) (fetcher func(n int) ([][]byte, error), closer func(), err error) {
+func RunCursorQueryForSchema(ctx context.Context, schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) (fetcher func(n int) ([][]byte, error), closer func(), err error) {
 	query, err := standardizeQueryAndPopulatePath(q, schema, GET)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error creating query")
@@ -746,7 +746,7 @@ func RunCursorQueryForSchema(ctx context.Context, schema *walker.Schema, q *aux.
 }
 
 // RunDeleteRequestForSchema executes a request for just the delete against the database
-func RunDeleteRequestForSchema(schema *walker.Schema, q *aux.Query, db *pgxpool.Pool) error {
+func RunDeleteRequestForSchema(schema *walker.Schema, q *auxpb.Query, db *pgxpool.Pool) error {
 	query, err := standardizeQueryAndPopulatePath(q, schema, DELETE)
 	if err != nil || query == nil {
 		return err

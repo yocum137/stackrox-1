@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddNamespaceMetadata(namespacemetadata *storage.NamespaceMetadata) error
 	AddNamespaceMetadatas(namespacemetadatas []*storage.NamespaceMetadata) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNamespaceMetadata(id string) error
 	DeleteNamespaceMetadatas(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

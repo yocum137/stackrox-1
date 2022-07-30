@@ -54,7 +54,7 @@ func (suite *SecretIndexTestSuite) SetupSuite() {
 func (suite *SecretIndexTestSuite) TestSecretSearch() {
 	cases := []struct {
 		name        string
-		q           *aux.Query
+		q           *auxpb.Query
 		expectedIDs []string
 	}{
 		{

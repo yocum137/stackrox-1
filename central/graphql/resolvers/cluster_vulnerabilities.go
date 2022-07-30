@@ -336,7 +336,7 @@ func clusterCveToVulnerabilityWithSeverity(in []*storage.ClusterCVE) []Vulnerabi
 	return ret
 }
 
-func (resolver *clusterCVEResolver) getClusterCVEQuery() *aux.Query {
+func (resolver *clusterCVEResolver) getClusterCVEQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -412,7 +412,7 @@ func (resolver *clusterCVEResolver) IsFixable(ctx context.Context, args RawQuery
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*auxpb.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(ctx); !ok || scope.Level != v1.SearchCategory_CLUSTER_VULNERABILITIES {

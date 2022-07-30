@@ -211,7 +211,7 @@ func (r *repository) init(ctx context.Context, domain framework.ComplianceDomain
 	clusterID := r.cluster.GetId()
 
 	clusterQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).ProtoQuery()
-	infPagination := &aux.QueryPagination{
+	infPagination := &auxpb.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	clusterQuery.Pagination = infPagination

@@ -34,7 +34,7 @@ func (suite *SortingTestSuite) TearDownTest() {
 
 func (suite *SortingTestSuite) TestHandlesEmpty() {
 	spec := &searchRequestSpec{}
-	actual, err := addSorting(spec, &aux.QueryPagination{}, []SearcherSpec{})
+	actual, err := addSorting(spec, &auxpb.QueryPagination{}, []SearcherSpec{})
 	suite.NotNil(err)
 	suite.Equal((*searchRequestSpec)(nil), actual)
 }
@@ -51,12 +51,12 @@ func (suite *SortingTestSuite) TestHandlesBase() {
 	searchSpec := &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec:  &searcherSpecs[0],
-			Query: &aux.Query{},
+			Query: &auxpb.Query{},
 		},
 	}
 
-	pagination := &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	pagination := &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -68,7 +68,7 @@ func (suite *SortingTestSuite) TestHandlesBase() {
 	expectedSearchSpec := &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec: &searcherSpecs[0],
-			Query: &aux.Query{
+			Query: &auxpb.Query{
 				Pagination: pagination,
 			},
 		},
@@ -98,20 +98,20 @@ func (suite *SortingTestSuite) TestHandlesAnd() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[1],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 		},
 	}
 
-	pagination := &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	pagination := &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -126,13 +126,13 @@ func (suite *SortingTestSuite) TestHandlesAnd() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec: &searcherSpecs[1],
-					Query: &aux.Query{
+					Query: &auxpb.Query{
 						Pagination: pagination,
 					},
 				},
@@ -164,20 +164,20 @@ func (suite *SortingTestSuite) TestHandlesAndWithoutMatch() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &aux.Query{},
+					Query: &auxpb.Query{},
 				},
 			},
 		},
 	}
 
-	pagination := &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	pagination := &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -196,13 +196,13 @@ func (suite *SortingTestSuite) TestHandlesAndWithoutMatch() {
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &aux.Query{},
+							Query: &auxpb.Query{},
 						},
 					},
 				},

@@ -87,7 +87,7 @@ func (tb Factory) ForCustomOptionsMap(optsMap search.OptionsMap) Factory {
 
 // GeneratePredicate creates a predicate for the Predicate factories type that returns whether or not the input
 // instance matches the query.
-func (tb Factory) GeneratePredicate(query *aux.Query) (Predicate, error) {
+func (tb Factory) GeneratePredicate(query *auxpb.Query) (Predicate, error) {
 	ip, err := tb.generatePredicateInternal(query)
 	if err != nil {
 		return nil, err
@@ -118,25 +118,25 @@ func wrapInternal(ip internalPredicate) Predicate {
 	})
 }
 
-func (tb Factory) generatePredicateInternal(query *aux.Query) (internalPredicate, error) {
+func (tb Factory) generatePredicateInternal(query *auxpb.Query) (internalPredicate, error) {
 	if query == nil || query.GetQuery() == nil {
 		return alwaysTrue, nil
 	}
 	switch query.GetQuery().(type) {
-	case *aux.Query_Disjunction:
+	case *auxpb.Query_Disjunction:
 		return tb.or(query.GetDisjunction())
-	case *aux.Query_Conjunction:
+	case *auxpb.Query_Conjunction:
 		return tb.and(query.GetConjunction())
-	case *aux.Query_BooleanQuery:
+	case *auxpb.Query_BooleanQuery:
 		return tb.boolean(query.GetBooleanQuery())
-	case *aux.Query_BaseQuery:
+	case *auxpb.Query_BaseQuery:
 		return tb.base(query.GetBaseQuery())
 	default:
 		return nil, fmt.Errorf("unrecognized query type: %T", query.GetQuery())
 	}
 }
 
-func (tb Factory) or(q *aux.DisjunctionQuery) (internalPredicate, error) {
+func (tb Factory) or(q *auxpb.DisjunctionQuery) (internalPredicate, error) {
 	ret := make([]internalPredicate, 0, len(q.GetQueries()))
 	for _, dis := range q.GetQueries() {
 		next, err := tb.generatePredicateInternal(dis)
@@ -149,7 +149,7 @@ func (tb Factory) or(q *aux.DisjunctionQuery) (internalPredicate, error) {
 	return orOf(ret...), nil
 }
 
-func (tb Factory) and(q *aux.ConjunctionQuery) (internalPredicate, error) {
+func (tb Factory) and(q *auxpb.ConjunctionQuery) (internalPredicate, error) {
 	ret := make([]internalPredicate, 0, len(q.GetQueries()))
 	for _, dis := range q.GetQueries() {
 		next, err := tb.generatePredicateInternal(dis)
@@ -162,7 +162,7 @@ func (tb Factory) and(q *aux.ConjunctionQuery) (internalPredicate, error) {
 	return andOf(ret...), nil
 }
 
-func (tb Factory) boolean(q *aux.BooleanQuery) (internalPredicate, error) {
+func (tb Factory) boolean(q *auxpb.BooleanQuery) (internalPredicate, error) {
 	must, err := tb.and(q.GetMust())
 	if err != nil {
 		return nil, err
@@ -186,30 +186,30 @@ func (tb Factory) boolean(q *aux.BooleanQuery) (internalPredicate, error) {
 	}), nil
 }
 
-func (tb Factory) base(q *aux.BaseQuery) (internalPredicate, error) {
+func (tb Factory) base(q *auxpb.BaseQuery) (internalPredicate, error) {
 	switch q.GetQuery().(type) {
-	case *aux.BaseQuery_DocIdQuery:
+	case *auxpb.BaseQuery_DocIdQuery:
 		return tb.docID(q.GetDocIdQuery())
-	case *aux.BaseQuery_MatchNoneQuery:
+	case *auxpb.BaseQuery_MatchNoneQuery:
 		return tb.matchNone(q.GetMatchNoneQuery())
-	case *aux.BaseQuery_MatchFieldQuery:
+	case *auxpb.BaseQuery_MatchFieldQuery:
 		return tb.match(q.GetMatchFieldQuery())
-	case *aux.BaseQuery_MatchLinkedFieldsQuery:
+	case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 		return tb.matchLinked(q.GetMatchLinkedFieldsQuery())
 	default:
 		return nil, fmt.Errorf("cannot handle base query of type %T", q.GetQuery())
 	}
 }
 
-func (tb Factory) docID(q *aux.DocIDQuery) (internalPredicate, error) {
+func (tb Factory) docID(q *auxpb.DocIDQuery) (internalPredicate, error) {
 	return nil, errors.New("query predicates do not support DocID query types as DocIDs only exist in the index")
 }
 
-func (tb Factory) matchNone(q *aux.MatchNoneQuery) (internalPredicate, error) {
+func (tb Factory) matchNone(q *auxpb.MatchNoneQuery) (internalPredicate, error) {
 	return alwaysFalse, nil
 }
 
-func (tb Factory) match(q *aux.MatchFieldQuery) (internalPredicate, error) {
+func (tb Factory) match(q *auxpb.MatchFieldQuery) (internalPredicate, error) {
 	fp := tb.searchFields.Get(strings.ToLower(q.GetField()))
 	if fp == nil {
 		return alwaysTrue, nil
@@ -221,7 +221,7 @@ func (tb Factory) match(q *aux.MatchFieldQuery) (internalPredicate, error) {
 	return tb.createPredicate(sp.GetFieldPath(), fp, q.GetValue())
 }
 
-func (tb Factory) matchLinked(q *aux.MatchLinkedFieldsQuery) (internalPredicate, error) {
+func (tb Factory) matchLinked(q *auxpb.MatchLinkedFieldsQuery) (internalPredicate, error) {
 	// Find the longest common path with all of the linked fields.
 	var commonPath fieldmap.FieldPath
 	for _, fieldQuery := range q.GetQuery() {

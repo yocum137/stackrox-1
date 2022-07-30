@@ -70,7 +70,7 @@ func (b *indexerImpl) processBatch(namespacemetadatas []*storage.NamespaceMetada
 	return b.index.Batch(batch)
 }
 
-func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "NamespaceMetadata")
 	return blevesearch.RunCountRequest(v1.SearchCategory_NAMESPACES, q, b.index, mappings.OptionsMap, opts...)
 }
@@ -107,7 +107,7 @@ func (b *indexerImpl) NeedsInitialIndexing() (bool, error) {
 	return !bytes.Equal([]byte("old"), data), nil
 }
 
-func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "NamespaceMetadata")
 	return blevesearch.RunSearchRequest(v1.SearchCategory_NAMESPACES, q, b.index, mappings.OptionsMap, opts...)
 }

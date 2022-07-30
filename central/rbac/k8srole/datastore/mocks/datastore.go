@@ -39,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -84,7 +84,7 @@ func (mr *MockDataStoreMockRecorder) RemoveRole(ctx, id interface{}) *gomock.Cal
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -99,7 +99,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawRoles mocks base method.
-func (m *MockDataStore) SearchRawRoles(ctx context.Context, q *aux.Query) ([]*storage.K8SRole, error) {
+func (m *MockDataStore) SearchRawRoles(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRole, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawRoles", ctx, q)
 	ret0, _ := ret[0].([]*storage.K8SRole)
@@ -114,7 +114,7 @@ func (mr *MockDataStoreMockRecorder) SearchRawRoles(ctx, q interface{}) *gomock.
 }
 
 // SearchRoles mocks base method.
-func (m *MockDataStore) SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchRoles(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRoles", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)

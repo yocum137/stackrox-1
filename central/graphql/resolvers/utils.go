@@ -108,7 +108,7 @@ func getStandardIDs(ctx context.Context, cs complianceStandards.Repository) ([]s
 	return result, nil
 }
 
-func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error) {
+func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRoleBinding, error) {
 	if err := readK8sRoleBindings(ctx); err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *aux.Que
 	return bindings, nil
 }
 
-func (resolver *clusterResolver) getSubjects(ctx context.Context, q *aux.Query) ([]*storage.Subject, error) {
+func (resolver *clusterResolver) getSubjects(ctx context.Context, q *auxpb.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (resolver *clusterResolver) getSubjects(ctx context.Context, q *aux.Query) 
 }
 
 // SubjectCount returns the count of Subjects which have any permission on this namespace or the cluster it belongs to
-func (resolver *namespaceResolver) getSubjects(ctx context.Context, baseQuery *aux.Query) ([]*storage.Subject, error) {
+func (resolver *namespaceResolver) getSubjects(ctx context.Context, baseQuery *auxpb.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -266,7 +266,7 @@ func (resolver *ClusterWithK8sCVEInfoResolver) K8sCVEInfo() *K8sCVEInfoResolver 
 }
 
 type paginationWrapper struct {
-	pv *aux.QueryPagination
+	pv *auxpb.QueryPagination
 }
 
 func (pw paginationWrapper) paginate(datSlice interface{}, err error) (interface{}, error) {
@@ -313,8 +313,8 @@ func getImageIDFromIfImageShaQuery(ctx context.Context, resolver *Resolver, args
 		return "", err
 	}
 
-	query, filtered := search.FilterQuery(query, func(bq *aux.BaseQuery) bool {
-		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+	query, filtered := search.FilterQuery(query, func(bq *auxpb.BaseQuery) bool {
+		matchFieldQuery, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if ok {
 			if strings.EqualFold(matchFieldQuery.MatchFieldQuery.GetField(), search.ImageSHA.String()) {
 				return true
@@ -360,9 +360,9 @@ func V1RawQueryAsResolverQuery(rQ *v1.RawQuery) (RawQuery, PaginatedQuery) {
 }
 
 // logErrorOnQueryContainingField logs error if the query contains the given field label.
-func logErrorOnQueryContainingField(query *aux.Query, label search.FieldLabel, resolver string) {
-	search.ApplyFnToAllBaseQueries(query, func(bq *aux.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
+func logErrorOnQueryContainingField(query *auxpb.Query, label search.FieldLabel, resolver string) {
+	search.ApplyFnToAllBaseQueries(query, func(bq *auxpb.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*auxpb.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == label.String() {
 			log.Errorf("Unexpected field (%s) found in query to resolver (%s). Response maybe unexpected.", label.String(), resolver)
 		}

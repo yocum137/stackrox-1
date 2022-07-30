@@ -21,15 +21,15 @@ type datastoreImpl struct {
 	searcher      search.Searcher
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchEdges(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageCVEEdge, error) {
+func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.ImageCVEEdge, error) {
 	edges, err := ds.searcher.SearchRawEdges(ctx, q)
 	if err != nil {
 		return nil, err

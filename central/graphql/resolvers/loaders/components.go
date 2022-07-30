@@ -42,9 +42,9 @@ func GetComponentLoader(ctx context.Context) (ComponentLoader, error) {
 type ComponentLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.ImageComponent, error)
 	FromID(ctx context.Context, id string) (*storage.ImageComponent, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ImageComponent, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ImageComponent, error)
 
-	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -75,7 +75,7 @@ func (idl *componentLoaderImpl) FromID(ctx context.Context, id string) (*storage
 }
 
 // FromQuery loads a set of components that match a query.
-func (idl *componentLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ImageComponent, error) {
+func (idl *componentLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ImageComponent, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (idl *componentLoaderImpl) FromQuery(ctx context.Context, query *aux.Query)
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *componentLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
+func (idl *componentLoaderImpl) CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error) {
 	numResults, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

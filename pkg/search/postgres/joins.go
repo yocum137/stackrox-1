@@ -78,28 +78,28 @@ type bfsQueueElem struct {
 	pathFromRoot []joinPathElem
 }
 
-func collectFields(q *aux.Query) set.StringSet {
-	var queries []*aux.Query
+func collectFields(q *auxpb.Query) set.StringSet {
+	var queries []*auxpb.Query
 	collectedFields := set.NewStringSet()
 	switch sub := q.GetQuery().(type) {
-	case *aux.Query_BaseQuery:
+	case *auxpb.Query_BaseQuery:
 		switch subBQ := q.GetBaseQuery().Query.(type) {
-		case *aux.BaseQuery_DocIdQuery, *aux.BaseQuery_MatchNoneQuery:
+		case *auxpb.BaseQuery_DocIdQuery, *auxpb.BaseQuery_MatchNoneQuery:
 			// nothing to do
-		case *aux.BaseQuery_MatchFieldQuery:
+		case *auxpb.BaseQuery_MatchFieldQuery:
 			collectedFields.Add(subBQ.MatchFieldQuery.GetField())
-		case *aux.BaseQuery_MatchLinkedFieldsQuery:
+		case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 			for _, q := range subBQ.MatchLinkedFieldsQuery.Query {
 				collectedFields.Add(q.GetField())
 			}
 		default:
 			panic("unsupported")
 		}
-	case *aux.Query_Conjunction:
+	case *auxpb.Query_Conjunction:
 		queries = append(queries, sub.Conjunction.Queries...)
-	case *aux.Query_Disjunction:
+	case *auxpb.Query_Disjunction:
 		queries = append(queries, sub.Disjunction.Queries...)
-	case *aux.Query_BooleanQuery:
+	case *auxpb.Query_BooleanQuery:
 		queries = append(queries, sub.BooleanQuery.Must.Queries...)
 		queries = append(queries, sub.BooleanQuery.MustNot.Queries...)
 	}
@@ -118,7 +118,7 @@ type searchFieldMetadata struct {
 	derivedMetadata *walker.DerivedSearchField
 }
 
-func getJoinsAndFields(src *walker.Schema, q *aux.Query) ([]innerJoin, map[string]searchFieldMetadata) {
+func getJoinsAndFields(src *walker.Schema, q *auxpb.Query) ([]innerJoin, map[string]searchFieldMetadata) {
 	unreachedFields := collectFields(q)
 	joinTreeRoot := &joinTreeNode{
 		currNode: src,

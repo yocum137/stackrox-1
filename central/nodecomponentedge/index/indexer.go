@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddNodeComponentEdge(nodecomponentedge *storage.NodeComponentEdge) error
 	AddNodeComponentEdges(nodecomponentedges []*storage.NodeComponentEdge) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNodeComponentEdge(id string) error
 	DeleteNodeComponentEdges(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

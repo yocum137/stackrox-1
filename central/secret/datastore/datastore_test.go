@@ -67,7 +67,7 @@ func (suite *SecretDataStoreTestSuite) TearDownSuite() {
 	rocksdbtest.TearDownRocksDB(suite.db)
 }
 
-func (suite *SecretDataStoreTestSuite) assertSearchResults(q *aux.Query, s *storage.Secret) {
+func (suite *SecretDataStoreTestSuite) assertSearchResults(q *auxpb.Query, s *storage.Secret) {
 	results, err := suite.datastore.SearchSecrets(suite.ctx, q)
 	suite.Require().NoError(err)
 	if s != nil {

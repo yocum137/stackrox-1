@@ -31,13 +31,13 @@ type indexerImpl struct {
 	db *pgxpool.Pool
 }
 
-func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "ComplianceRunMetadata")
 
 	return postgres.RunCountRequest(v1.SearchCategory_COMPLIANCE_METADATA, q, b.db)
 }
 
-func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "ComplianceRunMetadata")
 
 	return postgres.RunSearchRequest(v1.SearchCategory_COMPLIANCE_METADATA, q, b.db)

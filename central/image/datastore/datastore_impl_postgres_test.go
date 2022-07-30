@@ -286,8 +286,8 @@ func (s *ImagePostgresDataStoreTestSuite) TestSortByComponent() {
 
 	// Verify sort by Component search label is transformed to sort by Component+Version.
 	query := pkgSearch.EmptyQuery()
-	query.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	query.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: pkgSearch.Component.String(),
 			},

@@ -17,10 +17,10 @@ import (
 // DataStore is the datastore for report configurations.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 
-	GetReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error)
+	GetReportConfigurations(ctx context.Context, query *auxpb.Query) ([]*storage.ReportConfiguration, error)
 	GetReportConfiguration(ctx context.Context, id string) (*storage.ReportConfiguration, bool, error)
 	AddReportConfiguration(ctx context.Context, reportConfig *storage.ReportConfiguration) (string, error)
 	UpdateReportConfiguration(ctx context.Context, reportConfig *storage.ReportConfiguration) error

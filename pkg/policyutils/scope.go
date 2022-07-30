@@ -9,12 +9,12 @@ import (
 )
 
 // ScopeToQuery generates a proto query for objects in the specified scopes.
-func ScopeToQuery(scopes []*storage.Scope) *aux.Query {
+func ScopeToQuery(scopes []*storage.Scope) *auxpb.Query {
 	if len(scopes) == 0 {
 		return search.EmptyQuery()
 	}
 
-	queries := make([]*aux.Query, 0, len(scopes))
+	queries := make([]*auxpb.Query, 0, len(scopes))
 	for _, s := range scopes {
 		qb := search.NewQueryBuilder()
 		if s.GetCluster() != "" {

@@ -34,8 +34,8 @@ var (
 )
 
 type metadataIndex interface {
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 // NewStore returns a compliance store based on Postgres

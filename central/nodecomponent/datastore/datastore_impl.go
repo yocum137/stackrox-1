@@ -30,20 +30,20 @@ type datastoreImpl struct {
 	nodeComponentRanker *ranking.Ranker
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchNodeComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchNodeComponents(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchNodeComponents(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawNodeComponents(ctx context.Context, q *aux.Query) ([]*storage.NodeComponent, error) {
+func (ds *datastoreImpl) SearchRawNodeComponents(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponent, error) {
 	components, err := ds.searcher.SearchRawNodeComponents(ctx, q)
 	if err != nil {
 		return nil, err

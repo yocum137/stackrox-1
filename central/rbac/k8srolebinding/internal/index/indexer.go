@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddK8SRoleBinding(k8srolebinding *storage.K8SRoleBinding) error
 	AddK8SRoleBindings(k8srolebindings []*storage.K8SRoleBinding) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteK8SRoleBinding(id string) error
 	DeleteK8SRoleBindings(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

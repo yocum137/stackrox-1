@@ -23,8 +23,8 @@ import (
 // DataStore is an intermediary to PodStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
-	SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error)
+	SearchRawPods(ctx context.Context, q *auxpb.Query) ([]*storage.Pod, error)
 
 	GetPod(ctx context.Context, id string) (*storage.Pod, bool, error)
 	WalkAll(ctx context.Context, fn func(pod *storage.Pod) error) error

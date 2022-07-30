@@ -12,10 +12,10 @@ import (
 type Indexer interface {
 	AddNodeCVE(cve *storage.NodeCVE) error
 	AddNodeCVEs(cves []*storage.NodeCVE) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNodeCVE(id string) error
 	DeleteNodeCVEs(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

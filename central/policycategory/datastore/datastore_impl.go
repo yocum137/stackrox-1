@@ -56,7 +56,7 @@ func (ds *datastoreImpl) buildIndex() error {
 }
 
 // Search returns policy category related search results for the provided query
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -88,12 +88,12 @@ func (ds *datastoreImpl) GetPolicyCategory(ctx context.Context, id string) (*sto
 }
 
 // SearchPolicyCategories returns search results that match the provided query
-func (ds *datastoreImpl) SearchPolicyCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchCategories(ctx, q)
 }
 
 // SearchRawPolicyCategories returns policy category objects that match the provided query
-func (ds *datastoreImpl) SearchRawPolicyCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error) {
+func (ds *datastoreImpl) SearchRawPolicyCategories(ctx context.Context, q *auxpb.Query) ([]*storage.PolicyCategory, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}

@@ -29,10 +29,10 @@ import (
 // DataStore is an intermediary to NodeStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchNodes(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawNodes(ctx context.Context, q *auxpb.Query) ([]*storage.Node, error)
 
 	CountNodes(ctx context.Context) (int, error)
 	GetNode(ctx context.Context, id string) (*storage.Node, bool, error)

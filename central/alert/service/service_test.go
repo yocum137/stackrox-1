@@ -1120,7 +1120,7 @@ func (s *baseSuite) TestDeleteAlerts() {
 		AddStrings(search.DeploymentName, "deployment").
 		AddStrings(search.ViolationState, storage.ViolationState_RESOLVED.String())
 	expectedQuery := expectedQueryBuilder.ProtoQuery()
-	expectedQuery.Pagination = &aux.QueryPagination{
+	expectedQuery.Pagination = &auxpb.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 

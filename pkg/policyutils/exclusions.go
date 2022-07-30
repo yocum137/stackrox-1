@@ -7,10 +7,10 @@ import (
 )
 
 // DeploymentExclusionToQuery returns the proto query to get all excluded deployments
-func DeploymentExclusionToQuery(exclusions []*storage.Exclusion) *aux.Query {
-	var queries []*aux.Query
+func DeploymentExclusionToQuery(exclusions []*storage.Exclusion) *auxpb.Query {
+	var queries []*auxpb.Query
 	for _, exclusion := range exclusions {
-		subqueries := make([]*aux.Query, 0, 2)
+		subqueries := make([]*auxpb.Query, 0, 2)
 		if exclusion.GetDeployment() != nil {
 			if exclusion.GetDeployment().GetName() != "" {
 				subqueries = append(subqueries, search.NewQueryBuilder().AddExactMatches(search.DeploymentName,

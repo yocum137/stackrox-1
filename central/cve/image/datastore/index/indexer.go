@@ -12,8 +12,8 @@ import (
 type Indexer interface {
 	AddImageCVE(cve *storage.ImageCVE) error
 	AddImageCVEs(cves []*storage.ImageCVE) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteImageCVE(id string) error
 	DeleteImageCVEs(ids []string) error
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

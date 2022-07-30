@@ -186,13 +186,13 @@ func queryAlerts(ctx context.Context, alertDS datastore.DataStore, checkpoint sp
 
 	pq := query.ProtoQuery()
 
-	pq.Pagination = &aux.QueryPagination{
+	pq.Pagination = &auxpb.QueryPagination{
 		Limit:  maxAlertsFromQuery,
 		Offset: 0,
-		SortOptions: []*aux.QuerySortOption{{
+		SortOptions: []*auxpb.QuerySortOption{{
 			Field:          search.DocID.String(),
 			Reversed:       false,
-			SearchAfterOpt: &aux.QuerySortOption_SearchAfter{SearchAfter: checkpoint.fromAlertID},
+			SearchAfterOpt: &auxpb.QuerySortOption_SearchAfter{SearchAfter: checkpoint.fromAlertID},
 		}},
 	}
 

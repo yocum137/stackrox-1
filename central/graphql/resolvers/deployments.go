@@ -237,7 +237,7 @@ func (resolver *deploymentResolver) Policies(ctx context.Context, args Paginated
 
 	// remove pagination from query since we want to paginate the final result
 	pagination := q.GetPagination()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		SortOptions: pagination.GetSortOptions(),
 	}
 
@@ -274,7 +274,7 @@ func (resolver *deploymentResolver) PolicyCount(ctx context.Context, args RawQue
 	return int32(len(policies)), nil
 }
 
-func (resolver *deploymentResolver) getApplicablePolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
+func (resolver *deploymentResolver) getApplicablePolicies(ctx context.Context, q *auxpb.Query) ([]*storage.Policy, error) {
 	policyLoader, err := loaders.GetPolicyLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -308,7 +308,7 @@ func (resolver *deploymentResolver) FailingPolicies(ctx context.Context, args Pa
 
 	// remove pagination from query since we want to paginate the final result
 	pagination := q.GetPagination()
-	q.Pagination = &aux.QueryPagination{SortOptions: pagination.GetSortOptions()}
+	q.Pagination = &auxpb.QueryPagination{SortOptions: pagination.GetSortOptions()}
 
 	alerts, err := resolver.root.ViolationsDataStore.SearchRawAlerts(ctx, q)
 	if err != nil {
@@ -452,7 +452,7 @@ func (resolver *deploymentResolver) SecretCount(ctx context.Context, args RawQue
 	return int32(len(secrets)), nil
 }
 
-func (resolver *deploymentResolver) getDeploymentSecrets(ctx context.Context, q *aux.Query) ([]*secretResolver, error) {
+func (resolver *deploymentResolver) getDeploymentSecrets(ctx context.Context, q *auxpb.Query) ([]*secretResolver, error) {
 	if err := readSecrets(ctx); err != nil {
 		return nil, err
 	}
@@ -649,7 +649,7 @@ func (resolver *deploymentResolver) PolicyStatus(ctx context.Context, args RawQu
 
 	// If we are coming from policy context, use policy context to build the query.
 	var err error
-	var q *aux.Query
+	var q *auxpb.Query
 	if scope, hasScope := scoped.GetScope(resolver.ctx); hasScope && scope.Level == v1.SearchCategory_POLICIES {
 		q = search.NewQueryBuilder().AddExactMatches(search.PolicyID, scope.ID).ProtoQuery()
 	} else {
@@ -735,7 +735,7 @@ func (resolver *deploymentResolver) hasImages() bool {
 	return false
 }
 
-func (resolver *deploymentResolver) unresolvedAlertsExists(ctx context.Context, q *aux.Query) (bool, error) {
+func (resolver *deploymentResolver) unresolvedAlertsExists(ctx context.Context, q *auxpb.Query) (bool, error) {
 	if err := readAlerts(ctx); err != nil {
 		return false, err
 	}
@@ -744,7 +744,7 @@ func (resolver *deploymentResolver) unresolvedAlertsExists(ctx context.Context, 
 	if err != nil {
 		return false, err
 	}
-	q.Pagination = &aux.QueryPagination{Limit: 1}
+	q.Pagination = &auxpb.QueryPagination{Limit: 1}
 	results, err := resolver.root.ViolationsDataStore.Search(ctx, q)
 	if err != nil {
 		return false, err
@@ -752,7 +752,7 @@ func (resolver *deploymentResolver) unresolvedAlertsExists(ctx context.Context, 
 	return len(results) > 0, nil
 }
 
-func (resolver *deploymentResolver) getDeploymentQuery() *aux.Query {
+func (resolver *deploymentResolver) getDeploymentQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.DeploymentID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -760,11 +760,11 @@ func (resolver *deploymentResolver) getDeploymentRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.DeploymentID, resolver.data.GetId()).Query()
 }
 
-func (resolver *deploymentResolver) getConjunctionQuery(q *aux.Query) (*aux.Query, error) {
+func (resolver *deploymentResolver) getConjunctionQuery(q *auxpb.Query) (*auxpb.Query, error) {
 	return search.AddAsConjunction(q, resolver.getDeploymentQuery())
 }
 
-func (resolver *deploymentResolver) getDeploymentActiveAlertsQuery(q *aux.Query) (*aux.Query, error) {
+func (resolver *deploymentResolver) getDeploymentActiveAlertsQuery(q *auxpb.Query) (*auxpb.Query, error) {
 	q, err := resolver.getConjunctionQuery(q)
 	if err != nil {
 		return nil, err
@@ -777,7 +777,7 @@ func (resolver *deploymentResolver) LatestViolation(ctx context.Context, args Ra
 
 	// If we are coming from policy context, use policy context to build the query.
 	var err error
-	var q *aux.Query
+	var q *auxpb.Query
 	if scope, hasScope := scoped.GetScope(resolver.ctx); hasScope && scope.Level == v1.SearchCategory_POLICIES {
 		q = search.NewQueryBuilder().AddExactMatches(search.PolicyID, scope.ID).ProtoQuery()
 	} else {

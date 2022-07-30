@@ -94,14 +94,14 @@ func (resolver *namespaceResolver) getClusterNamespaceRawQuery() string {
 		Query()
 }
 
-func (resolver *namespaceResolver) getClusterNamespaceQuery() *aux.Query {
+func (resolver *namespaceResolver) getClusterNamespaceQuery() *auxpb.Query {
 	return search.NewQueryBuilder().
 		AddExactMatches(search.ClusterID, resolver.data.GetMetadata().GetClusterId()).
 		AddExactMatches(search.Namespace, resolver.data.Metadata.GetName()).
 		ProtoQuery()
 }
 
-func (resolver *namespaceResolver) getNamespaceConjunctionQuery(args RawQuery) (*aux.Query, error) {
+func (resolver *namespaceResolver) getNamespaceConjunctionQuery(args RawQuery) (*auxpb.Query, error) {
 	q1 := resolver.getClusterNamespaceQuery()
 	if args.String() == "" {
 		return q1, nil
@@ -331,7 +331,7 @@ func (resolver *namespaceResolver) ImageCount(ctx context.Context, args RawQuery
 	return resolver.root.ImageCount(ctx, RawQuery{Query: &query})
 }
 
-func (resolver *namespaceResolver) getApplicablePolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
+func (resolver *namespaceResolver) getApplicablePolicies(ctx context.Context, q *auxpb.Query) ([]*storage.Policy, error) {
 	policyLoader, err := loaders.GetPolicyLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -378,7 +378,7 @@ func (resolver *namespaceResolver) Policies(ctx context.Context, args PaginatedQ
 
 	// remove pagination from query since we want to paginate the final result
 	pagination := q.GetPagination()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		SortOptions: pagination.GetSortOptions(),
 	}
 
@@ -485,7 +485,7 @@ func (resolver *namespaceResolver) PolicyStatusOnly(ctx context.Context, args Ra
 	return "pass", nil
 }
 
-func (resolver *namespaceResolver) getActiveDeployAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
+func (resolver *namespaceResolver) getActiveDeployAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error) {
 	if err := readAlerts(ctx); err != nil {
 		return nil, err
 	}

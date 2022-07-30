@@ -26,7 +26,7 @@ const (
 type testCase struct {
 	description    string
 	scopeGenerator func(*testing.T) *effectiveaccessscope.ScopeTree
-	expected       *aux.Query
+	expected       *auxpb.Query
 	hasError       bool
 }
 
@@ -237,15 +237,15 @@ func TestNamespaceScopeFilterGeneration(topLevelTest *testing.T) {
 	}
 }
 
-func clusterMatch(clusterID string) *aux.Query {
+func clusterMatch(clusterID string) *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).MarkHighlighted(search.ClusterID).ProtoQuery()
 }
 
-func namespaceMatch(namespace string) *aux.Query {
+func namespaceMatch(namespace string) *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.Namespace, namespace).MarkHighlighted(search.Namespace).ProtoQuery()
 }
 
-func queryIdentical(expected, actual *aux.Query) bool {
+func queryIdentical(expected, actual *auxpb.Query) bool {
 	if expected == nil && actual == nil {
 		return true
 	}
@@ -265,32 +265,32 @@ func queryIdentical(expected, actual *aux.Query) bool {
 		return false
 	}
 	switch expected.Query.(type) {
-	case *aux.Query_Conjunction:
+	case *auxpb.Query_Conjunction:
 		switch actual.Query.(type) {
-		case *aux.Query_Conjunction:
+		case *auxpb.Query_Conjunction:
 			return conjunctionQueryIdentical(expected.GetConjunction(), actual.GetConjunction())
 		default:
 			return false
 		}
-	case *aux.Query_Disjunction:
+	case *auxpb.Query_Disjunction:
 		switch actual.Query.(type) {
-		case *aux.Query_Disjunction:
+		case *auxpb.Query_Disjunction:
 			return disjunctionQueryIdentical(expected.GetDisjunction(), actual.GetDisjunction())
 		default:
 			return false
 		}
-	case *aux.Query_BaseQuery:
+	case *auxpb.Query_BaseQuery:
 		switch actual.Query.(type) {
-		case *aux.Query_BaseQuery:
+		case *auxpb.Query_BaseQuery:
 			expectedBase := expected.GetBaseQuery()
 			actualBase := actual.GetBaseQuery()
 			return baseQueryIdentical(expectedBase, actualBase)
 		default:
 			return false
 		}
-	case *aux.Query_BooleanQuery:
+	case *auxpb.Query_BooleanQuery:
 		switch actual.Query.(type) {
-		case *aux.Query_BooleanQuery:
+		case *auxpb.Query_BooleanQuery:
 			expectedBool := expected.GetBooleanQuery()
 			actualBool := actual.GetBooleanQuery()
 			mustIdentical := conjunctionQueryIdentical(expectedBool.Must, actualBool.Must)
@@ -303,7 +303,7 @@ func queryIdentical(expected, actual *aux.Query) bool {
 	return false
 }
 
-func baseQueryIdentical(expected, actual *aux.BaseQuery) bool {
+func baseQueryIdentical(expected, actual *auxpb.BaseQuery) bool {
 	if expected == nil && actual == nil {
 		return true
 	}
@@ -314,26 +314,26 @@ func baseQueryIdentical(expected, actual *aux.BaseQuery) bool {
 		return false
 	}
 	switch expected.Query.(type) {
-	case *aux.BaseQuery_MatchFieldQuery:
+	case *auxpb.BaseQuery_MatchFieldQuery:
 		switch actual.Query.(type) {
-		case *aux.BaseQuery_MatchFieldQuery:
+		case *auxpb.BaseQuery_MatchFieldQuery:
 			expectedMatchFieldQuery := expected.GetMatchFieldQuery()
 			actualMatchFieldQuery := actual.GetMatchFieldQuery()
 			return matchFieldQueryIdentical(expectedMatchFieldQuery, actualMatchFieldQuery)
 		default:
 			return false
 		}
-	case *aux.BaseQuery_MatchNoneQuery:
+	case *auxpb.BaseQuery_MatchNoneQuery:
 		switch actual.Query.(type) {
-		case *aux.BaseQuery_MatchNoneQuery:
+		case *auxpb.BaseQuery_MatchNoneQuery:
 			// MatchNoneQuery had no fields
 			return true
 		default:
 			return false
 		}
-	case *aux.BaseQuery_DocIdQuery:
+	case *auxpb.BaseQuery_DocIdQuery:
 		switch actual.Query.(type) {
-		case *aux.BaseQuery_DocIdQuery:
+		case *auxpb.BaseQuery_DocIdQuery:
 			expectedDocIDs := expected.GetDocIdQuery().GetIds()
 			actualDocIDs := actual.GetDocIdQuery().GetIds()
 			if expectedDocIDs == nil && actualDocIDs == nil {
@@ -363,9 +363,9 @@ func baseQueryIdentical(expected, actual *aux.BaseQuery) bool {
 		default:
 			return false
 		}
-	case *aux.BaseQuery_MatchLinkedFieldsQuery:
+	case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 		switch actual.Query.(type) {
-		case *aux.BaseQuery_MatchLinkedFieldsQuery:
+		case *auxpb.BaseQuery_MatchLinkedFieldsQuery:
 			expectedSubQuery := expected.GetMatchLinkedFieldsQuery()
 			actualSubQuery := actual.GetMatchLinkedFieldsQuery()
 			return matchLinkedFieldsQueryIdentical(expectedSubQuery, actualSubQuery)
@@ -376,7 +376,7 @@ func baseQueryIdentical(expected, actual *aux.BaseQuery) bool {
 	return false
 }
 
-func matchLinkedFieldsQueryIdentical(expected, actual *aux.MatchLinkedFieldsQuery) bool {
+func matchLinkedFieldsQueryIdentical(expected, actual *auxpb.MatchLinkedFieldsQuery) bool {
 	if expected == nil && actual == nil {
 		return true
 	}
@@ -399,7 +399,7 @@ func matchLinkedFieldsQueryIdentical(expected, actual *aux.MatchLinkedFieldsQuer
 	return true
 }
 
-func matchFieldQueryIdentical(expected, actual *aux.MatchFieldQuery) bool {
+func matchFieldQueryIdentical(expected, actual *auxpb.MatchFieldQuery) bool {
 	if expected == nil && actual == nil {
 		return true
 	}
@@ -421,7 +421,7 @@ func matchFieldQueryIdentical(expected, actual *aux.MatchFieldQuery) bool {
 	return true
 }
 
-func conjunctionQueryIdentical(expected, actual *aux.ConjunctionQuery) bool {
+func conjunctionQueryIdentical(expected, actual *auxpb.ConjunctionQuery) bool {
 	if expected == nil && actual == nil {
 		return true
 	}
@@ -454,7 +454,7 @@ func conjunctionQueryIdentical(expected, actual *aux.ConjunctionQuery) bool {
 	return true
 }
 
-func disjunctionQueryIdentical(expected, actual *aux.DisjunctionQuery) bool {
+func disjunctionQueryIdentical(expected, actual *auxpb.DisjunctionQuery) bool {
 	if expected == nil && actual == nil {
 		return true
 	}

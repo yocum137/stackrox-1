@@ -53,7 +53,7 @@ func (mr *MockDataStoreMockRecorder) AddReportConfiguration(ctx, reportConfig in
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -84,7 +84,7 @@ func (mr *MockDataStoreMockRecorder) GetReportConfiguration(ctx, id interface{})
 }
 
 // GetReportConfigurations mocks base method.
-func (m *MockDataStore) GetReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error) {
+func (m *MockDataStore) GetReportConfigurations(ctx context.Context, query *auxpb.Query) ([]*storage.ReportConfiguration, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetReportConfigurations", ctx, query)
 	ret0, _ := ret[0].([]*storage.ReportConfiguration)
@@ -113,7 +113,7 @@ func (mr *MockDataStoreMockRecorder) RemoveReportConfiguration(ctx, id interface
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)

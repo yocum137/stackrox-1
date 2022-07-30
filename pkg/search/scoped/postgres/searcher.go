@@ -14,7 +14,7 @@ import (
 // WithScoping allows the input searcher to be scoped.
 func WithScoping(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 			scopes, hasScope := scoped.GetAllScopes(ctx)
 			if hasScope {
 				var err error
@@ -25,7 +25,7 @@ func WithScoping(searcher search.Searcher) search.Searcher {
 			}
 			return searcher.Search(ctx, q)
 		},
-		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *auxpb.Query) (int, error) {
 			scopes, hasScope := scoped.GetAllScopes(ctx)
 			if hasScope {
 				var err error
@@ -39,10 +39,10 @@ func WithScoping(searcher search.Searcher) search.Searcher {
 	}
 }
 
-func scopeQuery(q *aux.Query, scopes []scoped.Scope) (*aux.Query, error) {
+func scopeQuery(q *auxpb.Query, scopes []scoped.Scope) (*auxpb.Query, error) {
 	pagination := q.GetPagination()
 	q.Pagination = nil
-	conjuncts := []*aux.Query{q}
+	conjuncts := []*auxpb.Query{q}
 	for _, scope := range scopes {
 		schema := mapping.GetTableFromCategory(scope.Level)
 		if schema == nil {

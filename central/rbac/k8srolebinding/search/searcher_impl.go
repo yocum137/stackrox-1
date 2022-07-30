@@ -29,7 +29,7 @@ type searcherImpl struct {
 }
 
 // SearchRoleBindings returns the search results from indexed k8s role bindings for the query.
-func (ds *searcherImpl) SearchRoleBindings(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchRoleBindings(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	bindings, results, err := ds.searchRoleBindings(ctx, q)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (ds *searcherImpl) SearchRoleBindings(ctx context.Context, q *aux.Query) ([
 }
 
 // Search returns the raw search results from the query.
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	if features.PostgresDatastore.Enabled() {
 		return k8sRoleBindingsSACPostgresSearchHelper.Apply(ds.index.Search)(ctx, q)
 	}
@@ -46,7 +46,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Resu
 }
 
 // Count returns the number of search results from the query.
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	if features.PostgresDatastore.Enabled() {
 		return k8sRoleBindingsSACPostgresSearchHelper.ApplyCount(ds.index.Count)(ctx, q)
 	}
@@ -54,7 +54,7 @@ func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 }
 
 // SearchRawRoleBindings returns the rolebindings that match the query.
-func (ds *searcherImpl) SearchRawRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error) {
+func (ds *searcherImpl) SearchRawRoleBindings(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRoleBinding, error) {
 	bindings, _, err := ds.searchRoleBindings(ctx, q)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (ds *searcherImpl) SearchRawRoleBindings(ctx context.Context, q *aux.Query)
 	return bindings, nil
 }
 
-func (ds *searcherImpl) searchRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, []search.Result, error) {
+func (ds *searcherImpl) searchRoleBindings(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRoleBinding, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err

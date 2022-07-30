@@ -136,7 +136,7 @@ func (resolver *serviceAccountResolver) K8sRoles(ctx context.Context, args Pagin
 	return resolvers.([]*k8SRoleResolver), err
 }
 
-func (resolver *serviceAccountResolver) getRolesAndBindings(ctx context.Context, passedQuery *aux.Query) ([]*storage.K8SRoleBinding, []*storage.K8SRole, error) {
+func (resolver *serviceAccountResolver) getRolesAndBindings(ctx context.Context, passedQuery *auxpb.Query) ([]*storage.K8SRoleBinding, []*storage.K8SRole, error) {
 	bindingQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).ProtoQuery()
 	bindings, err := resolver.root.K8sRoleBindingStore.SearchRawRoleBindings(ctx, bindingQuery)
 	if err != nil {

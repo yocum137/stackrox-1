@@ -42,9 +42,9 @@ func GetPolicyLoader(ctx context.Context) (PolicyLoader, error) {
 type PolicyLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.Policy, error)
 	FromID(ctx context.Context, id string) (*storage.Policy, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Policy, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.Policy, error)
 
-	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -74,7 +74,7 @@ func (idl *policyLoaderImpl) FromID(ctx context.Context, id string) (*storage.Po
 }
 
 // FromQuery loads a set of policies that match a query.
-func (idl *policyLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Policy, error) {
+func (idl *policyLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.Policy, error) {
 	results, err := idl.policyDS.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (idl *policyLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([
 }
 
 // CountFromQuery returns the number of policies that match a given query.
-func (idl *policyLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
+func (idl *policyLoaderImpl) CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error) {
 	numResults, err := idl.policyDS.Count(ctx, query)
 	if err != nil {
 		return 0, err

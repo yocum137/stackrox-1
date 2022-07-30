@@ -87,9 +87,9 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 
 	// Sort by priority aka high risk to low risk.
-	q := &aux.Query{
-		Pagination: &aux.QueryPagination{
-			SortOptions: []*aux.QuerySortOption{
+	q := &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field: search.ImagePriority.String(),
 				},
@@ -102,8 +102,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Get images in namespace 'n1' sorted by priority in reverse order.
 	q = search.NewQueryBuilder().AddExactMatches(search.Namespace, "n1").ProtoQuery()
-	q.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	q.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.ImagePriority.String(),
 				Reversed: true,
@@ -116,8 +116,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Get images in namespace 'n2' sorted by priority.
 	q = search.NewQueryBuilder().AddExactMatches(search.Namespace, "n2").ProtoQuery()
-	q.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	q.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: search.ImagePriority.String(),
 			},
@@ -129,8 +129,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Sort by namespace.
 	q = search.EmptyQuery()
-	q.Pagination = &aux.QueryPagination{
-		SortOptions: []*aux.QuerySortOption{
+	q.Pagination = &auxpb.QueryPagination{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field: search.Namespace.String(),
 			},

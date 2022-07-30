@@ -252,7 +252,7 @@ func CVECSVHandler() http.HandlerFunc {
 	}
 }
 
-func (h *handlerImpl) getScopeContext(ctx context.Context, query *aux.Query) (context.Context, error) {
+func (h *handlerImpl) getScopeContext(ctx context.Context, query *auxpb.Query) (context.Context, error) {
 	if _, ok := scoped.GetScope(ctx); ok {
 		return ctx, nil
 	}

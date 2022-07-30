@@ -13,12 +13,12 @@ import (
 type Indexer interface {
 	AddImageCVEEdge(imagecveedge *storage.ImageCVEEdge) error
 	AddImageCVEEdges(imagecveedges []*storage.ImageCVEEdge) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteImageCVEEdge(id string) error
 	DeleteImageCVEEdges(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 func New(index bleve.Index) Indexer {

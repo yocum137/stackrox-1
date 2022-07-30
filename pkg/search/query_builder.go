@@ -76,13 +76,13 @@ type fieldValue struct {
 // NewPagination create a new pagination object
 func NewPagination() *Pagination {
 	return &Pagination{
-		qp: &aux.QueryPagination{},
+		qp: &auxpb.QueryPagination{},
 	}
 }
 
 // Pagination defines the pagination to be used with the query
 type Pagination struct {
-	qp *aux.QueryPagination
+	qp *auxpb.QueryPagination
 }
 
 // Limit sets the limit
@@ -125,12 +125,12 @@ func (s *SortOption) SearchAfter(searchAfter string) *SortOption {
 
 // AddSortOption adds the sort option to the pagination object
 func (p *Pagination) AddSortOption(so *SortOption) *Pagination {
-	opt := &aux.QuerySortOption{
+	opt := &auxpb.QuerySortOption{
 		Field:    string(so.field),
 		Reversed: so.reversed,
 	}
 	if so.searchAfter != "" {
-		opt.SearchAfterOpt = &aux.QuerySortOption_SearchAfter{
+		opt.SearchAfterOpt = &auxpb.QuerySortOption_SearchAfter{
 			SearchAfter: so.searchAfter,
 		}
 	}
@@ -334,8 +334,8 @@ func (qb *QueryBuilder) Query() string {
 }
 
 // ProtoQuery generates a proto query from the query
-func (qb *QueryBuilder) ProtoQuery() *aux.Query {
-	queries := make([]*aux.Query, 0, len(qb.fieldsToValues)+len(qb.linkedFields))
+func (qb *QueryBuilder) ProtoQuery() *auxpb.Query {
+	queries := make([]*auxpb.Query, 0, len(qb.fieldsToValues)+len(qb.linkedFields))
 
 	if qb.ids != nil {
 		queries = append(queries, docIDQuery(*qb.ids))
@@ -382,26 +382,26 @@ func (qb *QueryBuilder) RawQuery() (string, error) {
 }
 
 // EmptyQuery is a shortcut function to receive an empty query, to avoid requiring having to create an empty query builder.
-func EmptyQuery() *aux.Query {
-	return &aux.Query{}
+func EmptyQuery() *auxpb.Query {
+	return &auxpb.Query{}
 }
 
 // MatchNoneQuery returns a v1.Query that maps to a bleve query that does not match any results
-func MatchNoneQuery() *aux.Query {
-	return &aux.Query{
-		Query: &aux.Query_BaseQuery{
-			BaseQuery: &aux.BaseQuery{
-				Query: &aux.BaseQuery_MatchNoneQuery{},
+func MatchNoneQuery() *auxpb.Query {
+	return &auxpb.Query{
+		Query: &auxpb.Query_BaseQuery{
+			BaseQuery: &auxpb.BaseQuery{
+				Query: &auxpb.BaseQuery_MatchNoneQuery{},
 			},
 		},
 	}
 }
 
 // NewBooleanQuery takes in a must conjunction query and a must not disjunction query
-func NewBooleanQuery(must *aux.ConjunctionQuery, mustNot *aux.DisjunctionQuery) *aux.Query {
-	return &aux.Query{
-		Query: &aux.Query_BooleanQuery{
-			BooleanQuery: &aux.BooleanQuery{
+func NewBooleanQuery(must *auxpb.ConjunctionQuery, mustNot *auxpb.DisjunctionQuery) *auxpb.Query {
+	return &auxpb.Query{
+		Query: &auxpb.Query_BooleanQuery{
+			BooleanQuery: &auxpb.BooleanQuery{
 				Must:    must,
 				MustNot: mustNot,
 			},

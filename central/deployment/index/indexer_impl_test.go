@@ -77,7 +77,7 @@ func (suite *DeploymentIndexTestSuite) TestHighlighting() {
 	suite.NoError(suite.indexer.AddDeployments([]*storage.Deployment{deployment22, deployment221, depWithBoth22And221}))
 
 	cases := []struct {
-		q                    *aux.Query
+		q                    *auxpb.Query
 		expectedIdsToMatches map[string]map[string][]string
 	}{
 		{
@@ -394,7 +394,7 @@ func (suite *DeploymentIndexTestSuite) TestCaseInsensitivityOfFieldNames() {
 	suite.NoError(err)
 	lowerCaseQ, err := search.ParseQuery(fmt.Sprintf("namespace:%s", ns))
 	suite.NoError(err)
-	for _, q := range []*aux.Query{upperCaseQ, lowerCaseQ} {
+	for _, q := range []*auxpb.Query{upperCaseQ, lowerCaseQ} {
 		results, err := suite.indexer.Search(q)
 		suite.NoError(err)
 		suite.Len(results, 1)
@@ -418,11 +418,11 @@ func (suite *DeploymentIndexTestSuite) TestDeploymentDelete() {
 	suite.Len(results, 0)
 }
 
-func newPagination(field search.FieldLabel, from, size int32, reversed bool) *aux.QueryPagination {
-	return &aux.QueryPagination{
+func newPagination(field search.FieldLabel, from, size int32, reversed bool) *auxpb.QueryPagination {
+	return &auxpb.QueryPagination{
 		Limit:  size,
 		Offset: from,
-		SortOptions: []*aux.QuerySortOption{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    field.String(),
 				Reversed: reversed,

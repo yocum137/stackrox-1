@@ -29,7 +29,7 @@ func compareResults(t *testing.T, matches bool, predResult *search.Result, searc
 func TestImageSearchResults(t *testing.T) {
 	cases := []struct {
 		image *storage.Image
-		query *aux.Query
+		query *auxpb.Query
 	}{
 		{
 			image: fixtures.GetImage(),
@@ -76,7 +76,7 @@ func TestImageSearchResults(t *testing.T) {
 func TestDeploymentSearchResults(t *testing.T) {
 	cases := []struct {
 		deployment *storage.Deployment
-		query      *aux.Query
+		query      *auxpb.Query
 	}{
 		{
 			deployment: fixtures.GetDeployment(),

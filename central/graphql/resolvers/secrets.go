@@ -126,7 +126,7 @@ func (resolver *secretResolver) DeploymentCount(ctx context.Context, args RawQue
 	return int32(len(results)), nil
 }
 
-func (resolver *secretResolver) getDeploymentQuery(query *aux.Query) (*aux.Query, error) {
+func (resolver *secretResolver) getDeploymentQuery(query *auxpb.Query) (*auxpb.Query, error) {
 	secret := resolver.data
 	deploymentIDs := set.NewStringSet()
 

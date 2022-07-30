@@ -127,11 +127,11 @@ func (resolver *clusterResolver) getClusterRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetId()).Query()
 }
 
-func (resolver *clusterResolver) getClusterQuery() *aux.Query {
+func (resolver *clusterResolver) getClusterQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetId()).ProtoQuery()
 }
 
-func (resolver *clusterResolver) getClusterConjunctionQuery(q *aux.Query) (*aux.Query, error) {
+func (resolver *clusterResolver) getClusterConjunctionQuery(q *auxpb.Query) (*auxpb.Query, error) {
 	pagination := q.GetPagination()
 	q.Pagination = nil
 
@@ -779,7 +779,7 @@ func (resolver *clusterResolver) Policies(ctx context.Context, args PaginatedQue
 
 	// remove pagination from query since we want to paginate the final result
 	pagination := q.GetPagination()
-	q.Pagination = &aux.QueryPagination{
+	q.Pagination = &auxpb.QueryPagination{
 		SortOptions: pagination.GetSortOptions(),
 	}
 
@@ -800,7 +800,7 @@ func (resolver *clusterResolver) Policies(ctx context.Context, args PaginatedQue
 	return resolvers.([]*policyResolver), err
 }
 
-func (resolver *clusterResolver) getApplicablePolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
+func (resolver *clusterResolver) getApplicablePolicies(ctx context.Context, q *auxpb.Query) ([]*storage.Policy, error) {
 	policyLoader, err := loaders.GetPolicyLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -1011,7 +1011,7 @@ func (resolver *clusterResolver) getLastSuccessfulComplianceRunResult(ctx contex
 	return r, nil
 }
 
-func (resolver *clusterResolver) getActiveDeployAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
+func (resolver *clusterResolver) getActiveDeployAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error) {
 	cluster := resolver.data
 
 	return resolver.root.ViolationsDataStore.SearchListAlerts(ctx,

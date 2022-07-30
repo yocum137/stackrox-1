@@ -70,11 +70,11 @@ func (s *sortedTestSuite) TestHandlesSorting() {
 		fakeResults[4],
 	}
 
-	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &aux.Query{
-		Pagination: &aux.QueryPagination{
+	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Limit:  0,
 			Offset: 0,
-			SortOptions: []*aux.QuerySortOption{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.Priority.String(),
 					Reversed: false,
@@ -89,11 +89,11 @@ func (s *sortedTestSuite) TestHandlesSorting() {
 func (s *sortedTestSuite) TestSkipsNonMatching() {
 	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Any()).Return(fakeResults, nil)
 
-	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &aux.Query{
-		Pagination: &aux.QueryPagination{
+	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Limit:  0,
 			Offset: 0,
-			SortOptions: []*aux.QuerySortOption{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.CVE.String(),
 					Reversed: false,

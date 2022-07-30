@@ -47,7 +47,7 @@ func (resolver *Resolver) ClusterHealthCounter(ctx context.Context, args RawQuer
 	return newClusterHealthCounterResolver(ctx, resolver, q)
 }
 
-func newClusterHealthCounterResolver(ctx context.Context, root *Resolver, q *aux.Query) (*ClusterHealthCounterResolver, error) {
+func newClusterHealthCounterResolver(ctx context.Context, root *Resolver, q *auxpb.Query) (*ClusterHealthCounterResolver, error) {
 	total, err := root.ClusterDataStore.Search(ctx, q)
 	if err != nil {
 		return nil, err

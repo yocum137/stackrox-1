@@ -70,7 +70,7 @@ func New(db *pgxpool.Pool) Store {
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Count, "ImageComponentEdge")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	return postgres.RunCountRequestForSchema(schema, sacQueryFilter, s.db)
 }
@@ -79,7 +79,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Exists, "ImageComponentEdge")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -96,7 +96,7 @@ func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 func (s *storeImpl) Get(ctx context.Context, id string) (*storage.ImageComponentEdge, bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Get, "ImageComponentEdge")
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -127,7 +127,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.GetAll, "storage.ImageComponentEdgeIDs")
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	result, err := postgres.RunSearchRequestForSchema(schema, sacQueryFilter, s.db)
 	if err != nil {
@@ -150,7 +150,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Image
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -192,7 +192,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Image
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.ImageComponentEdge) error) error {
-	var sacQueryFilter *aux.Query
+	var sacQueryFilter *auxpb.Query
 	fetcher, closer, err := postgres.RunCursorQueryForSchema(ctx, schema, sacQueryFilter, s.db)
 	if err != nil {
 		return err

@@ -28,15 +28,15 @@ func isImageCVE(genericCVE *storage.CVE) bool {
 	return false
 }
 
-func (s *imageCVEDataStoreFromGenericStore) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
+func (s *imageCVEDataStoreFromGenericStore) Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error) {
 	return s.genericStore.Search(ctx, q)
 }
 
-func (s *imageCVEDataStoreFromGenericStore) SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *imageCVEDataStoreFromGenericStore) SearchImageCVEs(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	return s.genericStore.SearchCVEs(ctx, q)
 }
 
-func (s *imageCVEDataStoreFromGenericStore) SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
+func (s *imageCVEDataStoreFromGenericStore) SearchRawImageCVEs(ctx context.Context, q *auxpb.Query) ([]*storage.ImageCVE, error) {
 	cves, error := s.genericStore.SearchRawCVEs(ctx, q)
 	if error != nil {
 		return nil, error
@@ -66,7 +66,7 @@ func (s *imageCVEDataStoreFromGenericStore) Get(ctx context.Context, id string) 
 	return utils.ProtoCVEToImageCVE(cve), true, nil
 }
 
-func (s *imageCVEDataStoreFromGenericStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *imageCVEDataStoreFromGenericStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.genericStore.Count(ctx, q)
 }
 

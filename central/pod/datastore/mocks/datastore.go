@@ -83,7 +83,7 @@ func (mr *MockDataStoreMockRecorder) RemovePod(ctx, id interface{}) *gomock.Call
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -98,7 +98,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawPods mocks base method.
-func (m *MockDataStore) SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error) {
+func (m *MockDataStore) SearchRawPods(ctx context.Context, q *auxpb.Query) ([]*storage.Pod, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawPods", ctx, q)
 	ret0, _ := ret[0].([]*storage.Pod)

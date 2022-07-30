@@ -40,7 +40,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -144,7 +144,7 @@ func (mr *MockDataStoreMockRecorder) GetBatch(ctx, id interface{}) *gomock.Call 
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -159,7 +159,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchCVEs mocks base method.
-func (m *MockDataStore) SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchCVEs(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchCVEs", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -174,7 +174,7 @@ func (mr *MockDataStoreMockRecorder) SearchCVEs(ctx, q interface{}) *gomock.Call
 }
 
 // SearchRawCVEs mocks base method.
-func (m *MockDataStore) SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.CVE, error) {
+func (m *MockDataStore) SearchRawCVEs(ctx context.Context, q *auxpb.Query) ([]*storage.CVE, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawCVEs", ctx, q)
 	ret0, _ := ret[0].([]*storage.CVE)

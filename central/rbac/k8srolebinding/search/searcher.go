@@ -19,10 +19,10 @@ var (
 // Searcher provides search functionality on existing k8s role bindings.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchRoleBindings(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawRoleBindings(ctx context.Context, query *aux.Query) ([]*storage.K8SRoleBinding, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchRoleBindings(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawRoleBindings(ctx context.Context, query *auxpb.Query) ([]*storage.K8SRoleBinding, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

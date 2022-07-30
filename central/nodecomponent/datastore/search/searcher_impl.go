@@ -17,16 +17,16 @@ type searcherImpl struct {
 	searcher search.Searcher
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return s.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.getCountResults(ctx, q)
 }
 
-func (s *searcherImpl) SearchNodeComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *searcherImpl) SearchNodeComponents(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	results, err := s.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -34,11 +34,11 @@ func (s *searcherImpl) SearchNodeComponents(ctx context.Context, q *aux.Query) (
 	return s.resultsToSearchResults(ctx, results)
 }
 
-func (s *searcherImpl) SearchRawNodeComponents(ctx context.Context, q *aux.Query) ([]*storage.NodeComponent, error) {
+func (s *searcherImpl) SearchRawNodeComponents(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponent, error) {
 	return s.searchNodeComponents(ctx, q)
 }
 
-func (s *searcherImpl) searchNodeComponents(ctx context.Context, q *aux.Query) ([]*storage.NodeComponent, error) {
+func (s *searcherImpl) searchNodeComponents(ctx context.Context, q *auxpb.Query) ([]*storage.NodeComponent, error) {
 	results, err := s.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -52,11 +52,11 @@ func (s *searcherImpl) searchNodeComponents(ctx context.Context, q *aux.Query) (
 	return components, nil
 }
 
-func (s *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (s *searcherImpl) getSearchResults(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	return s.searcher.Search(ctx, q)
 }
 
-func (s *searcherImpl) getCountResults(ctx context.Context, q *aux.Query) (count int, err error) {
+func (s *searcherImpl) getCountResults(ctx context.Context, q *auxpb.Query) (count int, err error) {
 	return s.searcher.Count(ctx, q)
 }
 

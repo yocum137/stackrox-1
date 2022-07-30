@@ -51,7 +51,7 @@ func (suite *PolicyIndexTestSuite) SetupSuite() {
 func (suite *PolicyIndexTestSuite) TestPolicySearch() {
 	cases := []struct {
 		name        string
-		q           *aux.Query
+		q           *auxpb.Query
 		expectedIDs []string
 		expectedErr bool
 	}{

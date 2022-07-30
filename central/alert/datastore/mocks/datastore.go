@@ -54,7 +54,7 @@ func (mr *MockDataStoreMockRecorder) AddAlertTags(ctx, alertID, tags interface{}
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -162,7 +162,7 @@ func (mr *MockDataStoreMockRecorder) RemoveAlertTags(ctx, alertID, tags interfac
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -177,7 +177,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchAlerts mocks base method.
-func (m *MockDataStore) SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchAlerts(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchAlerts", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -192,7 +192,7 @@ func (mr *MockDataStoreMockRecorder) SearchAlerts(ctx, q interface{}) *gomock.Ca
 }
 
 // SearchListAlerts mocks base method.
-func (m *MockDataStore) SearchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
+func (m *MockDataStore) SearchListAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.ListAlert, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListAlerts", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListAlert)
@@ -207,7 +207,7 @@ func (mr *MockDataStoreMockRecorder) SearchListAlerts(ctx, q interface{}) *gomoc
 }
 
 // SearchRawAlerts mocks base method.
-func (m *MockDataStore) SearchRawAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error) {
+func (m *MockDataStore) SearchRawAlerts(ctx context.Context, q *auxpb.Query) ([]*storage.Alert, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawAlerts", ctx, q)
 	ret0, _ := ret[0].([]*storage.Alert)

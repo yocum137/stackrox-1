@@ -35,7 +35,7 @@ import (
 )
 
 var (
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field:    search.DeploymentPriority.String(),
 		Reversed: false,
 	}
@@ -71,7 +71,7 @@ type searcherImpl struct {
 }
 
 // SearchRawDeployments retrieves deployments from the indexer and storage
-func (ds *searcherImpl) SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (ds *searcherImpl) SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	deployments, err := ds.searchDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (ds *searcherImpl) SearchRawDeployments(ctx context.Context, q *aux.Query) 
 }
 
 // SearchRawDeployments retrieves deployments from the indexer and storage
-func (ds *searcherImpl) SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error) {
+func (ds *searcherImpl) SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error) {
 	deployments, _, err := ds.searchListDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (ds *searcherImpl) SearchListDeployments(ctx context.Context, q *aux.Query)
 	return deployments, err
 }
 
-func (ds *searcherImpl) searchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, []search.Result, error) {
+func (ds *searcherImpl) searchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -104,7 +104,7 @@ func (ds *searcherImpl) searchListDeployments(ctx context.Context, q *aux.Query)
 }
 
 // SearchDeployments retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	deployments, results, err := ds.searchListDeployments(ctx, q)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (ds *searcherImpl) SearchDeployments(ctx context.Context, q *aux.Query) ([]
 	return protoResults, nil
 }
 
-func (ds *searcherImpl) searchDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (ds *searcherImpl) searchDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (ds *searcherImpl) searchDeployments(ctx context.Context, q *aux.Query) ([]
 	return deployments, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -138,7 +138,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (res int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (res int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Count(inner, q)
 	})

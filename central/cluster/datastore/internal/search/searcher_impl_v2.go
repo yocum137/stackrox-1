@@ -44,7 +44,7 @@ type searcherImplV2 struct {
 	searcher search.Searcher
 }
 
-func (s *searcherImplV2) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *searcherImplV2) SearchResults(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	clusters, results, err := s.searchClusters(ctx, q)
 	if err != nil {
 		return nil, err
@@ -56,12 +56,12 @@ func (s *searcherImplV2) SearchResults(ctx context.Context, q *aux.Query) ([]*v1
 	return protoResults, nil
 }
 
-func (s *searcherImplV2) SearchClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error) {
+func (s *searcherImplV2) SearchClusters(ctx context.Context, q *auxpb.Query) ([]*storage.Cluster, error) {
 	clusters, _, err := s.searchClusters(ctx, q)
 	return clusters, err
 }
 
-func (s *searcherImplV2) searchClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, []search.Result, error) {
+func (s *searcherImplV2) searchClusters(ctx context.Context, q *auxpb.Query) ([]*storage.Cluster, []search.Result, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -76,12 +76,12 @@ func (s *searcherImplV2) searchClusters(ctx context.Context, q *aux.Query) ([]*s
 	return clusters, results, nil
 }
 
-func (s *searcherImplV2) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *searcherImplV2) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImplV2) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searcherImplV2) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.searcher.Count(ctx, q)
 }
 

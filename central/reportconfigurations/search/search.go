@@ -18,9 +18,9 @@ var (
 // Searcher provides search functionality on existing report configurations.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	SearchReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	SearchReportConfigurations(ctx context.Context, query *auxpb.Query) ([]*storage.ReportConfiguration, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

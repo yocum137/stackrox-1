@@ -64,7 +64,7 @@ type autocompleteResult struct {
 }
 
 // SearchFunc represents a function that goes from a query to a proto search result.
-type SearchFunc func(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+type SearchFunc func(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
 
 func (s *serviceImpl) getSearchFuncs() map[v1.SearchCategory]SearchFunc {
 	searchfuncs := map[v1.SearchCategory]SearchFunc{
@@ -199,7 +199,7 @@ func RunAutoComplete(ctx context.Context, queryString string, categories []v1.Se
 		return nil, errors.Wrapf(errox.InvalidArgs, "unable to parse query %q: %v", queryString, err)
 	}
 	// Set the max return size for the query
-	query.Pagination = &aux.QueryPagination{
+	query.Pagination = &auxpb.QueryPagination{
 		Limit: maxAutocompleteResults,
 	}
 
@@ -319,9 +319,9 @@ func (s *serviceImpl) AuthFuncOverride(ctx context.Context, fullMethodName strin
 
 // Special case alerts because they have a default search param of state:unresolved
 // TODO(cgorman) rework the options for global search to allow for transitive connections (policy <-> deployment, etc)
-func shouldProcessAlerts(q *aux.Query) (shouldProcess bool) {
-	fn := func(bq *aux.BaseQuery) {
-		mfq, ok := bq.Query.(*aux.BaseQuery_MatchFieldQuery)
+func shouldProcessAlerts(q *auxpb.Query) (shouldProcess bool) {
+	fn := func(bq *auxpb.BaseQuery) {
+		mfq, ok := bq.Query.(*auxpb.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

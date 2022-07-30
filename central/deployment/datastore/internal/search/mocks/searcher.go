@@ -39,7 +39,7 @@ func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockSearcher) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockSearcher) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -54,7 +54,7 @@ func (mr *MockSearcherMockRecorder) Count(ctx, q interface{}) *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockSearcher) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockSearcher) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -69,7 +69,7 @@ func (mr *MockSearcherMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchDeployments mocks base method.
-func (m *MockSearcher) SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockSearcher) SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchDeployments", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -84,7 +84,7 @@ func (mr *MockSearcherMockRecorder) SearchDeployments(ctx, q interface{}) *gomoc
 }
 
 // SearchListDeployments mocks base method.
-func (m *MockSearcher) SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error) {
+func (m *MockSearcher) SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListDeployments", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListDeployment)
@@ -99,7 +99,7 @@ func (mr *MockSearcherMockRecorder) SearchListDeployments(ctx, q interface{}) *g
 }
 
 // SearchRawDeployments mocks base method.
-func (m *MockSearcher) SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
+func (m *MockSearcher) SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawDeployments", ctx, q)
 	ret0, _ := ret[0].([]*storage.Deployment)

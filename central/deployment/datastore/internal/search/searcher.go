@@ -26,12 +26,12 @@ var (
 // Searcher provides search functionality on existing alerts
 //go:generate mockgen-wrapper
 type Searcher interface {
-	SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error)
-	SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error)
+	SearchDeployments(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.Deployment, error)
+	SearchListDeployments(ctx context.Context, q *auxpb.Query) ([]*storage.ListDeployment, error)
 
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

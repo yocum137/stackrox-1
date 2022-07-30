@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	defaultSortOption = &aux.QuerySortOption{
+	defaultSortOption = &auxpb.QuerySortOption{
 		Field:    search.RiskScore.String(),
 		Reversed: true,
 	}
@@ -34,7 +34,7 @@ type searcherImpl struct {
 }
 
 // SearchRawRisks retrieves Risks from the indexer and storage
-func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error) {
+func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *auxpb.Query) ([]*storage.Risk, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -48,12 +48,12 @@ func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *aux.Query) ([]*sto
 	return risks, nil
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return s.searcher.Count(ctx, q)
 }
 

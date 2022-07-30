@@ -10,7 +10,7 @@ import (
 // TransformSortFields applies transformation to specially handled sort fields e.g. multi-word fields.
 func TransformSortFields(searcher search.Searcher, optionsMap search.OptionsMap) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 			// If pagination not set, just skip.
 			if q.GetPagination() == nil {
 				return searcher.Search(ctx, q)
@@ -19,7 +19,7 @@ func TransformSortFields(searcher search.Searcher, optionsMap search.OptionsMap)
 			// Local copy to avoid changing input.
 			local := q.Clone()
 
-			sortOptions := make([]*aux.QuerySortOption, 0, len(local.GetPagination().GetSortOptions()))
+			sortOptions := make([]*auxpb.QuerySortOption, 0, len(local.GetPagination().GetSortOptions()))
 			// replace the multi-word fields with the correct multi-word sort field, if present.
 			for _, sortOption := range local.GetPagination().GetSortOptions() {
 				sortFieldMapperFunc, ok := SortFieldsMap[search.FieldLabel(sortOption.GetField())]
@@ -51,7 +51,7 @@ func TransformSortFields(searcher search.Searcher, optionsMap search.OptionsMap)
 			// run the search
 			return searcher.Search(ctx, local)
 		},
-		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *auxpb.Query) (int, error) {
 			return searcher.Count(ctx, q)
 		},
 	}

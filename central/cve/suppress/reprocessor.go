@@ -37,7 +37,7 @@ type CVEUnsuppressLoop interface {
 
 type vulnsStore interface {
 	Unsuppress(ctx context.Context, ids ...string) error
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
 }
 
 // Singleton returns the singleton reprocessor loop

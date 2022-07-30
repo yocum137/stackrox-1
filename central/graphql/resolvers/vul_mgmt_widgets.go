@@ -90,7 +90,7 @@ func (r *FailingPolicyResolver) Severity(ctx context.Context) string {
 	return r.policy.GetSeverity().String()
 }
 
-func deploymentsWithMostSevereViolations(ctx context.Context, resolver *Resolver, q *aux.Query) ([]*DeploymentsWithMostSevereViolationsResolver, error) {
+func deploymentsWithMostSevereViolations(ctx context.Context, resolver *Resolver, q *auxpb.Query) ([]*DeploymentsWithMostSevereViolationsResolver, error) {
 	pagination := q.GetPagination()
 	q.Pagination = nil
 

@@ -140,7 +140,7 @@ func (mr *MockDataStoreMockRecorder) RemoveProcessBaselinesByIDs(ctx, ids interf
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -155,7 +155,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawProcessBaselines mocks base method.
-func (m *MockDataStore) SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error) {
+func (m *MockDataStore) SearchRawProcessBaselines(ctx context.Context, q *auxpb.Query) ([]*storage.ProcessBaseline, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawProcessBaselines", ctx, q)
 	ret0, _ := ret[0].([]*storage.ProcessBaseline)

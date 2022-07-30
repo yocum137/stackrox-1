@@ -64,27 +64,27 @@ func newDatastoreImpl(storage store.Store, indexer index.Indexer, searcher searc
 	return ds
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Image", "Search")
 
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Image", "Count")
 
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchImages(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Image", "SearchImages")
 
 	return ds.searcher.SearchImages(ctx, q)
 }
 
 // SearchRawImages delegates to the underlying searcher.
-func (ds *datastoreImpl) SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error) {
+func (ds *datastoreImpl) SearchRawImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Image", "SearchRawImages")
 
 	imgs, err := ds.searcher.SearchRawImages(ctx, q)
@@ -97,7 +97,7 @@ func (ds *datastoreImpl) SearchRawImages(ctx context.Context, q *aux.Query) ([]*
 	return imgs, nil
 }
 
-func (ds *datastoreImpl) SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error) {
+func (ds *datastoreImpl) SearchListImages(ctx context.Context, q *auxpb.Query) ([]*storage.ListImage, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Image", "SearchListImages")
 
 	imgs, err := ds.searcher.SearchListImages(ctx, q)

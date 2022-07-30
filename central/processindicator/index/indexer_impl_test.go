@@ -44,7 +44,7 @@ func (suite *IndicatorIndexTestSuite) TestProcessIndicatorSearch() {
 
 	cases := []struct {
 		name        string
-		q           *aux.Query
+		q           *auxpb.Query
 		expectedIDs []string
 	}{
 		{

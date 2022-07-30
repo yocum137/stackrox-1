@@ -103,7 +103,7 @@ func (mr *MockDataStoreMockRecorder) GetBatch(ctx, ids interface{}) *gomock.Call
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, query *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
 	ret0, _ := ret[0].([]search.Result)
@@ -118,7 +118,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, query interface{}) *gomock.Call
 }
 
 // SearchRawActiveComponents mocks base method.
-func (m *MockDataStore) SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error) {
+func (m *MockDataStore) SearchRawActiveComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ActiveComponent, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawActiveComponents", ctx, q)
 	ret0, _ := ret[0].([]*storage.ActiveComponent)

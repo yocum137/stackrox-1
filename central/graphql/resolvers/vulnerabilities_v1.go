@@ -439,7 +439,7 @@ func (evr *EmbeddedVulnerabilityResolver) UnusedVarSink(ctx context.Context, arg
 	return nil
 }
 
-func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query *aux.Query) ([]*imageResolver, error) {
+func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query *auxpb.Query) ([]*imageResolver, error) {
 	imageLoader, err := loaders.GetImageLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -458,7 +458,7 @@ func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query 
 	return evr.root.wrapImages(imageLoader.FromQuery(ctx, query))
 }
 
-func (evr *EmbeddedVulnerabilityResolver) loadDeployments(ctx context.Context, query *aux.Query) ([]*deploymentResolver, error) {
+func (evr *EmbeddedVulnerabilityResolver) loadDeployments(ctx context.Context, query *auxpb.Query) ([]*deploymentResolver, error) {
 	deploymentBaseQuery, err := evr.getDeploymentBaseQuery(ctx)
 	if err != nil || deploymentBaseQuery == nil {
 		return nil, err
@@ -517,7 +517,7 @@ func (evr *EmbeddedVulnerabilityResolver) VulnerabilityState(ctx context.Context
 	return evr.data.GetState().String()
 }
 
-func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Context) (*aux.Query, error) {
+func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Context) (*auxpb.Query, error) {
 	imageQuery := evr.vulnQuery()
 	results, err := evr.root.ImageDataStore.Search(ctx, imageQuery)
 	if err != nil || len(results) == 0 {
@@ -528,7 +528,7 @@ func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Con
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, search.ResultsToIDs(results)...).ProtoQuery(), nil
 }
 
-func (evr *EmbeddedVulnerabilityResolver) vulnQuery() *aux.Query {
+func (evr *EmbeddedVulnerabilityResolver) vulnQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVE, evr.data.GetCve()).ProtoQuery()
 }
 

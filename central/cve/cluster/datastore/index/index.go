@@ -12,10 +12,10 @@ import (
 type Indexer interface {
 	AddClusterCVE(cve *storage.ClusterCVE) error
 	AddClusterCVEs(cves []*storage.ClusterCVE) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteClusterCVE(id string) error
 	DeleteClusterCVEs(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

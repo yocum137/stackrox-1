@@ -36,20 +36,20 @@ func (s *paginationTestSuite) TearDownTest() {
 func (s *paginationTestSuite) TestHandlesNoPagination() {
 	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Any()).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{})
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &auxpb.Query{})
 	s.NoError(err, "expected no error, should return nil without access")
 	s.Equal(fakeResults, results, "with no pagination the result should be the same as the search output")
 }
 
 func (s *paginationTestSuite) TestHandlesNoOffset() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
-		Pagination: &aux.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Limit: 0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
-		Pagination: &aux.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Limit: 1,
 		},
 	})
@@ -58,14 +58,14 @@ func (s *paginationTestSuite) TestHandlesNoOffset() {
 }
 
 func (s *paginationTestSuite) TestHandlesNoLimit() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
-		Pagination: &aux.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
-		Pagination: &aux.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 1,
 		},
 	})
@@ -74,15 +74,15 @@ func (s *paginationTestSuite) TestHandlesNoLimit() {
 }
 
 func (s *paginationTestSuite) TestHandlesOffSetAndLimit() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
-		Pagination: &aux.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 0,
 			Limit:  0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
-		Pagination: &aux.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &auxpb.Query{
+		Pagination: &auxpb.QueryPagination{
 			Offset: 1,
 			Limit:  3,
 		},

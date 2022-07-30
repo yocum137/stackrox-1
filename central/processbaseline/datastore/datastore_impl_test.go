@@ -277,7 +277,7 @@ func (suite *ProcessBaselineDataStoreTestSuite) TestGraveyard() {
 	suite.ElementsMatch(itemList, updatedItems)
 }
 
-func (suite *ProcessBaselineDataStoreTestSuite) doQuery(q *aux.Query, len int) {
+func (suite *ProcessBaselineDataStoreTestSuite) doQuery(q *auxpb.Query, len int) {
 	result, err := suite.datastore.SearchRawProcessBaselines(suite.requestContext, q)
 	suite.NoError(err)
 	suite.Len(result, len)

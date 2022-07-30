@@ -16,8 +16,8 @@ type Indexer interface {
 	DeleteDeployments(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 }
 
 // New creates a new deployment indexer

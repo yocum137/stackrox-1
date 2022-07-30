@@ -38,13 +38,13 @@ func getSubjects() []*storage.Subject {
 func TestSortSubjects(t *testing.T) {
 	cases := []struct {
 		name        string
-		sortOptions []*aux.QuerySortOption
+		sortOptions []*auxpb.QuerySortOption
 		expected    []*storage.Subject
 		hasError    bool
 	}{
 		{
 			name: "subject sort",
-			sortOptions: []*aux.QuerySortOption{
+			sortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.SubjectName.String(),
 					Reversed: false,
@@ -75,7 +75,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - reversed",
-			sortOptions: []*aux.QuerySortOption{
+			sortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.SubjectName.String(),
 					Reversed: true,
@@ -106,7 +106,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - kind sort",
-			sortOptions: []*aux.QuerySortOption{
+			sortOptions: []*auxpb.QuerySortOption{
 				{
 					Field: search.SubjectName.String(),
 				},
@@ -139,7 +139,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - kind sort",
-			sortOptions: []*aux.QuerySortOption{
+			sortOptions: []*auxpb.QuerySortOption{
 				{
 					Field: search.SubjectName.String(),
 				},
@@ -175,8 +175,8 @@ func TestSortSubjects(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			q := &aux.Query{
-				Pagination: &aux.QueryPagination{
+			q := &auxpb.Query{
+				Pagination: &auxpb.QueryPagination{
 					SortOptions: c.sortOptions,
 				},
 			}
@@ -196,7 +196,7 @@ func TestSortSubjects(t *testing.T) {
 func TestGetFiltered(t *testing.T) {
 	cases := []struct {
 		name             string
-		query            *aux.Query
+		query            *auxpb.Query
 		subjects         []*storage.Subject
 		expectedSubjects []*storage.Subject
 	}{

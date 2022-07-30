@@ -29,7 +29,7 @@ func (w *indexWrapperImpl) AddListAlerts(_ []*storage.ListAlert) error {
 	return nil
 }
 
-func (w *indexWrapperImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (w *indexWrapperImpl) Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error) {
 	return w.indexer.Count(q, opts...)
 }
 
@@ -49,6 +49,6 @@ func (w *indexWrapperImpl) NeedsInitialIndexing() (bool, error) {
 	return false, nil
 }
 
-func (w *indexWrapperImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (w *indexWrapperImpl) Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	return w.indexer.Search(q, opts...)
 }

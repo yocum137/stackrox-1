@@ -11,8 +11,8 @@ import (
 type Indexer interface {
 	AddNodeComponentCVEEdge(componentcveedge *storage.NodeComponentCVEEdge) error
 	AddNodeComponentCVEEdges(componentcveedges []*storage.NodeComponentCVEEdge) error
-	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *auxpb.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNodeComponentCVEEdge(id string) error
 	DeleteNodeComponentCVEEdges(ids []string) error
-	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *auxpb.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

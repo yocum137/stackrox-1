@@ -45,9 +45,9 @@ func GetImageCVELoader(ctx context.Context) (ImageCVELoader, error) {
 type ImageCVELoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.ImageCVE, error)
 	FromID(ctx context.Context, id string) (*storage.ImageCVE, error)
-	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ImageCVE, error)
-	GetIDs(ctx context.Context, query *aux.Query) ([]string, error)
-	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
+	FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ImageCVE, error)
+	GetIDs(ctx context.Context, query *auxpb.Query) ([]string, error)
+	CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -78,7 +78,7 @@ func (idl *imageCveLoaderImpl) FromID(ctx context.Context, id string) (*storage.
 }
 
 // FromQuery loads a set of image cves that match a query.
-func (idl *imageCveLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ImageCVE, error) {
+func (idl *imageCveLoaderImpl) FromQuery(ctx context.Context, query *auxpb.Query) ([]*storage.ImageCVE, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (idl *imageCveLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) 
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *imageCveLoaderImpl) GetIDs(ctx context.Context, query *aux.Query) ([]string, error) {
+func (idl *imageCveLoaderImpl) GetIDs(ctx context.Context, query *auxpb.Query) ([]string, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (idl *imageCveLoaderImpl) GetIDs(ctx context.Context, query *aux.Query) ([]
 	return search.ResultsToIDs(results), nil
 }
 
-func (idl *imageCveLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
+func (idl *imageCveLoaderImpl) CountFromQuery(ctx context.Context, query *auxpb.Query) (int32, error) {
 	count, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

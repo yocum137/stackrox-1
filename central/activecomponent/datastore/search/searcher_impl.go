@@ -34,7 +34,7 @@ type searcherImpl struct {
 }
 
 // SearchRawActiveComponents retrieves activeComponents from the indexer and storage
-func (ds *searcherImpl) SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error) {
+func (ds *searcherImpl) SearchRawActiveComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ActiveComponent, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (ds *searcherImpl) SearchRawActiveComponents(ctx context.Context, q *aux.Qu
 	return activeComponents, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -56,7 +56,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (res int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (res int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Count(inner, q)
 	})

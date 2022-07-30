@@ -38,7 +38,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -99,7 +99,7 @@ func (mr *MockDataStoreMockRecorder) RemoveRisk(ctx, subjectID, subjectType inte
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -114,7 +114,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawRisks mocks base method.
-func (m *MockDataStore) SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error) {
+func (m *MockDataStore) SearchRawRisks(ctx context.Context, q *auxpb.Query) ([]*storage.Risk, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawRisks", ctx, q)
 	ret0, _ := ret[0].([]*storage.Risk)

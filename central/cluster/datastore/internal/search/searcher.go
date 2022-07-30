@@ -15,10 +15,10 @@ import (
 
 // Searcher encapsulates cluster search functionality.
 type Searcher interface {
-	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *aux.Query) (int, error)
-	SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *auxpb.Query) (int, error)
+	SearchResults(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchClusters(ctx context.Context, q *auxpb.Query) ([]*storage.Cluster, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

@@ -12,7 +12,7 @@ import (
 // CountSortedSearcher generates a searcher that applies derived field sorting.
 func CountSortedSearcher(searcher search.Searcher, counters map[string]counter.DerivedFieldCounter) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 			// If pagination not set, just skip.
 			if q.GetPagination() == nil || len(q.GetPagination().GetSortOptions()) != 1 {
 				return searcher.Search(ctx, q)
@@ -55,7 +55,7 @@ func CountSortedSearcher(searcher search.Searcher, counters map[string]counter.D
 			}
 			return results, nil
 		},
-		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *auxpb.Query) (int, error) {
 			return searcher.Count(ctx, q)
 		},
 	}

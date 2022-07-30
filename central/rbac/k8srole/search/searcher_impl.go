@@ -27,7 +27,7 @@ type searcherImpl struct {
 }
 
 // SearchRoles returns the search results from indexed k8s roles for the query.
-func (ds *searcherImpl) SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchRoles(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	roles, results, err := ds.searchRoles(ctx, q)
 	if err != nil {
 		return nil, err
@@ -37,17 +37,17 @@ func (ds *searcherImpl) SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.Se
 }
 
 // Search returns the raw search results from the query.
-func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query.
-func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return ds.getCountResults(ctx, q)
 }
 
 // SearchRawRoles returns the roles and relationships that match the query.
-func (ds *searcherImpl) SearchRawRoles(ctx context.Context, q *aux.Query) ([]*storage.K8SRole, error) {
+func (ds *searcherImpl) SearchRawRoles(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRole, error) {
 	roles, _, err := ds.searchRoles(ctx, q)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (ds *searcherImpl) SearchRawRoles(ctx context.Context, q *aux.Query) ([]*st
 	return roles, nil
 }
 
-func (ds *searcherImpl) searchRoles(ctx context.Context, q *aux.Query) ([]*storage.K8SRole, []search.Result, error) {
+func (ds *searcherImpl) searchRoles(ctx context.Context, q *auxpb.Query) ([]*storage.K8SRole, []search.Result, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -68,7 +68,7 @@ func (ds *searcherImpl) searchRoles(ctx context.Context, q *aux.Query) ([]*stora
 	return roles, results, nil
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	if features.PostgresDatastore.Enabled() {
 		return k8sRolesSACPgSearchHelper.Apply(ds.indexer.Search)(ctx, q)
 	}
@@ -76,7 +76,7 @@ func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]s
 	return k8sRolesSACSearchHelper.Apply(ds.indexer.Search)(ctx, q)
 }
 
-func (ds *searcherImpl) getCountResults(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *searcherImpl) getCountResults(ctx context.Context, q *auxpb.Query) (int, error) {
 	if features.PostgresDatastore.Enabled() {
 		return k8sRolesSACPgSearchHelper.ApplyCount(ds.indexer.Count)(ctx, q)
 	}

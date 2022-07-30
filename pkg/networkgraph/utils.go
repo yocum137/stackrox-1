@@ -165,7 +165,7 @@ func PopulateExternalSrcsDesc(entity *storage.NetworkEntityInfo, extSrcMapper fu
 }
 
 // GetFilterAndScopeQueries returns parses the raw deployment query string and network graph scope into v1.Query.
-func GetFilterAndScopeQueries(clusterID, rawQ string, scope *v1.NetworkGraphScope) (*aux.Query, *aux.Query, error) {
+func GetFilterAndScopeQueries(clusterID, rawQ string, scope *v1.NetworkGraphScope) (*auxpb.Query, *auxpb.Query, error) {
 	allClusterDepsQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).ProtoQuery()
 
 	scopeQuery := allClusterDepsQuery

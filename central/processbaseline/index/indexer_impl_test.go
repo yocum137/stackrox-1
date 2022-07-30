@@ -44,7 +44,7 @@ func (suite *ProcessBaselineIndexTestSuite) getAndStoreBaseline() *storage.Proce
 	return baseline
 }
 
-func (suite *ProcessBaselineIndexTestSuite) search(q *aux.Query, expectedResultSize int) ([]search.Result, error) {
+func (suite *ProcessBaselineIndexTestSuite) search(q *auxpb.Query, expectedResultSize int) ([]search.Result, error) {
 	results, err := suite.indexer.Search(q)
 	suite.NoError(err)
 	suite.Equal(expectedResultSize, len(results))

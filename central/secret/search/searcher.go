@@ -19,11 +19,11 @@ var (
 // Searcher provides search functionality on existing secrets.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
-	Count(ctx context.Context, query *aux.Query) (int, error)
-	SearchSecrets(context.Context, *aux.Query) ([]*v1.SearchResult, error)
-	SearchListSecrets(ctx context.Context, query *aux.Query) ([]*storage.ListSecret, error)
-	SearchRawSecrets(ctx context.Context, query *aux.Query) ([]*storage.Secret, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]search.Result, error)
+	Count(ctx context.Context, query *auxpb.Query) (int, error)
+	SearchSecrets(context.Context, *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchListSecrets(ctx context.Context, query *auxpb.Query) ([]*storage.ListSecret, error)
+	SearchRawSecrets(ctx context.Context, query *auxpb.Query) ([]*storage.Secret, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

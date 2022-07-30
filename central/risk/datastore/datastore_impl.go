@@ -47,16 +47,16 @@ func (d *datastoreImpl) buildIndex(ctx context.Context) error {
 	return nil
 }
 
-func (d *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (d *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (d *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (d *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }
 
-func (d *datastoreImpl) SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error) {
+func (d *datastoreImpl) SearchRawRisks(ctx context.Context, q *auxpb.Query) ([]*storage.Risk, error) {
 	return d.searcher.SearchRawRisks(ctx, q)
 }
 

@@ -66,27 +66,27 @@ func newDatastoreImpl(storage store.Store, indexer index.Indexer, searcher searc
 	return ds
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *auxpb.Query) ([]pkgSearch.Result, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "Search")
 
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "Count")
 
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchNodes(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "SearchNodes")
 
 	return ds.searcher.SearchNodes(ctx, q)
 }
 
 // SearchRawNodes delegates to the underlying searcher.
-func (ds *datastoreImpl) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
+func (ds *datastoreImpl) SearchRawNodes(ctx context.Context, q *auxpb.Query) ([]*storage.Node, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "SearchRawNodes")
 
 	nodes, err := ds.searcher.SearchRawNodes(ctx, q)

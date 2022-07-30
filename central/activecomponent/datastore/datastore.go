@@ -15,8 +15,8 @@ import (
 // DataStore is an intermediary to ActiveComponent storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, query *aux.Query) ([]pkgSearch.Result, error)
-	SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error)
+	Search(ctx context.Context, query *auxpb.Query) ([]pkgSearch.Result, error)
+	SearchRawActiveComponents(ctx context.Context, q *auxpb.Query) ([]*storage.ActiveComponent, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ActiveComponent, bool, error)

@@ -16,9 +16,9 @@ import (
 // DataStore is an intermediary to Image/Component edge storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
-	SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
-	SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageComponentEdge, error)
+	Search(ctx context.Context, q *auxpb.Query) ([]searchPkg.Result, error)
+	SearchEdges(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error)
+	SearchRawEdges(ctx context.Context, q *auxpb.Query) ([]*storage.ImageComponentEdge, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ImageComponentEdge, bool, error)

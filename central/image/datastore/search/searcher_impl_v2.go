@@ -46,7 +46,7 @@ type searcherImplV2 struct {
 }
 
 // SearchImages retrieves SearchResults from the indexer and storage
-func (s *searcherImplV2) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (s *searcherImplV2) SearchImages(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	images, results, err := s.searchImages(ctx, q)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (s *searcherImplV2) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.
 	return protoResults, nil
 }
 
-func (s *searcherImplV2) SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error) {
+func (s *searcherImplV2) SearchListImages(ctx context.Context, q *auxpb.Query) ([]*storage.ListImage, error) {
 	images, _, err := s.searchImages(ctx, q)
 	listImages := make([]*storage.ListImage, 0, len(images))
 	for _, image := range images {
@@ -68,7 +68,7 @@ func (s *searcherImplV2) SearchListImages(ctx context.Context, q *aux.Query) ([]
 }
 
 // SearchRawImages retrieves SearchResults from the indexer and storage
-func (s *searcherImplV2) SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error) {
+func (s *searcherImplV2) SearchRawImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (s *searcherImplV2) SearchRawImages(ctx context.Context, q *aux.Query) ([]*
 	return images, nil
 }
 
-func (s *searcherImplV2) searchImages(ctx context.Context, q *aux.Query) ([]*storage.Image, []search.Result, error) {
+func (s *searcherImplV2) searchImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, []search.Result, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -103,12 +103,12 @@ func (s *searcherImplV2) searchImages(ctx context.Context, q *aux.Query) ([]*sto
 	return images, newResults, nil
 }
 
-func (s *searcherImplV2) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
+func (s *searcherImplV2) Search(ctx context.Context, q *auxpb.Query) (res []search.Result, err error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImplV2) Count(ctx context.Context, q *aux.Query) (count int, err error) {
+func (s *searcherImplV2) Count(ctx context.Context, q *auxpb.Query) (count int, err error) {
 	return s.searcher.Count(ctx, q)
 }
 

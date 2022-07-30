@@ -39,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *auxpb.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -166,7 +166,7 @@ func (mr *MockDataStoreMockRecorder) ListImage(ctx, sha interface{}) *gomock.Cal
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *auxpb.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -181,7 +181,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchImages mocks base method.
-func (m *MockDataStore) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchImages(ctx context.Context, q *auxpb.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchImages", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -196,7 +196,7 @@ func (mr *MockDataStoreMockRecorder) SearchImages(ctx, q interface{}) *gomock.Ca
 }
 
 // SearchListImages mocks base method.
-func (m *MockDataStore) SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error) {
+func (m *MockDataStore) SearchListImages(ctx context.Context, q *auxpb.Query) ([]*storage.ListImage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListImages", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListImage)
@@ -211,7 +211,7 @@ func (mr *MockDataStoreMockRecorder) SearchListImages(ctx, q interface{}) *gomoc
 }
 
 // SearchRawImages mocks base method.
-func (m *MockDataStore) SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error) {
+func (m *MockDataStore) SearchRawImages(ctx context.Context, q *auxpb.Query) ([]*storage.Image, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawImages", ctx, q)
 	ret0, _ := ret[0].([]*storage.Image)

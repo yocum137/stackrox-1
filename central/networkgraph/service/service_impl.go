@@ -314,7 +314,7 @@ func (s *serviceImpl) getNetworkGraph(ctx context.Context, request *v1.NetworkGr
 func (s *serviceImpl) addDeploymentFlowsToGraph(
 	ctx context.Context,
 	request *v1.NetworkGraphRequest,
-	scopeQuery *aux.Query,
+	scopeQuery *auxpb.Query,
 	withListenPorts bool,
 	graphBuilder *flowGraphBuilder,
 	deployments []*storage.ListDeployment,
@@ -416,7 +416,7 @@ func (s *serviceImpl) addDeploymentFlowsToGraph(
 func filterFlowsAndMaskScopeAlienDeployments(
 	ctx context.Context,
 	clusterID string,
-	scopeQuery *aux.Query,
+	scopeQuery *auxpb.Query,
 	flows []*storage.NetworkFlow,
 	deploymentsMap map[string]*storage.ListDeployment,
 	deploymentDS deploymentDS.DataStore,

@@ -173,7 +173,7 @@ func (resolver *nodeComponentResolver) withNodeComponentScope(ctx context.Contex
 	})
 }
 
-func (resolver *nodeComponentResolver) nodeComponentQuery() *aux.Query {
+func (resolver *nodeComponentResolver) nodeComponentQuery() *auxpb.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -200,10 +200,10 @@ func (resolver *nodeComponentResolver) NodeComponentLastScanned(_ context.Contex
 	}
 
 	componentQuery := resolver.nodeComponentQuery()
-	componentQuery.Pagination = &aux.QueryPagination{
+	componentQuery.Pagination = &auxpb.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*aux.QuerySortOption{
+		SortOptions: []*auxpb.QuerySortOption{
 			{
 				Field:    search.NodeScanTime.String(),
 				Reversed: true,
@@ -280,8 +280,8 @@ func (resolver *nodeComponentResolver) TopNodeVulnerability(ctx context.Context)
 	defer metrics.SetGraphQLOperationDurationTime(time.Now(), pkgMetrics.NodeComponents, "TopNodeVulnerability")
 	if !features.PostgresDatastore.Enabled() {
 		query := resolver.nodeComponentQuery()
-		query.Pagination = &aux.QueryPagination{
-			SortOptions: []*aux.QuerySortOption{
+		query.Pagination = &auxpb.QueryPagination{
+			SortOptions: []*auxpb.QuerySortOption{
 				{
 					Field:    search.CVSS.String(),
 					Reversed: true,
