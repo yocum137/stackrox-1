@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/protoconv/schedule"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
@@ -46,7 +47,7 @@ func New(reporter integrationhealth.Reporter) Manager {
 }
 
 var (
-	externalBkpSAC = sac.ForResource(resources.BackupPlugins)
+	externalBkpSAC = helpers.ForResource(resources.BackupPlugins)
 )
 
 type managerImpl struct {

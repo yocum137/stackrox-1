@@ -24,7 +24,7 @@ import (
 	nodeComponentEdgeMappings "github.com/stackrox/rox/central/nodecomponentedge/mappings"
 	nodeComponentEdgeSAC "github.com/stackrox/rox/central/nodecomponentedge/sac"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/derivedfields/counter"

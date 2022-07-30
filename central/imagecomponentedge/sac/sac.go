@@ -3,12 +3,12 @@ package sac
 import (
 	"github.com/stackrox/rox/central/dackbox"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 )
 
 var (
-	imageSAC = sac.ForResource(resources.Image)
+	imageSAC = helpers.ForResource(resources.Image)
 
 	imageComponentEdgeSACFilter = filtered.MustCreateNewSACFilter(
 		filtered.WithResourceHelper(imageSAC),

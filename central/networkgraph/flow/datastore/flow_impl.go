@@ -13,12 +13,13 @@ import (
 	"github.com/stackrox/rox/pkg/expiringcache"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/timestamp"
 )
 
 var (
 	log             = logging.LoggerForModule()
-	networkGraphSAC = sac.ForResource(resources.NetworkGraph)
+	networkGraphSAC = helpers.ForResource(resources.NetworkGraph)
 )
 
 type flowDataStoreImpl struct {

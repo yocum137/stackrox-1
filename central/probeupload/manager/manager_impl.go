@@ -19,6 +19,7 @@ import (
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/probeupload"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
@@ -37,7 +38,7 @@ const (
 var (
 	log = logging.LoggerForModule()
 
-	probeUploadSAC = sac.ForResource(resources.ProbeUpload)
+	probeUploadSAC = helpers.ForResource(resources.ProbeUpload)
 )
 
 type manager struct {

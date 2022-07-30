@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	legacyImageCVEDataStore "github.com/stackrox/rox/central/cve/datastore"
 	distroctx "github.com/stackrox/rox/central/graphql/resolvers/distroctx"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/cvss"
 	"github.com/stackrox/rox/pkg/features"

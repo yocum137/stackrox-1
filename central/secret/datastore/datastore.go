@@ -14,7 +14,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store/rocksdb"
 	"github.com/stackrox/rox/central/secret/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"

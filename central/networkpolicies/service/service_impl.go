@@ -37,6 +37,7 @@ import (
 	"github.com/stackrox/rox/pkg/networkgraph/tree"
 	networkPolicyConversion "github.com/stackrox/rox/pkg/protoconv/networkpolicy"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/options/deployments"
 	"github.com/stackrox/rox/pkg/search/predicate"
@@ -79,7 +80,7 @@ var (
 
 	deploymentPredicateFactory = predicate.NewFactory("deployment", &storage.Deployment{})
 
-	networkPolicySAC = sac.ForResource(resources.NetworkPolicy)
+	networkPolicySAC = helpers.ForResource(resources.NetworkPolicy)
 )
 
 // serviceImpl provides APIs for alerts.

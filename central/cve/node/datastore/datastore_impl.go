@@ -11,18 +11,19 @@ import (
 	"github.com/stackrox/rox/central/cve/node/datastore/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
 var (
-	vulnRequesterOrApproverSAC = sac.ForResources(
-		sac.ForResource(resources.VulnerabilityManagementRequests),
-		sac.ForResource(resources.VulnerabilityManagementApprovals),
+	vulnRequesterOrApproverSAC = helpers.ForResources(
+		helpers.ForResource(resources.VulnerabilityManagementRequests),
+		helpers.ForResource(resources.VulnerabilityManagementApprovals),
 	)
 
 	accessAllCtx = sac.WithAllAccess(context.Background())

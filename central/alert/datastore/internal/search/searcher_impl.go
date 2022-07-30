@@ -10,12 +10,12 @@ import (
 	"github.com/stackrox/rox/central/alert/mappings"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/alert/convert"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/logging"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/search/paginated"
@@ -30,8 +30,8 @@ var (
 		Reversed: true,
 	}
 
-	alertSearchHelper           = sac.ForResource(resources.Alert).MustCreateSearchHelper(mappings.OptionsMap)
-	alertPosgresSACSearchHelper = sac.ForResource(resources.Alert).MustCreatePgSearchHelper()
+	alertSearchHelper           = helpers.ForResource(resources.Alert).MustCreateSearchHelper(mappings.OptionsMap)
+	alertPosgresSACSearchHelper = helpers.ForResource(resources.Alert).MustCreatePgSearchHelper()
 )
 
 // searcherImpl provides an intermediary implementation layer for AlertStorage.

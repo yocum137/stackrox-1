@@ -5,13 +5,14 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/graph/testutils"
 	"github.com/stackrox/rox/pkg/dbhelper"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	searchMocks "github.com/stackrox/rox/pkg/search/blevesearch/mocks"
 	"github.com/stretchr/testify/suite"
@@ -98,7 +99,7 @@ func (s *filteredSearcherTestSuite) TestGlobalAllowed() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 
 	filter, err := NewSACFilter(
-		WithResourceHelper(sac.ForResource(globalResource)),
+		WithResourceHelper(helpers.ForResource(globalResource)),
 		WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -143,7 +144,7 @@ func (s *filteredSearcherTestSuite) TestGlobalDenied() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.DenyAllAccessScopeChecker())
 
 	filter, err := NewSACFilter(
-		WithResourceHelper(sac.ForResource(globalResource)),
+		WithResourceHelper(helpers.ForResource(globalResource)),
 		WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -178,7 +179,7 @@ func (s *filteredSearcherTestSuite) TestScoped() {
 		sac.ClusterScopeKeys(cluster1)))
 
 	filter, err := NewSACFilter(
-		WithResourceHelper(sac.ForResource(clusterResource)),
+		WithResourceHelper(helpers.ForResource(clusterResource)),
 		WithScopeTransform(s.fakeTransformer()),
 		WithReadAccess(),
 	)
@@ -224,7 +225,7 @@ func (s *filteredSearcherTestSuite) TestMultiScoped() {
 		sac.NamespaceScopeKeys(namespace2)))
 
 	filter, err := NewSACFilter(
-		WithResourceHelper(sac.ForResource(namespaceResource)),
+		WithResourceHelper(helpers.ForResource(namespaceResource)),
 		WithScopeTransform(s.fakeTransformer()),
 		WithReadAccess(),
 	)

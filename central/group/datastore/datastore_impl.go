@@ -9,10 +9,11 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	groupSAC = sac.ForResource(resources.Group)
+	groupSAC = helpers.ForResource(resources.Group)
 )
 
 type dataStoreImpl struct {

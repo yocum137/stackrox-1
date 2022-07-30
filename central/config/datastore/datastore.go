@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 // DataStore is the entry point for modifying Config data.
@@ -27,7 +28,7 @@ func New(store store.Store) DataStore {
 }
 
 var (
-	configSAC = sac.ForResource(resources.Config)
+	configSAC = helpers.ForResource(resources.Config)
 )
 
 type datastoreImpl struct {

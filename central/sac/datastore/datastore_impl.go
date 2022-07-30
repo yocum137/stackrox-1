@@ -10,12 +10,13 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/sac/client"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/uuid"
 )
 
 var (
-	authPluginSAC = sac.ForResource(resources.AuthPlugin)
+	authPluginSAC = helpers.ForResource(resources.AuthPlugin)
 )
 
 type mayModifyEnabledPluginContextKey struct{}

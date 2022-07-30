@@ -7,10 +7,11 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	processBaselineSAC = sac.ForResource(resources.ProcessWhitelist)
+	processBaselineSAC = helpers.ForResource(resources.ProcessWhitelist)
 )
 
 type datastoreImpl struct {

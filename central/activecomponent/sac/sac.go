@@ -3,14 +3,14 @@ package sac
 import (
 	"github.com/stackrox/rox/central/dackbox"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
-	deploymentSAC = sac.ForResource(resources.Deployment)
+	deploymentSAC = helpers.ForResource(resources.Deployment)
 
 	activeComponentSACFilter filtered.Filter
 	once                     sync.Once

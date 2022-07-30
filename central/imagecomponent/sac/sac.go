@@ -4,13 +4,13 @@ import (
 	"github.com/stackrox/rox/central/dackbox"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 )
 
 var (
-	imageComponentSAC = sac.ForResource(resources.Image)
-	nodeComponentSAC  = sac.ForResource(resources.Node)
+	imageComponentSAC = helpers.ForResource(resources.Image)
+	nodeComponentSAC  = helpers.ForResource(resources.Node)
 
 	combinedFilter = dackbox.MustCreateNewSharedObjectSACFilter(
 		dackbox.WithNode(nodeComponentSAC, dackbox.ComponentToNodeBucketPath),

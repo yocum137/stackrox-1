@@ -9,7 +9,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	policyUtils "github.com/stackrox/rox/central/policy/utils"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/policyutils"

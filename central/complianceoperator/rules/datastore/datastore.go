@@ -8,11 +8,12 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
 var (
-	complianceOperatorSAC = sac.ForResource(resources.ComplianceOperator)
+	complianceOperatorSAC = helpers.ForResource(resources.ComplianceOperator)
 )
 
 // DataStore defines the possible interactions with compliance operator rules

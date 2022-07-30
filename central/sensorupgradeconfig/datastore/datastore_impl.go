@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 type dataStore struct {
@@ -17,7 +18,7 @@ type dataStore struct {
 }
 
 var (
-	sacHelper = sac.ForResource(resources.SensorUpgradeConfig)
+	sacHelper = helpers.ForResource(resources.SensorUpgradeConfig)
 )
 
 func (d *dataStore) initialize() error {

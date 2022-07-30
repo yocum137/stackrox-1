@@ -6,10 +6,11 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	deploymentSAC = sac.ForResource(resources.Deployment)
+	deploymentSAC = helpers.ForResource(resources.Deployment)
 )
 
 func filterDeploymentRisksOnScope(ctx context.Context, risks ...*storage.Risk) []*storage.Risk {

@@ -26,6 +26,7 @@ import (
 	"github.com/stackrox/rox/pkg/networkgraph/networkbaseline"
 	"github.com/stackrox/rox/pkg/protoutils"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/sync"
@@ -40,7 +41,7 @@ const (
 var (
 	managerCtx = sac.WithAllAccess(context.Background())
 
-	networkBaselineSAC = sac.ForResource(resources.NetworkBaseline)
+	networkBaselineSAC = helpers.ForResource(resources.NetworkBaseline)
 
 	log = logging.LoggerForModule()
 

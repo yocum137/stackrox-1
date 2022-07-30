@@ -4,13 +4,13 @@ import (
 	"github.com/stackrox/rox/central/dackbox"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 )
 
 var (
-	imageSAC = sac.ForResource(resources.Image)
-	nodeSAC  = sac.ForResource(resources.Node)
+	imageSAC = helpers.ForResource(resources.Image)
+	nodeSAC  = helpers.ForResource(resources.Node)
 
 	componentCVEEdgeSACFilter = filtered.NewEdgeSourceFilter(
 		dackbox.MustCreateNewSharedObjectSACFilter(

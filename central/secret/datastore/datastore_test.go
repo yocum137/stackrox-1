@@ -11,7 +11,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	rocksdbStore "github.com/stackrox/rox/central/secret/internal/store/rocksdb"
 	secretSearch "github.com/stackrox/rox/central/secret/search"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/rocksdb"

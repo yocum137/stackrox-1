@@ -7,10 +7,11 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	externalBkpSAC = sac.ForResource(resources.BackupPlugins)
+	externalBkpSAC = helpers.ForResource(resources.BackupPlugins)
 )
 
 type datastoreImpl struct {

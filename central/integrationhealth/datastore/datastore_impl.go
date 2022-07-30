@@ -7,14 +7,14 @@ import (
 	"github.com/stackrox/rox/central/integrationhealth/store"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
-	imageSAC    = sac.ForResource(resources.ImageIntegration)
-	notifierSAC = sac.ForResource(resources.Notifier)
-	backupSAC   = sac.ForResource(resources.BackupPlugins)
+	imageSAC    = helpers.ForResource(resources.ImageIntegration)
+	notifierSAC = helpers.ForResource(resources.Notifier)
+	backupSAC   = helpers.ForResource(resources.BackupPlugins)
 )
 
 type datastoreImpl struct {

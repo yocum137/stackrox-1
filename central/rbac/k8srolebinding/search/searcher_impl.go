@@ -8,17 +8,17 @@ import (
 	"github.com/stackrox/rox/central/rbac/k8srolebinding/mappings"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 )
 
 var (
-	k8sRoleBindingsSACSearchHelper = sac.ForResource(resources.K8sRoleBinding).
+	k8sRoleBindingsSACSearchHelper = helpers.ForResource(resources.K8sRoleBinding).
 					MustCreateSearchHelper(mappings.OptionsMap)
-	k8sRoleBindingsSACPostgresSearchHelper = sac.ForResource(resources.K8sRoleBinding).
+	k8sRoleBindingsSACPostgresSearchHelper = helpers.ForResource(resources.K8sRoleBinding).
 						MustCreatePgSearchHelper()
 )
 

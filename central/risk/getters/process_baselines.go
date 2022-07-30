@@ -3,7 +3,7 @@ package getters
 import (
 	"context"
 
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 )
 

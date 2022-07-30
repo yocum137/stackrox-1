@@ -18,6 +18,7 @@ import (
 	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/protoconv"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
@@ -31,7 +32,7 @@ var (
 			sac.AccessModeScopeKeys(storage.Access_READ_ACCESS, storage.Access_READ_WRITE_ACCESS),
 			sac.ResourceScopeKeys(resources.Cluster)))
 
-	clusterSAC = sac.ForResource(resources.Cluster)
+	clusterSAC = helpers.ForResource(resources.Cluster)
 )
 
 func checkClusterWriteAccess(ctx context.Context, clusterID string) error {

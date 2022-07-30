@@ -14,7 +14,7 @@ import (
 	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/grpc/authn"
 	"github.com/stackrox/rox/pkg/grpc/authz/user"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 	"github.com/stackrox/rox/pkg/utils"
 )
@@ -23,7 +23,7 @@ import (
 type SharedObjectSACFilterOption func(*combinedSAC)
 
 // WithNode sets the resource helper, scope transformation, and existence check for nodes.
-func WithNode(nodeResourceHelper sac.ForResourceHelper, pathToNode dackbox.BucketPath) SharedObjectSACFilterOption {
+func WithNode(nodeResourceHelper helpers.ForResourceHelper, pathToNode dackbox.BucketPath) SharedObjectSACFilterOption {
 	pathToCluster, err := dackbox.ConcatenatePaths(pathToNode, NodeTransformationPaths[v1.SearchCategory_CLUSTERS])
 	if err != nil {
 		panic(err)
@@ -38,7 +38,7 @@ func WithNode(nodeResourceHelper sac.ForResourceHelper, pathToNode dackbox.Bucke
 }
 
 // WithImage sets the resource helper, scope transformation, and existence check for images.
-func WithImage(imageResourceHelper sac.ForResourceHelper, pathToImage dackbox.BucketPath) SharedObjectSACFilterOption {
+func WithImage(imageResourceHelper helpers.ForResourceHelper, pathToImage dackbox.BucketPath) SharedObjectSACFilterOption {
 	pathToNamespace, err := dackbox.ConcatenatePaths(pathToImage, ImageTransformationPaths[v1.SearchCategory_NAMESPACES])
 	if err != nil {
 		panic(err)
@@ -53,7 +53,7 @@ func WithImage(imageResourceHelper sac.ForResourceHelper, pathToImage dackbox.Bu
 }
 
 // WithCluster sets the resource helper, scope transformation, and existence check for clusters.
-func WithCluster(clusterResourceHelper sac.ForResourceHelper, pathToCluster dackbox.BucketPath) SharedObjectSACFilterOption {
+func WithCluster(clusterResourceHelper helpers.ForResourceHelper, pathToCluster dackbox.BucketPath) SharedObjectSACFilterOption {
 	// This should be a no-op, but (a) it better aligns with the other `With...` functions, and (b) we ensure
 	// that the given path actually ends at the cluster bucket.
 	pathToCluster, err := dackbox.ConcatenatePaths(pathToCluster, dackbox.BackwardsBucketPath(clusterDackBox.BucketHandler))
@@ -107,9 +107,9 @@ func MustCreateNewSharedObjectSACFilter(opts ...SharedObjectSACFilterOption) fil
 }
 
 type combinedSAC struct {
-	nodeResourceHelper    *sac.ForResourceHelper
-	imageResourceHelper   *sac.ForResourceHelper
-	clusterResourceHelper *sac.ForResourceHelper
+	nodeResourceHelper    *helpers.ForResourceHelper
+	imageResourceHelper   *helpers.ForResourceHelper
+	clusterResourceHelper *helpers.ForResourceHelper
 
 	nodeScopeTransform    *filtered.ScopeTransform
 	imageScopeTransform   *filtered.ScopeTransform
@@ -134,7 +134,7 @@ func clusterAuthorizer(ctx context.Context) error {
 	return user.With(permissions.View(resources.Cluster)).Authorized(ctx, "sac")
 }
 
-func hasGlobalAccessScope(ctx context.Context, helper *sac.ForResourceHelper) bool {
+func hasGlobalAccessScope(ctx context.Context, helper *helpers.ForResourceHelper) bool {
 	ok, _ := helper.ReadAllowed(ctx)
 	return ok
 }

@@ -3,7 +3,7 @@ package resolvers
 import (
 	"testing"
 
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -7,11 +7,11 @@ import (
 	"github.com/stackrox/rox/central/nodecomponentedge/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/postgres/schema"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	pkgPostgres "github.com/stackrox/rox/pkg/search/scoped/postgres"
@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	sacHelper = sac.ForResource(resources.Node).MustCreatePgSearchHelper()
+	sacHelper = helpers.ForResource(resources.Node).MustCreatePgSearchHelper()
 )
 
 // Searcher provides search functionality on existing node component edges.

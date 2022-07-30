@@ -17,15 +17,16 @@ import (
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/graph/testutils"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sliceutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	imageCVESAC   = sac.ForResource(resources.Image)
-	nodeCVESAC    = sac.ForResource(resources.Node)
-	clusterCVESAC = sac.ForResource(resources.Cluster)
+	imageCVESAC   = helpers.ForResource(resources.Image)
+	nodeCVESAC    = helpers.ForResource(resources.Node)
+	clusterCVESAC = helpers.ForResource(resources.Cluster)
 )
 
 var (

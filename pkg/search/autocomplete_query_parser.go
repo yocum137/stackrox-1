@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 )
 
 // autocompleteQueryParser provides an autocomplete specific query parser.

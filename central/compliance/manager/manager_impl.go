@@ -27,6 +27,7 @@ import (
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/sync"
@@ -43,8 +44,8 @@ var (
 
 	scrapeDataDeps = []string{"HostScraped"}
 
-	complianceRunSAC         = sac.ForResource(resources.ComplianceRuns)
-	complianceRunScheduleSAC = sac.ForResource(resources.ComplianceRunSchedule)
+	complianceRunSAC         = helpers.ForResource(resources.ComplianceRuns)
+	complianceRunScheduleSAC = helpers.ForResource(resources.ComplianceRunSchedule)
 )
 
 type manager struct {

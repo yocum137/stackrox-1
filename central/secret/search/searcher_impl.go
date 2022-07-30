@@ -8,10 +8,10 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	"github.com/stackrox/rox/central/secret/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/search/paginated"
@@ -23,8 +23,8 @@ var (
 		Field: search.CreatedTime.String(),
 	}
 
-	secretSACSearchHelper         = sac.ForResource(resources.Secret).MustCreateSearchHelper(mappings.OptionsMap)
-	secretSACPostgresSearchHelper = sac.ForResource(resources.Secret).MustCreatePgSearchHelper()
+	secretSACSearchHelper         = helpers.ForResource(resources.Secret).MustCreateSearchHelper(mappings.OptionsMap)
+	secretSACPostgresSearchHelper = helpers.ForResource(resources.Secret).MustCreatePgSearchHelper()
 )
 
 // searcherImpl provides an intermediary implementation layer for secrets

@@ -8,16 +8,16 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store"
 	"github.com/stackrox/rox/central/serviceaccount/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 )
 
 var (
-	serviceAccountsSACSearchHelper         = sac.ForResource(resources.ServiceAccount).MustCreateSearchHelper(mappings.OptionsMap)
-	serviceAccountsSACPostgresSearchHelper = sac.ForResource(resources.ServiceAccount).MustCreatePgSearchHelper()
+	serviceAccountsSACSearchHelper         = helpers.ForResource(resources.ServiceAccount).MustCreateSearchHelper(mappings.OptionsMap)
+	serviceAccountsSACPostgresSearchHelper = helpers.ForResource(resources.ServiceAccount).MustCreatePgSearchHelper()
 )
 
 type searcherImpl struct {

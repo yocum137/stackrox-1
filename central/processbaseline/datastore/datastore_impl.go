@@ -12,18 +12,19 @@ import (
 	processBaselineResultsStore "github.com/stackrox/rox/central/processbaselineresults/datastore"
 	processIndicatorDatastore "github.com/stackrox/rox/central/processindicator/datastore"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/errorhelpers"
 	processBaselinePkg "github.com/stackrox/rox/pkg/processbaseline"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 )
 
 var (
-	processBaselineSAC = sac.ForResource(resources.ProcessWhitelist)
+	processBaselineSAC = helpers.ForResource(resources.ProcessWhitelist)
 
 	genDuration = env.BaselineGenerationDuration.DurationSetting()
 )

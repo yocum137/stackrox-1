@@ -7,10 +7,11 @@ import (
 	"github.com/stackrox/rox/central/serviceidentities/internal/store"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	serviceIdentitiesSAC = sac.ForResource(resources.ServiceIdentity)
+	serviceIdentitiesSAC = helpers.ForResource(resources.ServiceIdentity)
 )
 
 type dataStoreImpl struct {

@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -129,11 +130,11 @@ func (s *forResourcesHelpersTestSuite) TestForAccessToAny() {
 
 	for _, c := range cases {
 		s.T().Run(c.title, func(t *testing.T) {
-			forResourceHelpers := make([]sac.ForResourceHelper, 0, len(c.resources))
+			forResourceHelpers := make([]helpers.ForResourceHelper, 0, len(c.resources))
 			for _, r := range c.resources {
-				forResourceHelpers = append(forResourceHelpers, sac.ForResource(r))
+				forResourceHelpers = append(forResourceHelpers, helpers.ForResource(r))
 			}
-			forResources := sac.ForResources(forResourceHelpers...)
+			forResources := helpers.ForResources(forResourceHelpers...)
 
 			read, err := forResources.ReadAllowedToAny(c.ctx)
 			s.NoError(err)
@@ -183,11 +184,11 @@ func (s *forResourcesHelpersTestSuite) TestForAccessToAnyWithScopeKeys() {
 
 	for _, c := range cases {
 		s.T().Run(c.title, func(t *testing.T) {
-			forResourceHelpers := make([]sac.ForResourceHelper, 0, len(c.resources))
+			forResourceHelpers := make([]helpers.ForResourceHelper, 0, len(c.resources))
 			for _, r := range c.resources {
-				forResourceHelpers = append(forResourceHelpers, sac.ForResource(r))
+				forResourceHelpers = append(forResourceHelpers, helpers.ForResource(r))
 			}
-			forResources := sac.ForResources(forResourceHelpers...)
+			forResources := helpers.ForResources(forResourceHelpers...)
 
 			read, err := forResources.ReadAllowedToAny(c.ctx, c.scopeKeys...)
 			s.NoError(err)
@@ -275,11 +276,11 @@ func (s *forResourcesHelpersTestSuite) TestForAccessToAll() {
 
 	for _, c := range cases {
 		s.T().Run(c.title, func(t *testing.T) {
-			forResourceHelpers := make([]sac.ForResourceHelper, 0, len(c.resources))
+			forResourceHelpers := make([]helpers.ForResourceHelper, 0, len(c.resources))
 			for _, r := range c.resources {
-				forResourceHelpers = append(forResourceHelpers, sac.ForResource(r))
+				forResourceHelpers = append(forResourceHelpers, helpers.ForResource(r))
 			}
-			forResources := sac.ForResources(forResourceHelpers...)
+			forResources := helpers.ForResources(forResourceHelpers...)
 
 			read, err := forResources.ReadAllowedToAll(c.ctx)
 			s.NoError(err)
@@ -337,11 +338,11 @@ func (s *forResourcesHelpersTestSuite) TestForAccessToAllWithScopeKeys() {
 
 	for _, c := range cases {
 		s.T().Run(c.title, func(t *testing.T) {
-			forResourceHelpers := make([]sac.ForResourceHelper, 0, len(c.resources))
+			forResourceHelpers := make([]helpers.ForResourceHelper, 0, len(c.resources))
 			for _, r := range c.resources {
-				forResourceHelpers = append(forResourceHelpers, sac.ForResource(r))
+				forResourceHelpers = append(forResourceHelpers, helpers.ForResource(r))
 			}
-			forResources := sac.ForResources(forResourceHelpers...)
+			forResources := helpers.ForResources(forResourceHelpers...)
 
 			read, err := forResources.ReadAllowedToAll(c.ctx, c.scopeKeys...)
 			s.NoError(err)

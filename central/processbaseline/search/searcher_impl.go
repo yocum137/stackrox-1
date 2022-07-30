@@ -7,11 +7,11 @@ import (
 	"github.com/stackrox/rox/central/processbaseline/index/mappings"
 	"github.com/stackrox/rox/central/processbaseline/store"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/debug"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/search/paginated"
@@ -22,8 +22,8 @@ const (
 )
 
 var (
-	processBaselineSACSearchHelper         = sac.ForResource(resources.ProcessWhitelist).MustCreateSearchHelper(mappings.OptionsMap)
-	processBaselinePostgresSACSearchHelper = sac.ForResource(resources.ProcessWhitelist).MustCreatePgSearchHelper()
+	processBaselineSACSearchHelper         = helpers.ForResource(resources.ProcessWhitelist).MustCreateSearchHelper(mappings.OptionsMap)
+	processBaselinePostgresSACSearchHelper = helpers.ForResource(resources.ProcessWhitelist).MustCreatePgSearchHelper()
 )
 
 type searcherImpl struct {

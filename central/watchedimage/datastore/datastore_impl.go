@@ -7,10 +7,11 @@ import (
 	"github.com/stackrox/rox/central/watchedimage/datastore/internal/store"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	watchedImageSAC = sac.ForResource(resources.WatchedImage)
+	watchedImageSAC = helpers.ForResource(resources.WatchedImage)
 )
 
 type dataStore struct {

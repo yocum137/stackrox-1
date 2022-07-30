@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stretchr/testify/assert"
@@ -61,7 +62,7 @@ func TestSearchHelper_TestApply_WithFilter(t *testing.T) {
 		}, nil
 	}
 
-	h, err := sac.NewSearchHelper(testNSResource, options, sac.ForResource(testNSResource).ScopeChecker)
+	h, err := helpers.NewSearchHelper(testNSResource, options, helpers.ForResource(testNSResource).ScopeChecker)
 	require.NoError(t, err)
 
 	scc := sac.TestScopeCheckerCoreFromFullScopeMap(t,
@@ -110,7 +111,7 @@ func TestSearchHelper_TestApply_WithAllAccess(t *testing.T) {
 		}, nil
 	}
 
-	h, err := sac.NewSearchHelper(testNSResource, options, sac.ForResource(testNSResource).ScopeChecker)
+	h, err := helpers.NewSearchHelper(testNSResource, options, helpers.ForResource(testNSResource).ScopeChecker)
 	require.NoError(t, err)
 
 	scc := sac.AllowAllAccessScopeChecker()
@@ -132,7 +133,7 @@ func TestSearchHelper_TestNew_WithMissingClusterIDField(t *testing.T) {
 		},
 	})
 
-	_, err := sac.NewSearchHelper(testClusterResource, options, sac.ForResource(testClusterResource).ScopeChecker)
+	_, err := helpers.NewSearchHelper(testClusterResource, options, helpers.ForResource(testClusterResource).ScopeChecker)
 	assert.Error(t, err)
 }
 
@@ -145,7 +146,7 @@ func TestSearchHelper_TestNew_WithFieldNotStored(t *testing.T) {
 		},
 	})
 
-	_, err := sac.NewSearchHelper(testClusterResource, options, sac.ForResource(testClusterResource).ScopeChecker)
+	_, err := helpers.NewSearchHelper(testClusterResource, options, helpers.ForResource(testClusterResource).ScopeChecker)
 	assert.Error(t, err)
 }
 
@@ -158,7 +159,7 @@ func TestSearchHelper_TestNew_WithMissingNSField_NotScoped(t *testing.T) {
 		},
 	})
 
-	_, err := sac.NewSearchHelper(testClusterResource, options, sac.ForResource(testClusterResource).ScopeChecker)
+	_, err := helpers.NewSearchHelper(testClusterResource, options, helpers.ForResource(testClusterResource).ScopeChecker)
 	assert.NoError(t, err)
 }
 
@@ -171,6 +172,6 @@ func TestSearchHelper_TestNew_WithMissingNSField_Scoped(t *testing.T) {
 		},
 	})
 
-	_, err := sac.NewSearchHelper(testNSResource, options, sac.ForResource(testNSResource).ScopeChecker)
+	_, err := helpers.NewSearchHelper(testNSResource, options, helpers.ForResource(testNSResource).ScopeChecker)
 	assert.Error(t, err)
 }

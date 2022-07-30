@@ -8,16 +8,17 @@ import (
 	"github.com/stackrox/rox/central/risk/datastore/internal/search"
 	"github.com/stackrox/rox/central/risk/datastore/internal/store"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 )
 
 var (
-	riskSAC = sac.ForResource(resources.Risk)
+	riskSAC = helpers.ForResource(resources.Risk)
 )
 
 type datastoreImpl struct {

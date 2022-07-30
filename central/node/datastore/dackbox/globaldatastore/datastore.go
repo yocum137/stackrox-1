@@ -9,11 +9,12 @@ import (
 	dackboxDatastore "github.com/stackrox/rox/central/node/datastore/dackbox/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/set"
 )
@@ -21,7 +22,7 @@ import (
 var (
 	log = logging.LoggerForModule()
 
-	nodesSAC = sac.ForResource(resources.Node)
+	nodesSAC = helpers.ForResource(resources.Node)
 )
 
 type globalDataStore struct {

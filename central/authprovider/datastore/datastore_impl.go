@@ -8,11 +8,12 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
 var (
-	authProviderSAC = sac.ForResource(resources.AuthProvider)
+	authProviderSAC = helpers.ForResource(resources.AuthProvider)
 )
 
 type datastoreImpl struct {

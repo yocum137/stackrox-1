@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/stackrox/rox/generated/storage"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 type globalFilterImpl struct {
-	resourceHelper sac.ForResourceHelper
+	resourceHelper helpers.ForResourceHelper
 	access         storage.Access
 }
 

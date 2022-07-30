@@ -18,6 +18,7 @@ import (
 	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgScanners "github.com/stackrox/rox/pkg/scanners"
 	"github.com/stackrox/rox/pkg/scanners/types"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
@@ -32,7 +33,7 @@ var (
 			sac.ResourceScopeKeys(resources.Cluster),
 		))
 
-	clustersSAC = sac.ForResource(resources.Cluster)
+	clustersSAC = helpers.ForResource(resources.Cluster)
 )
 
 type orchestratorCVEManager struct {

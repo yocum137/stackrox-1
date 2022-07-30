@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/logging"
@@ -21,6 +21,7 @@ import (
 	"github.com/stackrox/rox/pkg/postgres/pgutils"
 	pkgSchema "github.com/stackrox/rox/pkg/postgres/schema"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/postgres"
 	"github.com/stackrox/rox/pkg/sync"
@@ -294,7 +295,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 
 	if err != nil {
 		return 0, err
@@ -313,7 +314,7 @@ func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return false, err
 	}
@@ -340,7 +341,7 @@ func (s *storeImpl) Get(ctx context.Context, id string) (*storage.NodeCVE, bool,
 	if err != nil {
 		return nil, false, err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return nil, false, err
 	}
@@ -381,7 +382,7 @@ func (s *storeImpl) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return err
 	}
@@ -404,7 +405,7 @@ func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return nil, err
 	}
@@ -439,7 +440,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.NodeC
 	if err != nil {
 		return nil, nil, err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -492,7 +493,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 	if err != nil {
 		return err
 	}
-	sacQueryFilter, err = sac.BuildClusterLevelSACQueryFilter(scopeTree)
+	sacQueryFilter, err = helpers.BuildClusterLevelSACQueryFilter(scopeTree)
 	if err != nil {
 		return err
 	}

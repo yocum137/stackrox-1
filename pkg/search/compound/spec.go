@@ -1,7 +1,7 @@
 package compound
 
 import (
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 )
 
 type searchRequestSpec struct {

@@ -7,7 +7,7 @@ import (
 	k8sRoleDS "github.com/stackrox/rox/central/rbac/k8srole/datastore"
 	k8sRoleBindingDS "github.com/stackrox/rox/central/rbac/k8srolebinding/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/k8srbac"
 	"github.com/stackrox/rox/pkg/logging"

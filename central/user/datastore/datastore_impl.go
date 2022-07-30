@@ -7,10 +7,11 @@ import (
 	"github.com/stackrox/rox/central/user/datastore/internal/store"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	userSAC = sac.ForResource(resources.User)
+	userSAC = helpers.ForResource(resources.User)
 )
 
 type dataStoreImpl struct {

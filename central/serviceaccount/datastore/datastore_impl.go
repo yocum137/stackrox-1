@@ -8,10 +8,11 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store"
 	"github.com/stackrox/rox/central/serviceaccount/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
 
@@ -20,7 +21,7 @@ const (
 )
 
 var (
-	serviceAccountsSAC = sac.ForResource(resources.ServiceAccount)
+	serviceAccountsSAC = helpers.ForResource(resources.ServiceAccount)
 )
 
 type datastoreImpl struct {

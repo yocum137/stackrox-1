@@ -1,9 +1,9 @@
-package sac
+package helpers
 
 import (
 	"testing"
 
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/pkg/sac/effectiveaccessscope"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/assert"

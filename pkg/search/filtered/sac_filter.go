@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
@@ -19,7 +20,7 @@ type ScopeTransform struct {
 }
 
 // NewCachedChecker creates a Searcher that performs the SAC checks corresponding to this scope transform.
-func (t *ScopeTransform) NewCachedChecker(ctx context.Context, resourceHelper *sac.ForResourceHelper, am storage.Access) dackbox.Searcher {
+func (t *ScopeTransform) NewCachedChecker(ctx context.Context, resourceHelper *helpers.ForResourceHelper, am storage.Access) dackbox.Searcher {
 	sc := resourceHelper.ScopeChecker(ctx, am)
 	lastBucket := t.Path.Elements[t.Path.Len()-1]
 	pred := func(key []byte) (bool, error) {
@@ -53,7 +54,7 @@ func MustCreateNewSACFilter(opts ...SACFilterOption) Filter {
 }
 
 // WithResourceHelper uses the input ForResourceHelper to do SAC checks on output results.
-func WithResourceHelper(resourceHelper sac.ForResourceHelper) SACFilterOption {
+func WithResourceHelper(resourceHelper helpers.ForResourceHelper) SACFilterOption {
 	return func(filter *filterBuilder) {
 		filter.resourceHelper = &resourceHelper
 	}
@@ -74,7 +75,7 @@ func WithReadAccess() SACFilterOption {
 }
 
 type filterBuilder struct {
-	resourceHelper *sac.ForResourceHelper
+	resourceHelper *helpers.ForResourceHelper
 	scopeTransform *ScopeTransform
 	access         storage.Access
 }

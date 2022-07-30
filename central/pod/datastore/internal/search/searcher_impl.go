@@ -6,18 +6,18 @@ import (
 	"github.com/stackrox/rox/central/pod/mappings"
 	"github.com/stackrox/rox/central/pod/store"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/search/paginated"
 )
 
 var (
-	podsSACSearchHelper         = sac.ForResource(resources.Deployment).MustCreateSearchHelper(mappings.OptionsMap)
-	podsSACPostgresSearchHelper = sac.ForResource(resources.Deployment).MustCreatePgSearchHelper()
+	podsSACSearchHelper         = helpers.ForResource(resources.Deployment).MustCreateSearchHelper(mappings.OptionsMap)
+	podsSACPostgresSearchHelper = helpers.ForResource(resources.Deployment).MustCreatePgSearchHelper()
 
 	defaultSortOption = &auxpb.QuerySortOption{
 		Field:    search.DeploymentID.String(),

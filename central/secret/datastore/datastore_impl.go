@@ -8,16 +8,17 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	"github.com/stackrox/rox/central/secret/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/debug"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
 
 var (
-	secretSAC = sac.ForResource(resources.Secret)
+	secretSAC = helpers.ForResource(resources.Secret)
 )
 
 type datastoreImpl struct {

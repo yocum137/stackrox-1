@@ -1,4 +1,4 @@
-package sac
+package helpers
 
 import (
 	"context"
@@ -7,9 +7,10 @@ import (
 	bleveSearchLib "github.com/blevesearch/bleve/search"
 	"github.com/pkg/errors"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
+	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/utils"
@@ -24,9 +25,9 @@ type SearchHelper interface {
 
 // searchResultsChecker is responsible for checking whether a single search result is allowed to be seen.
 type searchResultsChecker interface {
-	TryAllowed(resourceSC ScopeChecker, resultFields map[string]interface{}) TryAllowedResult
+	TryAllowed(resourceSC sac.ScopeChecker, resultFields map[string]interface{}) sac.TryAllowedResult
 	SearchFieldLabels() []search.FieldLabel
-	BleveHook(ctx context.Context, resourceChecker ScopeChecker) blevesearch.HookForCategory
+	BleveHook(ctx context.Context, resourceChecker sac.ScopeChecker) blevesearch.HookForCategory
 }
 
 type searchHelper struct {
@@ -38,7 +39,7 @@ type searchHelper struct {
 }
 
 // scopeCheckerFactory will be called to create a ScopeChecker.
-type scopeCheckerFactory = func(ctx context.Context, am storage.Access, keys ...ScopeKey) ScopeChecker
+type scopeCheckerFactory = func(ctx context.Context, am storage.Access, keys ...sac.ScopeKey) sac.ScopeChecker
 
 // NewSearchHelper returns a new search helper for the given resource.
 func NewSearchHelper(resourceMD permissions.ResourceMetadata, optionsMap search.OptionsMap,
@@ -149,18 +150,18 @@ func (h *searchHelper) executeCount(ctx context.Context, q *auxpb.Query, searche
 	return len(results), err
 }
 
-func filterDocsOnce(resultsChecker searchResultsChecker, resourceScopeChecker ScopeChecker, results []*bleveSearchLib.DocumentMatch) (allowed []*bleveSearchLib.DocumentMatch, maybe []*bleveSearchLib.DocumentMatch) {
+func filterDocsOnce(resultsChecker searchResultsChecker, resourceScopeChecker sac.ScopeChecker, results []*bleveSearchLib.DocumentMatch) (allowed []*bleveSearchLib.DocumentMatch, maybe []*bleveSearchLib.DocumentMatch) {
 	for _, result := range results {
-		if res := resultsChecker.TryAllowed(resourceScopeChecker, result.Fields); res == Allow {
+		if res := resultsChecker.TryAllowed(resourceScopeChecker, result.Fields); res == sac.Allow {
 			allowed = append(allowed, result)
-		} else if res == Unknown {
+		} else if res == sac.Unknown {
 			maybe = append(maybe, result)
 		}
 	}
 	return
 }
 
-func filterDocs(ctx context.Context, resultsChecker searchResultsChecker, resourceScopeChecker ScopeChecker, results []*bleveSearchLib.DocumentMatch) ([]*bleveSearchLib.DocumentMatch, error) {
+func filterDocs(ctx context.Context, resultsChecker searchResultsChecker, resourceScopeChecker sac.ScopeChecker, results []*bleveSearchLib.DocumentMatch) ([]*bleveSearchLib.DocumentMatch, error) {
 	allowed, maybe := filterDocsOnce(resultsChecker, resourceScopeChecker, results)
 	if len(maybe) > 0 {
 		if err := resourceScopeChecker.PerformChecks(ctx); err != nil {
@@ -176,18 +177,18 @@ func filterDocs(ctx context.Context, resultsChecker searchResultsChecker, resour
 	return allowed, nil
 }
 
-func (h *searchHelper) filterResultsOnce(resourceScopeChecker ScopeChecker, results []search.Result) (allowed []search.Result, maybe []search.Result) {
+func (h *searchHelper) filterResultsOnce(resourceScopeChecker sac.ScopeChecker, results []search.Result) (allowed []search.Result, maybe []search.Result) {
 	for _, result := range results {
-		if res := h.resultsChecker.TryAllowed(resourceScopeChecker, result.Fields); res == Allow {
+		if res := h.resultsChecker.TryAllowed(resourceScopeChecker, result.Fields); res == sac.Allow {
 			allowed = append(allowed, result)
-		} else if res == Unknown {
+		} else if res == sac.Unknown {
 			maybe = append(maybe, result)
 		}
 	}
 	return
 }
 
-func (h *searchHelper) filterResults(ctx context.Context, resourceScopeChecker ScopeChecker, results []search.Result) ([]search.Result, error) {
+func (h *searchHelper) filterResults(ctx context.Context, resourceScopeChecker sac.ScopeChecker, results []search.Result) ([]search.Result, error) {
 	allowed, maybe := h.filterResultsOnce(resourceScopeChecker, results)
 	if len(maybe) > 0 {
 		if err := resourceScopeChecker.PerformChecks(ctx); err != nil {
@@ -335,7 +336,7 @@ func newLinkedFieldResultsChecker(linkedCategory v1.SearchCategory, linkedResult
 	}
 }
 
-func (c *linkedFieldResultsChecker) BleveHook(ctx context.Context, resourceChecker ScopeChecker) blevesearch.HookForCategory {
+func (c *linkedFieldResultsChecker) BleveHook(ctx context.Context, resourceChecker sac.ScopeChecker) blevesearch.HookForCategory {
 	linkedCategoryHook := &blevesearch.Hook{
 		InternalHighlightFields: c.internalHighlightFields,
 		ResultsFilter: func(unfilteredResults []*bleveSearchLib.DocumentMatch) ([]*bleveSearchLib.DocumentMatch, error) {
@@ -358,9 +359,9 @@ func (c *linkedFieldResultsChecker) BleveHook(ctx context.Context, resourceCheck
 	return mainHook.SubQueryHooks
 }
 
-func (c *linkedFieldResultsChecker) TryAllowed(resourceSC ScopeChecker, resultFields map[string]interface{}) TryAllowedResult {
+func (c *linkedFieldResultsChecker) TryAllowed(resourceSC sac.ScopeChecker, resultFields map[string]interface{}) sac.TryAllowedResult {
 	// We allow everything, since the linked field checker is responsible for denying.
-	return Allow
+	return sac.Allow
 }
 
 func (c *linkedFieldResultsChecker) SearchFieldLabels() []search.FieldLabel {
@@ -411,13 +412,13 @@ func newClusterNSFieldBaseResultsChecker(opts search.OptionsMap, namespaceScoped
 	return newLinkedFieldResultsChecker(clusterIDField.GetCategory(), checker), nil
 }
 
-func (c *clusterNSFieldBasedResultsChecker) TryAllowed(resourceSC ScopeChecker, resultFields map[string]interface{}) TryAllowedResult {
-	key := make([]ScopeKey, 0, 2)
+func (c *clusterNSFieldBasedResultsChecker) TryAllowed(resourceSC sac.ScopeChecker, resultFields map[string]interface{}) sac.TryAllowedResult {
+	key := make([]sac.ScopeKey, 0, 2)
 	clusterID, _ := resultFields[c.clusterIDFieldPath].(string)
-	key = append(key, ClusterScopeKey(clusterID))
+	key = append(key, sac.ClusterScopeKey(clusterID))
 	if c.namespaceFieldPath != "" {
 		namespace, _ := resultFields[c.namespaceFieldPath].(string)
-		key = append(key, NamespaceScopeKey(namespace))
+		key = append(key, sac.NamespaceScopeKey(namespace))
 	}
 	return resourceSC.TryAllowed(key...)
 }
@@ -431,6 +432,6 @@ func (c *clusterNSFieldBasedResultsChecker) SearchFieldLabels() []search.FieldLa
 	return fieldLabels
 }
 
-func (c *clusterNSFieldBasedResultsChecker) BleveHook(context.Context, ScopeChecker) blevesearch.HookForCategory {
+func (c *clusterNSFieldBasedResultsChecker) BleveHook(context.Context, sac.ScopeChecker) blevesearch.HookForCategory {
 	return nil
 }

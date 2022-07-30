@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
@@ -15,10 +16,10 @@ var (
 	once     sync.Once
 	instance PermissionChecker
 
-	multiResourceSAC = sac.ForResources(
-		sac.ForResource(resources.ImageIntegration),
-		sac.ForResource(resources.Notifier),
-		sac.ForResource(resources.BackupPlugins),
+	multiResourceSAC = helpers.ForResources(
+		helpers.ForResource(resources.ImageIntegration),
+		helpers.ForResource(resources.Notifier),
+		helpers.ForResource(resources.BackupPlugins),
 	)
 )
 

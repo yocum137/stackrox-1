@@ -11,6 +11,7 @@ import (
 	"github.com/stackrox/rox/pkg/dackbox/graph/mocks"
 	"github.com/stackrox/rox/pkg/dbhelper"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 	"github.com/stretchr/testify/suite"
 )
@@ -81,7 +82,7 @@ func (s *derivedFieldCounterTestSuite) TestCounterForward() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -104,7 +105,7 @@ func (s *derivedFieldCounterTestSuite) TestCounterForwardWithPartialPath() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -127,7 +128,7 @@ func (s *derivedFieldCounterTestSuite) TestCounterForwardRepeated() {
 	graphProvider := fakeGraphProvider{mg: s.mockRGraph}
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -153,7 +154,7 @@ func (s *derivedFieldCounterTestSuite) TestCounterForwardOneToMany() {
 	graphProvider := fakeGraphProvider{mg: s.mockRGraph}
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")
@@ -177,7 +178,7 @@ func (s *derivedFieldCounterTestSuite) TestCounterForwardWithDiffPrefix() {
 	graphProvider := fakeGraphProvider{mg: s.mockRGraph}
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	s.NoError(err, "filter creation should have succeeded")

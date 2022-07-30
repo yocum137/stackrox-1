@@ -15,7 +15,7 @@ import (
 	runtimeDetectorMocks "github.com/stackrox/rox/central/detection/runtime/mocks"
 	notifierMocks "github.com/stackrox/rox/central/notifier/processor/mocks"
 	policyMocks "github.com/stackrox/rox/central/policy/datastore/mocks"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/fieldnames"
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages/printer"

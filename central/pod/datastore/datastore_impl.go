@@ -12,7 +12,7 @@ import (
 	podStore "github.com/stackrox/rox/central/pod/store"
 	piDS "github.com/stackrox/rox/central/processindicator/datastore"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/batcher"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -20,6 +20,7 @@ import (
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/process/filter"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 )
 
@@ -32,7 +33,7 @@ const (
 var (
 	// It should not be possible that pod and deployment scope are different,
 	// so just use the same access controls as a deployment.
-	podsSAC = sac.ForResource(resources.Deployment)
+	podsSAC = helpers.ForResource(resources.Deployment)
 )
 
 type datastoreImpl struct {

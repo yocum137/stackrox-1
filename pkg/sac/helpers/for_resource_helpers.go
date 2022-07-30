@@ -1,10 +1,11 @@
-package sac
+package helpers
 
 import (
 	"context"
 
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
+	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/utils"
 )
@@ -22,8 +23,8 @@ func ForResource(resourceMD permissions.ResourceMetadata) ForResourceHelper {
 }
 
 // ScopeChecker returns the scope checker for accessing the given resource in the specified way.
-func (h ForResourceHelper) ScopeChecker(ctx context.Context, am storage.Access, keys ...ScopeKey) ScopeChecker {
-	resourceScopeChecker := GlobalAccessScopeChecker(ctx).AccessMode(am).Resource(
+func (h ForResourceHelper) ScopeChecker(ctx context.Context, am storage.Access, keys ...sac.ScopeKey) sac.ScopeChecker {
+	resourceScopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(am).Resource(
 		h.resourceMD).SubScopeChecker(keys...)
 
 	if h.resourceMD.GetReplacingResource() == nil {
@@ -31,25 +32,25 @@ func (h ForResourceHelper) ScopeChecker(ctx context.Context, am storage.Access, 
 	}
 	// Conditionally create a OR scope checker if a replacing resource is given. This way we check access to either
 	// the old resource OR the replacing resource, keeping backwards-compatibility.
-	return NewOrScopeChecker(
+	return sac.NewOrScopeChecker(
 		resourceScopeChecker,
-		GlobalAccessScopeChecker(ctx).AccessMode(am).
+		sac.GlobalAccessScopeChecker(ctx).AccessMode(am).
 			Resource(h.resourceMD.ReplacingResource).SubScopeChecker(keys...))
 }
 
 // AccessAllowed checks if in the given context, we have access of the specified kind to the resource or
 // a subscope thereof.
-func (h ForResourceHelper) AccessAllowed(ctx context.Context, am storage.Access, keys ...ScopeKey) (bool, error) {
+func (h ForResourceHelper) AccessAllowed(ctx context.Context, am storage.Access, keys ...sac.ScopeKey) (bool, error) {
 	return h.ScopeChecker(ctx, am, keys...).Allowed(ctx)
 }
 
 // ReadAllowed checks if in the given context, we have read access to the resource or a subscope thereof.
-func (h ForResourceHelper) ReadAllowed(ctx context.Context, keys ...ScopeKey) (bool, error) {
+func (h ForResourceHelper) ReadAllowed(ctx context.Context, keys ...sac.ScopeKey) (bool, error) {
 	return h.AccessAllowed(ctx, storage.Access_READ_ACCESS, keys...)
 }
 
 // WriteAllowed checks if in the given context, we have write access to the resource or a subscope thereof.
-func (h ForResourceHelper) WriteAllowed(ctx context.Context, keys ...ScopeKey) (bool, error) {
+func (h ForResourceHelper) WriteAllowed(ctx context.Context, keys ...sac.ScopeKey) (bool, error) {
 	return h.AccessAllowed(ctx, storage.Access_READ_WRITE_ACCESS, keys...)
 }
 

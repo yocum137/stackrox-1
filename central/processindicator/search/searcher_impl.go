@@ -6,17 +6,17 @@ import (
 	"github.com/stackrox/rox/central/processindicator/index"
 	"github.com/stackrox/rox/central/processindicator/store"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/options/processindicators"
 )
 
 var (
-	indicatorSACSearchHelper         = sac.ForResource(resources.Indicator).MustCreateSearchHelper(processindicators.OptionsMap)
-	indicatorSACPostgresSearchHelper = sac.ForResource(resources.Indicator).MustCreatePgSearchHelper()
+	indicatorSACSearchHelper         = helpers.ForResource(resources.Indicator).MustCreateSearchHelper(processindicators.OptionsMap)
+	indicatorSACPostgresSearchHelper = helpers.ForResource(resources.Indicator).MustCreatePgSearchHelper()
 )
 
 // searcherImpl provides an intermediary implementation layer for ProcessStorage.

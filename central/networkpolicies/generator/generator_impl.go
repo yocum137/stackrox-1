@@ -15,13 +15,14 @@ import (
 	npDS "github.com/stackrox/rox/central/networkpolicies/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/networkgraph"
 	"github.com/stackrox/rox/pkg/networkgraph/tree"
 	"github.com/stackrox/rox/pkg/objects"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/utils"
 )
@@ -36,7 +37,7 @@ const (
 var (
 	log = logging.LoggerForModule()
 
-	networkFlowsSAC = sac.ForResource(resources.NetworkGraph)
+	networkFlowsSAC = helpers.ForResource(resources.NetworkGraph)
 )
 
 func isGeneratedPolicy(policy *storage.NetworkPolicy) bool {

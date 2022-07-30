@@ -5,7 +5,7 @@ import (
 
 	podIndexer "github.com/stackrox/rox/central/pod/index"
 	"github.com/stackrox/rox/central/pod/store"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"

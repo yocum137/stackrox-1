@@ -15,7 +15,7 @@ import (
 	namespaceMappings "github.com/stackrox/rox/central/namespace/index/mappings"
 	nodeDatastore "github.com/stackrox/rox/central/node/globaldatastore"
 	nodeMappings "github.com/stackrox/rox/central/node/index/mappings"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"

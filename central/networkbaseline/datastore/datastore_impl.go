@@ -13,10 +13,11 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	networkBaselineSAC = sac.ForResource(resources.NetworkBaseline)
+	networkBaselineSAC = helpers.ForResource(resources.NetworkBaseline)
 )
 
 type dataStoreImpl struct {

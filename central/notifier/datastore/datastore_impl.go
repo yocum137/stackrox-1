@@ -8,13 +8,14 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/secrets"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/uuid"
 )
 
 var (
-	notifierSAC = sac.ForResource(resources.Notifier)
+	notifierSAC = helpers.ForResource(resources.Notifier)
 )
 
 type datastoreImpl struct {

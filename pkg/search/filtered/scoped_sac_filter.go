@@ -5,11 +5,11 @@ import (
 
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errorhelpers"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 type scopedSACFilterImpl struct {
-	resourceHelper sac.ForResourceHelper
+	resourceHelper helpers.ForResourceHelper
 	scopeTransform ScopeTransform
 	access         storage.Access
 }

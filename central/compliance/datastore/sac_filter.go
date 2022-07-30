@@ -9,14 +9,15 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
-	clusterSAC     = sac.ForResource(resources.Cluster)
-	deploymentsSAC = sac.ForResource(resources.Deployment)
-	nodeSAC        = sac.ForResource(resources.Node)
+	clusterSAC     = helpers.ForResource(resources.Cluster)
+	deploymentsSAC = helpers.ForResource(resources.Deployment)
+	nodeSAC        = helpers.ForResource(resources.Node)
 )
 
 // SacFilter provides the filtering abilities needed by the compliance datastore.

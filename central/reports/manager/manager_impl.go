@@ -11,10 +11,11 @@ import (
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/contextutil"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 )
 
 var (
-	reportsSAC = sac.ForResource(resources.VulnerabilityReports)
+	reportsSAC = helpers.ForResource(resources.VulnerabilityReports)
 )
 
 type managerImpl struct {

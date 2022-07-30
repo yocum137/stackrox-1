@@ -8,10 +8,10 @@ import (
 	"github.com/stackrox/rox/central/deployment/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/postgres/schema"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/search/paginated"
@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	sacHelper = sac.ForResource(resources.Deployment).MustCreatePgSearchHelper()
+	sacHelper = helpers.ForResource(resources.Deployment).MustCreatePgSearchHelper()
 )
 
 // NewV2 returns a new instance of Searcher for the given storage and indexer.

@@ -8,11 +8,12 @@ import (
 	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/uuid"
 )
 
 var (
-	imageIntegrationSAC = sac.ForResource(resources.ImageIntegration)
+	imageIntegrationSAC = helpers.ForResource(resources.ImageIntegration)
 )
 
 type datastoreImpl struct {

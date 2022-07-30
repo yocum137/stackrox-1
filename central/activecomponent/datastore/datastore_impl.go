@@ -9,16 +9,17 @@ import (
 	"github.com/stackrox/rox/central/activecomponent/datastore/search"
 	sacFilters "github.com/stackrox/rox/central/activecomponent/sac"
 	"github.com/stackrox/rox/central/role/resources"
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/filtered"
 )
 
 var (
-	deploymentSAC = sac.ForResource(resources.Deployment)
+	deploymentSAC = helpers.ForResource(resources.Deployment)
 )
 
 type datastoreImpl struct {

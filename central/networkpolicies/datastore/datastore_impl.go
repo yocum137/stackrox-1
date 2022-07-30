@@ -13,12 +13,13 @@ import (
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/protoconv"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
-	netpolSAC = sac.ForResource(resources.NetworkPolicy)
+	netpolSAC = helpers.ForResource(resources.NetworkPolicy)
 )
 
 type datastoreImpl struct {

@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/pkg/logging"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/utils"
 )
 
@@ -22,7 +23,7 @@ const (
 )
 
 var (
-	graphConfigSAC = sac.ForResource(resources.NetworkGraphConfig)
+	graphConfigSAC = helpers.ForResource(resources.NetworkGraphConfig)
 	log            = logging.LoggerForModule()
 )
 

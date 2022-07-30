@@ -9,6 +9,7 @@ import (
 	"github.com/stackrox/rox/pkg/dbhelper"
 	"github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/search/filtered"
 	"github.com/stackrox/rox/pkg/testutils/rocksdbtest"
 	"github.com/stackrox/rox/pkg/uuid"
@@ -29,7 +30,7 @@ func TestLinearGraphDerivedFieldCounting(t *testing.T) {
 	linkFactor := 1
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	require.NoError(t, err, "filter creation should have succeeded")
@@ -51,7 +52,7 @@ func BenchmarkLinearGraphDerivedFieldCounting(b *testing.B) {
 	linkFactor := 1
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	require.NoError(b, err, "filter creation should have succeeded")
@@ -74,7 +75,7 @@ func BenchmarkBranchedGraphDerivedFieldCounting(b *testing.B) {
 	linkFactor := 2
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 	filter, err := filtered.NewSACFilter(
-		filtered.WithResourceHelper(sac.ForResource(globalResource)),
+		filtered.WithResourceHelper(helpers.ForResource(globalResource)),
 		filtered.WithReadAccess(),
 	)
 	require.NoError(b, err, "filter creation should have succeeded")

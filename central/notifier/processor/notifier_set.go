@@ -6,12 +6,12 @@ import (
 	"github.com/stackrox/rox/central/notifiers"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/pkg/logging"
-	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
 var (
-	notifierSAC = sac.ForResource(resources.Notifier)
+	notifierSAC = helpers.ForResource(resources.Notifier)
 )
 
 // NotifierSet is a set that coordinates present policies and notifiers.

@@ -1,7 +1,7 @@
 package compound
 
 import (
-	"github.com/stackrox/rox/generated/aux"
+	"github.com/stackrox/rox/generated/auxpb"
 	"github.com/stackrox/rox/pkg/search"
 )
 

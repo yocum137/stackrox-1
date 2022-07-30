@@ -14,11 +14,12 @@ import (
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/sac/helpers"
 	"github.com/stackrox/rox/pkg/sync"
 )
 
 var (
-	complianceSAC = sac.ForResource(resources.Compliance)
+	complianceSAC = helpers.ForResource(resources.Compliance)
 
 	log = logging.LoggerForModule()
 )
