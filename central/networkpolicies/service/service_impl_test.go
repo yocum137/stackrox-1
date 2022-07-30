@@ -18,6 +18,7 @@ import (
 	nDataStoreMocks "github.com/stackrox/rox/central/notifier/datastore/mocks"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	grpcTestutils "github.com/stackrox/rox/pkg/grpc/testutils"
@@ -512,7 +513,7 @@ func (suite *ServiceTestSuite) TestGetNetworkPoliciesWitDeploymentQuery() {
 	// Mock that we receive deployments for the cluster
 	deps := make([]*storage.Deployment, 0)
 	var networkTree tree.ReadOnlyNetworkTree
-	suite.deployments.EXPECT().SearchRawDeployments(gomock.Any(), testutils.PredMatcher("deployment search is for cluster", func(query *v1.Query) bool {
+	suite.deployments.EXPECT().SearchRawDeployments(gomock.Any(), testutils.PredMatcher("deployment search is for cluster", func(query *aux.Query) bool {
 		// Should be a conjunction with cluster and deployment id.
 		conj := query.GetConjunction()
 		if len(conj.GetQueries()) != 2 {
@@ -808,7 +809,7 @@ func (suite *ServiceTestSuite) getSampleNetworkGraph(deps ...*storage.Deployment
 // deploymentSearchIsForCluster returns a function that returns true if the in input ParsedSearchRequest has the
 // ClusterID field set to the input clusterID.
 func deploymentSearchIsForCluster(clusterID string) gomock.Matcher {
-	return testutils.PredMatcher("deployment search is for cluster", func(query *v1.Query) bool {
+	return testutils.PredMatcher("deployment search is for cluster", func(query *aux.Query) bool {
 		// Should be a single conjunction with a base string query inside.
 		return query.GetBaseQuery().GetMatchFieldQuery().GetValue() == search.ExactMatchString(clusterID)
 	})
@@ -822,14 +823,14 @@ func networkPolicyGetIsForCluster(expectedClusterID string) gomock.Matcher {
 	})
 }
 
-func queryIsForClusterID(query *v1.Query, clusterID string) bool {
+func queryIsForClusterID(query *aux.Query, clusterID string) bool {
 	if query.GetBaseQuery().GetMatchFieldQuery().GetField() != search.ClusterID.String() {
 		return false
 	}
 	return query.GetBaseQuery().GetMatchFieldQuery().GetValue() == search.ExactMatchString(clusterID)
 }
 
-func queryIsForDeploymentID(query *v1.Query, deploymentID string) bool {
+func queryIsForDeploymentID(query *aux.Query, deploymentID string) bool {
 	if query.GetBaseQuery().GetMatchFieldQuery().GetField() != search.DeploymentID.String() {
 		return false
 	}

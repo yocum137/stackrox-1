@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	searchMocks "github.com/stackrox/rox/pkg/search/mocks"
 	"github.com/stretchr/testify/suite"
@@ -34,7 +34,7 @@ func (suite *SortingTestSuite) TearDownTest() {
 
 func (suite *SortingTestSuite) TestHandlesEmpty() {
 	spec := &searchRequestSpec{}
-	actual, err := addSorting(spec, &v1.QueryPagination{}, []SearcherSpec{})
+	actual, err := addSorting(spec, &aux.QueryPagination{}, []SearcherSpec{})
 	suite.NotNil(err)
 	suite.Equal((*searchRequestSpec)(nil), actual)
 }
@@ -51,12 +51,12 @@ func (suite *SortingTestSuite) TestHandlesBase() {
 	searchSpec := &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec:  &searcherSpecs[0],
-			Query: &v1.Query{},
+			Query: &aux.Query{},
 		},
 	}
 
-	pagination := &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	pagination := &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -68,7 +68,7 @@ func (suite *SortingTestSuite) TestHandlesBase() {
 	expectedSearchSpec := &searchRequestSpec{
 		base: &baseRequestSpec{
 			Spec: &searcherSpecs[0],
-			Query: &v1.Query{
+			Query: &aux.Query{
 				Pagination: pagination,
 			},
 		},
@@ -98,20 +98,20 @@ func (suite *SortingTestSuite) TestHandlesAnd() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &v1.Query{},
+					Query: &aux.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[1],
-					Query: &v1.Query{},
+					Query: &aux.Query{},
 				},
 			},
 		},
 	}
 
-	pagination := &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	pagination := &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -126,13 +126,13 @@ func (suite *SortingTestSuite) TestHandlesAnd() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &v1.Query{},
+					Query: &aux.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec: &searcherSpecs[1],
-					Query: &v1.Query{
+					Query: &aux.Query{
 						Pagination: pagination,
 					},
 				},
@@ -164,20 +164,20 @@ func (suite *SortingTestSuite) TestHandlesAndWithoutMatch() {
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &v1.Query{},
+					Query: &aux.Query{},
 				},
 			},
 			{
 				base: &baseRequestSpec{
 					Spec:  &searcherSpecs[0],
-					Query: &v1.Query{},
+					Query: &aux.Query{},
 				},
 			},
 		},
 	}
 
-	pagination := &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	pagination := &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: "Deployment",
 			},
@@ -196,13 +196,13 @@ func (suite *SortingTestSuite) TestHandlesAndWithoutMatch() {
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &v1.Query{},
+							Query: &aux.Query{},
 						},
 					},
 					{
 						base: &baseRequestSpec{
 							Spec:  &searcherSpecs[0],
-							Query: &v1.Query{},
+							Query: &aux.Query{},
 						},
 					},
 				},

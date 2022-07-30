@@ -8,7 +8,7 @@ import (
 	cveIndexer "github.com/stackrox/rox/central/cve/index"
 	deploymentIndexer "github.com/stackrox/rox/central/deployment/index"
 	componentIndexer "github.com/stackrox/rox/central/imagecomponent/index"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/search"
@@ -17,10 +17,10 @@ import (
 // Searcher provides search functionality on active components
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, q *v1.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 
-	SearchRawActiveComponents(ctx context.Context, q *v1.Query) ([]*storage.ActiveComponent, error)
+	SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

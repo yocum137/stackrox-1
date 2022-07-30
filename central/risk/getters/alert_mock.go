@@ -4,6 +4,7 @@ import (
 	"context"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 )
@@ -22,8 +23,8 @@ func (m MockAlertsGetter) ListAlerts(ctx context.Context, req *v1.ListAlertsRequ
 	}
 
 	state := storage.ViolationState_ACTIVE.String()
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == search.ViolationState.String() {
 			state = mfQ.MatchFieldQuery.GetValue()
 		}

@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	datastore "github.com/stackrox/rox/central/node/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -39,7 +40,7 @@ func (m *MockGlobalDataStore) EXPECT() *MockGlobalDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockGlobalDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (m *MockGlobalDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -118,7 +119,7 @@ func (mr *MockGlobalDataStoreMockRecorder) RemoveClusterNodeStores(ctx interface
 }
 
 // Search mocks base method.
-func (m *MockGlobalDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (m *MockGlobalDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -133,7 +134,7 @@ func (mr *MockGlobalDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Ca
 }
 
 // SearchRawNodes mocks base method.
-func (m *MockGlobalDataStore) SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error) {
+func (m *MockGlobalDataStore) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawNodes", ctx, q)
 	ret0, _ := ret[0].([]*storage.Node)
@@ -148,7 +149,7 @@ func (mr *MockGlobalDataStoreMockRecorder) SearchRawNodes(ctx, q interface{}) *g
 }
 
 // SearchResults mocks base method.
-func (m *MockGlobalDataStore) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockGlobalDataStore) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchResults", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)

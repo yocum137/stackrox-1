@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/types"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/protoconv"
@@ -132,14 +132,14 @@ func TestSearchPredicate(t *testing.T) {
 
 	cases := []struct {
 		name        string
-		query       *v1.Query
+		query       *aux.Query
 		factory     Factory
 		object      interface{}
 		expectation bool
 	}{
 		{
 			name:        "empty query",
-			query:       &v1.Query{},
+			query:       &aux.Query{},
 			factory:     imageFactory,
 			object:      passingImage,
 			expectation: true,
@@ -230,11 +230,11 @@ func TestSearchPredicate(t *testing.T) {
 		},
 		{
 			name: "negated exact match matches different strings",
-			query: &v1.Query{
-				Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{
+			query: &aux.Query{
+				Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{
 								Field:     "Image",
 								Value:     "!\"abcd\"",
 								Highlight: false,
@@ -249,11 +249,11 @@ func TestSearchPredicate(t *testing.T) {
 		},
 		{
 			name: "negated exact match does not match the same string",
-			query: &v1.Query{
-				Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{
+			query: &aux.Query{
+				Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{
 								Field:     "Image",
 								Value:     "!\"averygoodname\"",
 								Highlight: false,
@@ -268,11 +268,11 @@ func TestSearchPredicate(t *testing.T) {
 		},
 		{
 			name: "negated prefix query does not match a string with a matching prefix",
-			query: &v1.Query{
-				Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{
+			query: &aux.Query{
+				Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{
 								Field:     "Image",
 								Value:     "!averygood",
 								Highlight: false,
@@ -287,11 +287,11 @@ func TestSearchPredicate(t *testing.T) {
 		},
 		{
 			name: "negated prefix query does match a string with a different prefix",
-			query: &v1.Query{
-				Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{
+			query: &aux.Query{
+				Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{
 								Field:     "Image",
 								Value:     "!abcd",
 								Highlight: false,
@@ -383,12 +383,12 @@ func TestSearchPredicateWithEnums(t *testing.T) {
 
 	cases := []struct {
 		name        string
-		query       *v1.Query
+		query       *aux.Query
 		expectation bool
 	}{
 		{
 			name:        "empty query",
-			query:       &v1.Query{},
+			query:       &aux.Query{},
 			expectation: true,
 		},
 		{
@@ -413,11 +413,11 @@ func TestSearchPredicateWithEnums(t *testing.T) {
 		},
 		{
 			name: "handles any casing",
-			query: &v1.Query{
-				Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: "LifeCYCLE staGE", Value: "<RUNTIME"},
+			query: &aux.Query{
+				Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: "LifeCYCLE staGE", Value: "<RUNTIME"},
 						},
 					},
 				},

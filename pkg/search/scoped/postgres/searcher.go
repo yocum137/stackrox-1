@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/postgres/mapping"
 	"github.com/stackrox/rox/pkg/search/scoped"
@@ -14,7 +14,7 @@ import (
 // WithScoping allows the input searcher to be scoped.
 func WithScoping(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			scopes, hasScope := scoped.GetAllScopes(ctx)
 			if hasScope {
 				var err error
@@ -25,7 +25,7 @@ func WithScoping(searcher search.Searcher) search.Searcher {
 			}
 			return searcher.Search(ctx, q)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			scopes, hasScope := scoped.GetAllScopes(ctx)
 			if hasScope {
 				var err error
@@ -39,10 +39,10 @@ func WithScoping(searcher search.Searcher) search.Searcher {
 	}
 }
 
-func scopeQuery(q *v1.Query, scopes []scoped.Scope) (*v1.Query, error) {
+func scopeQuery(q *aux.Query, scopes []scoped.Scope) (*aux.Query, error) {
 	pagination := q.GetPagination()
 	q.Pagination = nil
-	conjuncts := []*v1.Query{q}
+	conjuncts := []*aux.Query{q}
 	for _, scope := range scopes {
 		schema := mapping.GetTableFromCategory(scope.Level)
 		if schema == nil {

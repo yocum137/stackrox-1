@@ -11,6 +11,7 @@ import (
 	"github.com/stackrox/rox/central/policycategory/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/features"
@@ -55,7 +56,7 @@ func (ds *datastoreImpl) buildIndex() error {
 }
 
 // Search returns policy category related search results for the provided query
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -63,7 +64,7 @@ func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.R
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -87,12 +88,12 @@ func (ds *datastoreImpl) GetPolicyCategory(ctx context.Context, id string) (*sto
 }
 
 // SearchPolicyCategories returns search results that match the provided query
-func (ds *datastoreImpl) SearchPolicyCategories(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchPolicyCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchCategories(ctx, q)
 }
 
 // SearchRawPolicyCategories returns policy category objects that match the provided query
-func (ds *datastoreImpl) SearchRawPolicyCategories(ctx context.Context, q *v1.Query) ([]*storage.PolicyCategory, error) {
+func (ds *datastoreImpl) SearchRawPolicyCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error) {
 	if ok, err := policyCategorySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}

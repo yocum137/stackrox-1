@@ -15,7 +15,7 @@ import (
 	"github.com/stackrox/rox/central/compliance/datastore/types"
 	dsTypes "github.com/stackrox/rox/central/compliance/datastore/types"
 	"github.com/stackrox/rox/central/globaldb"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/errox"
@@ -34,8 +34,8 @@ var (
 )
 
 type metadataIndex interface {
-	Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error)
-	Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 // NewStore returns a compliance store based on Postgres

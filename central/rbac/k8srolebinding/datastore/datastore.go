@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/rbac/k8srolebinding/search"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgRocksDB "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -24,10 +25,10 @@ import (
 // DataStore is an intermediary to RoleBindingStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchRoleBindings(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawRoleBindings(ctx context.Context, q *v1.Query) ([]*storage.K8SRoleBinding, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRoleBindings(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error)
 
 	GetRoleBinding(ctx context.Context, id string) (*storage.K8SRoleBinding, bool, error)
 	UpsertRoleBinding(ctx context.Context, request *storage.K8SRoleBinding) error

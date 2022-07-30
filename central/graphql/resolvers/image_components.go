@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/edges"
 	"github.com/stackrox/rox/pkg/features"
@@ -187,7 +188,7 @@ func (resolver *imageComponentResolver) withImageComponentScope(ctx context.Cont
 	})
 }
 
-func (resolver *imageComponentResolver) componentQuery() *v1.Query {
+func (resolver *imageComponentResolver) componentQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -195,13 +196,13 @@ func (resolver *imageComponentResolver) componentRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).Query()
 }
 
-func getDeploymentIDFromQuery(q *v1.Query) string {
+func getDeploymentIDFromQuery(q *aux.Query) string {
 	if q == nil {
 		return ""
 	}
 	var deploymentID string
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -214,7 +215,7 @@ func getDeploymentIDFromQuery(q *v1.Query) string {
 	return deploymentID
 }
 
-func getDeploymentScope(scopeQuery *v1.Query, contexts ...context.Context) string {
+func getDeploymentScope(scopeQuery *aux.Query, contexts ...context.Context) string {
 	for _, ctx := range contexts {
 		if scope, ok := scoped.GetScope(ctx); ok && scope.Level == v1.SearchCategory_DEPLOYMENTS {
 			return scope.ID
@@ -343,10 +344,10 @@ func (resolver *imageComponentResolver) LastScanned(_ context.Context) (*graphql
 	}
 
 	q := resolver.componentQuery()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.ImageScanTime.String(),
 				Reversed: true,

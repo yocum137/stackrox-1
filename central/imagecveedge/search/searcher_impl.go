@@ -25,6 +25,7 @@ import (
 	imageCVEEdgeSAC "github.com/stackrox/rox/central/imagecveedge/sac"
 	"github.com/stackrox/rox/central/imagecveedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -41,7 +42,7 @@ type searcherImpl struct {
 }
 
 // SearchEdges returns the search results from indexed image-cve edges for the query.
-func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -50,21 +51,21 @@ func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.Sea
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchRawEdges retrieves image-cve edges from the indexer and storage
-func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ImageCVEEdge, error) {
+func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageCVEEdge, error) {
 	return ds.searchImageCVEEdges(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
@@ -83,7 +84,7 @@ func (ds *searcherImpl) resultsToSearchResults(ctx context.Context, results []se
 	return convertMany(edges, results), nil
 }
 
-func (ds *searcherImpl) searchImageCVEEdges(ctx context.Context, q *v1.Query) ([]*storage.ImageCVEEdge, error) {
+func (ds *searcherImpl) searchImageCVEEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageCVEEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

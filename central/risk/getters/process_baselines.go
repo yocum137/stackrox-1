@@ -3,7 +3,7 @@ package getters
 import (
 	"context"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 )
 
@@ -14,5 +14,5 @@ type ProcessBaselines interface {
 
 // ProcessIndicators encapulates the sub-interface of the process indicator datastore required for risk.
 type ProcessIndicators interface {
-	SearchRawProcessIndicators(ctx context.Context, q *v1.Query) ([]*storage.ProcessIndicator, error)
+	SearchRawProcessIndicators(ctx context.Context, q *aux.Query) ([]*storage.ProcessIndicator, error)
 }

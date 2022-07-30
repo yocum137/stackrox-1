@@ -13,7 +13,7 @@ import (
 	"github.com/stackrox/rox/central/processindicator/store"
 	"github.com/stackrox/rox/central/processindicator/store/postgres"
 	"github.com/stackrox/rox/central/processindicator/store/rocksdb"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
@@ -24,8 +24,8 @@ import (
 // DataStore represents the interface to access data.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
-	SearchRawProcessIndicators(ctx context.Context, q *v1.Query) ([]*storage.ProcessIndicator, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	SearchRawProcessIndicators(ctx context.Context, q *aux.Query) ([]*storage.ProcessIndicator, error)
 
 	GetProcessIndicator(ctx context.Context, id string) (*storage.ProcessIndicator, bool, error)
 	GetProcessIndicators(ctx context.Context, ids []string) ([]*storage.ProcessIndicator, bool, error)

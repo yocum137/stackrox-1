@@ -18,6 +18,7 @@ import (
 	nodeMocks "github.com/stackrox/rox/central/node/globaldatastore/mocks"
 	"github.com/stackrox/rox/central/ranking"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/fixtures"
@@ -141,7 +142,7 @@ func (s *ClusterPostgresDataStoreTestSuite) TestSearchWithPostgres() {
 	for _, tc := range []struct {
 		desc        string
 		ctx         context.Context
-		query       *v1.Query
+		query       *aux.Query
 		expectedIDs []string
 		queryNs     bool
 	}{

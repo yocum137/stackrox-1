@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store"
 	"github.com/stackrox/rox/central/serviceaccount/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
@@ -70,11 +71,11 @@ func (d *datastoreImpl) GetServiceAccount(ctx context.Context, id string) (*stor
 	return acc, true, nil
 }
 
-func (d *datastoreImpl) SearchRawServiceAccounts(ctx context.Context, q *v1.Query) ([]*storage.ServiceAccount, error) {
+func (d *datastoreImpl) SearchRawServiceAccounts(ctx context.Context, q *aux.Query) ([]*storage.ServiceAccount, error) {
 	return d.searcher.SearchRawServiceAccounts(ctx, q)
 }
 
-func (d *datastoreImpl) SearchServiceAccounts(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (d *datastoreImpl) SearchServiceAccounts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return d.searcher.SearchServiceAccounts(ctx, q)
 }
 
@@ -104,11 +105,11 @@ func (d *datastoreImpl) RemoveServiceAccount(ctx context.Context, id string) err
 	return d.indexer.DeleteServiceAccount(id)
 }
 
-func (d *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (d *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (d *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (d *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }

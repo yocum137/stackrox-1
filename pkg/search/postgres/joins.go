@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/postgres/walker"
 	"github.com/stackrox/rox/pkg/set"
 )
@@ -78,28 +78,28 @@ type bfsQueueElem struct {
 	pathFromRoot []joinPathElem
 }
 
-func collectFields(q *v1.Query) set.StringSet {
-	var queries []*v1.Query
+func collectFields(q *aux.Query) set.StringSet {
+	var queries []*aux.Query
 	collectedFields := set.NewStringSet()
 	switch sub := q.GetQuery().(type) {
-	case *v1.Query_BaseQuery:
+	case *aux.Query_BaseQuery:
 		switch subBQ := q.GetBaseQuery().Query.(type) {
-		case *v1.BaseQuery_DocIdQuery, *v1.BaseQuery_MatchNoneQuery:
+		case *aux.BaseQuery_DocIdQuery, *aux.BaseQuery_MatchNoneQuery:
 			// nothing to do
-		case *v1.BaseQuery_MatchFieldQuery:
+		case *aux.BaseQuery_MatchFieldQuery:
 			collectedFields.Add(subBQ.MatchFieldQuery.GetField())
-		case *v1.BaseQuery_MatchLinkedFieldsQuery:
+		case *aux.BaseQuery_MatchLinkedFieldsQuery:
 			for _, q := range subBQ.MatchLinkedFieldsQuery.Query {
 				collectedFields.Add(q.GetField())
 			}
 		default:
 			panic("unsupported")
 		}
-	case *v1.Query_Conjunction:
+	case *aux.Query_Conjunction:
 		queries = append(queries, sub.Conjunction.Queries...)
-	case *v1.Query_Disjunction:
+	case *aux.Query_Disjunction:
 		queries = append(queries, sub.Disjunction.Queries...)
-	case *v1.Query_BooleanQuery:
+	case *aux.Query_BooleanQuery:
 		queries = append(queries, sub.BooleanQuery.Must.Queries...)
 		queries = append(queries, sub.BooleanQuery.MustNot.Queries...)
 	}
@@ -118,7 +118,7 @@ type searchFieldMetadata struct {
 	derivedMetadata *walker.DerivedSearchField
 }
 
-func getJoinsAndFields(src *walker.Schema, q *v1.Query) ([]innerJoin, map[string]searchFieldMetadata) {
+func getJoinsAndFields(src *walker.Schema, q *aux.Query) ([]innerJoin, map[string]searchFieldMetadata) {
 	unreachedFields := collectFields(q)
 	joinTreeRoot := &joinTreeNode{
 		currNode: src,

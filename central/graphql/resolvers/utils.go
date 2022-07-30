@@ -11,6 +11,7 @@ import (
 	complianceStandards "github.com/stackrox/rox/central/compliance/standards"
 	"github.com/stackrox/rox/central/graphql/resolvers/inputtypes"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/k8srbac"
 	"github.com/stackrox/rox/pkg/pointers"
@@ -107,7 +108,7 @@ func getStandardIDs(ctx context.Context, cs complianceStandards.Repository) ([]s
 	return result, nil
 }
 
-func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *v1.Query) ([]*storage.K8SRoleBinding, error) {
+func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error) {
 	if err := readK8sRoleBindings(ctx); err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (resolver *clusterResolver) getRoleBindings(ctx context.Context, q *v1.Quer
 	return bindings, nil
 }
 
-func (resolver *clusterResolver) getSubjects(ctx context.Context, q *v1.Query) ([]*storage.Subject, error) {
+func (resolver *clusterResolver) getSubjects(ctx context.Context, q *aux.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -143,7 +144,7 @@ func (resolver *clusterResolver) getSubjects(ctx context.Context, q *v1.Query) (
 }
 
 // SubjectCount returns the count of Subjects which have any permission on this namespace or the cluster it belongs to
-func (resolver *namespaceResolver) getSubjects(ctx context.Context, baseQuery *v1.Query) ([]*storage.Subject, error) {
+func (resolver *namespaceResolver) getSubjects(ctx context.Context, baseQuery *aux.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -265,7 +266,7 @@ func (resolver *ClusterWithK8sCVEInfoResolver) K8sCVEInfo() *K8sCVEInfoResolver 
 }
 
 type paginationWrapper struct {
-	pv *v1.QueryPagination
+	pv *aux.QueryPagination
 }
 
 func (pw paginationWrapper) paginate(datSlice interface{}, err error) (interface{}, error) {
@@ -312,8 +313,8 @@ func getImageIDFromIfImageShaQuery(ctx context.Context, resolver *Resolver, args
 		return "", err
 	}
 
-	query, filtered := search.FilterQuery(query, func(bq *v1.BaseQuery) bool {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	query, filtered := search.FilterQuery(query, func(bq *aux.BaseQuery) bool {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok {
 			if strings.EqualFold(matchFieldQuery.MatchFieldQuery.GetField(), search.ImageSHA.String()) {
 				return true
@@ -359,9 +360,9 @@ func V1RawQueryAsResolverQuery(rQ *v1.RawQuery) (RawQuery, PaginatedQuery) {
 }
 
 // logErrorOnQueryContainingField logs error if the query contains the given field label.
-func logErrorOnQueryContainingField(query *v1.Query, label search.FieldLabel, resolver string) {
-	search.ApplyFnToAllBaseQueries(query, func(bq *v1.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+func logErrorOnQueryContainingField(query *aux.Query, label search.FieldLabel, resolver string) {
+	search.ApplyFnToAllBaseQueries(query, func(bq *aux.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == label.String() {
 			log.Errorf("Unexpected field (%s) found in query to resolver (%s). Response maybe unexpected.", label.String(), resolver)
 		}

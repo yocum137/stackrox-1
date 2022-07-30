@@ -12,7 +12,7 @@ import (
 	"github.com/stackrox/rox/central/processindicator/search"
 	"github.com/stackrox/rox/central/processindicator/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/batcher"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -46,11 +46,11 @@ func checkReadAccess(ctx context.Context, indicator *storage.ProcessIndicator) (
 	return indicatorSAC.ScopeChecker(ctx, storage.Access_READ_ACCESS).ForNamespaceScopedObject(indicator).Allowed(ctx)
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawProcessIndicators(ctx context.Context, q *v1.Query) ([]*storage.ProcessIndicator, error) {
+func (ds *datastoreImpl) SearchRawProcessIndicators(ctx context.Context, q *aux.Query) ([]*storage.ProcessIndicator, error) {
 	return ds.searcher.SearchRawProcessIndicators(ctx, q)
 }
 

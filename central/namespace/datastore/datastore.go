@@ -22,6 +22,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	dackboxPkg "github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -49,10 +50,10 @@ type DataStore interface {
 	UpdateNamespace(context.Context, *storage.NamespaceMetadata) error
 	RemoveNamespace(ctx context.Context, id string) error
 
-	SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	Search(ctx context.Context, q *v1.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchNamespaces(ctx context.Context, q *v1.Query) ([]*storage.NamespaceMetadata, error)
+	SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchNamespaces(ctx context.Context, q *aux.Query) ([]*storage.NamespaceMetadata, error)
 }
 
 // New returns a new DataStore instance using the provided store and indexer
@@ -112,7 +113,7 @@ var (
 
 	log = logging.LoggerForModule()
 
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field:    search.Namespace.String(),
 		Reversed: false,
 	}
@@ -240,16 +241,16 @@ func (b *datastoreImpl) RemoveNamespace(ctx context.Context, id string) error {
 	return b.indexer.DeleteNamespaceMetadata(id)
 }
 
-func (b *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (b *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return b.formattedSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (b *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (b *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return b.formattedSearcher.Count(ctx, q)
 }
 
-func (b *datastoreImpl) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (b *datastoreImpl) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	namespaces, results, err := b.searchNamespaces(ctx, q)
 	if err != nil {
 		return nil, err
@@ -270,7 +271,7 @@ func (b *datastoreImpl) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.S
 	return searchResults, nil
 }
 
-func (b *datastoreImpl) searchNamespaces(ctx context.Context, q *v1.Query) ([]*storage.NamespaceMetadata, []search.Result, error) {
+func (b *datastoreImpl) searchNamespaces(ctx context.Context, q *aux.Query) ([]*storage.NamespaceMetadata, []search.Result, error) {
 	results, err := b.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -296,7 +297,7 @@ func (b *datastoreImpl) searchNamespaces(ctx context.Context, q *v1.Query) ([]*s
 	return nsSlice, resultSlice, nil
 }
 
-func (b *datastoreImpl) SearchNamespaces(ctx context.Context, q *v1.Query) ([]*storage.NamespaceMetadata, error) {
+func (b *datastoreImpl) SearchNamespaces(ctx context.Context, q *aux.Query) ([]*storage.NamespaceMetadata, error) {
 	namespaces, _, err := b.searchNamespaces(ctx, q)
 	b.updateNamespacePriority(namespaces...)
 	return namespaces, err

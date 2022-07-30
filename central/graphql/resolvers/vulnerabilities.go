@@ -7,7 +7,7 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -238,10 +238,10 @@ func (resolver *Resolver) OpenShiftVulnerabilities(ctx context.Context, args Pag
 	return resolver.openShiftVulnerabilitiesV2(ctx, args)
 }
 
-func tryUnsuppressedQuery(q *v1.Query) *v1.Query {
+func tryUnsuppressedQuery(q *aux.Query) *aux.Query {
 	var isSearchBySuppressed, isSearchByVulnState bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == search.CVESuppressed.String() && mfQ.MatchFieldQuery.GetValue() == "true" {
 			isSearchBySuppressed = true
 			return

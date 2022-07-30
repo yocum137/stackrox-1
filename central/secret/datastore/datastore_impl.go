@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	"github.com/stackrox/rox/central/secret/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/debug"
 	"github.com/stackrox/rox/pkg/features"
@@ -60,15 +61,15 @@ func (d *datastoreImpl) GetSecret(ctx context.Context, id string) (*storage.Secr
 	return secret, true, nil
 }
 
-func (d *datastoreImpl) SearchSecrets(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (d *datastoreImpl) SearchSecrets(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return d.searcher.SearchSecrets(ctx, q)
 }
 
-func (d *datastoreImpl) SearchListSecrets(ctx context.Context, request *v1.Query) ([]*storage.ListSecret, error) {
+func (d *datastoreImpl) SearchListSecrets(ctx context.Context, request *aux.Query) ([]*storage.ListSecret, error) {
 	return d.searcher.SearchListSecrets(ctx, request)
 }
 
-func (d *datastoreImpl) SearchRawSecrets(ctx context.Context, request *v1.Query) ([]*storage.Secret, error) {
+func (d *datastoreImpl) SearchRawSecrets(ctx context.Context, request *aux.Query) ([]*storage.Secret, error) {
 	return d.searcher.SearchRawSecrets(ctx, request)
 }
 
@@ -108,11 +109,11 @@ func (d *datastoreImpl) RemoveSecret(ctx context.Context, id string) error {
 	return d.indexer.DeleteSecret(id)
 }
 
-func (d *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (d *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (d *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (d *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }

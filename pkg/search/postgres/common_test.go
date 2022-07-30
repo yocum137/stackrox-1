@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/postgres/walker"
 	"github.com/stackrox/rox/pkg/search"
@@ -69,7 +69,7 @@ func TestMultiTableQueries(t *testing.T) {
 	deploymentBaseSchema.SetOptionsMap(mappings.OptionsMap)
 	for _, c := range []struct {
 		desc                 string
-		q                    *v1.Query
+		q                    *aux.Query
 		expectedQueryPortion string
 		expectedFrom         string
 		expectedWhere        string

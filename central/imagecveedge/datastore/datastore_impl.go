@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/imagecveedge/search"
 	"github.com/stackrox/rox/central/imagecveedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/features"
@@ -20,15 +21,15 @@ type datastoreImpl struct {
 	searcher      search.Searcher
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchEdges(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ImageCVEEdge, error) {
+func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageCVEEdge, error) {
 	edges, err := ds.searcher.SearchRawEdges(ctx, q)
 	if err != nil {
 		return nil, err

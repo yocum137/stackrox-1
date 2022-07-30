@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -438,7 +439,7 @@ func (evr *EmbeddedVulnerabilityResolver) UnusedVarSink(ctx context.Context, arg
 	return nil
 }
 
-func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query *v1.Query) ([]*imageResolver, error) {
+func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query *aux.Query) ([]*imageResolver, error) {
 	imageLoader, err := loaders.GetImageLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -457,7 +458,7 @@ func (evr *EmbeddedVulnerabilityResolver) loadImages(ctx context.Context, query 
 	return evr.root.wrapImages(imageLoader.FromQuery(ctx, query))
 }
 
-func (evr *EmbeddedVulnerabilityResolver) loadDeployments(ctx context.Context, query *v1.Query) ([]*deploymentResolver, error) {
+func (evr *EmbeddedVulnerabilityResolver) loadDeployments(ctx context.Context, query *aux.Query) ([]*deploymentResolver, error) {
 	deploymentBaseQuery, err := evr.getDeploymentBaseQuery(ctx)
 	if err != nil || deploymentBaseQuery == nil {
 		return nil, err
@@ -516,7 +517,7 @@ func (evr *EmbeddedVulnerabilityResolver) VulnerabilityState(ctx context.Context
 	return evr.data.GetState().String()
 }
 
-func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Context) (*v1.Query, error) {
+func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Context) (*aux.Query, error) {
 	imageQuery := evr.vulnQuery()
 	results, err := evr.root.ImageDataStore.Search(ctx, imageQuery)
 	if err != nil || len(results) == 0 {
@@ -527,7 +528,7 @@ func (evr *EmbeddedVulnerabilityResolver) getDeploymentBaseQuery(ctx context.Con
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, search.ResultsToIDs(results)...).ProtoQuery(), nil
 }
 
-func (evr *EmbeddedVulnerabilityResolver) vulnQuery() *v1.Query {
+func (evr *EmbeddedVulnerabilityResolver) vulnQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVE, evr.data.GetCve()).ProtoQuery()
 }
 

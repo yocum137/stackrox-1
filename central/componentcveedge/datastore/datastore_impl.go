@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/componentcveedge/search"
 	"github.com/stackrox/rox/central/componentcveedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/features"
@@ -22,15 +23,15 @@ type datastoreImpl struct {
 	graphProvider graph.Provider
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchEdges(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ComponentCVEEdge, error) {
+func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ComponentCVEEdge, error) {
 	imgs, err := ds.searcher.SearchRawEdges(ctx, q)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*st
 	return imgs, nil
 }
 
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 

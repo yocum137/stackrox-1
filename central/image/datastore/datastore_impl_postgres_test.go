@@ -22,6 +22,7 @@ import (
 	mockRisks "github.com/stackrox/rox/central/risk/datastore/mocks"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgCVE "github.com/stackrox/rox/pkg/cve"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -285,8 +286,8 @@ func (s *ImagePostgresDataStoreTestSuite) TestSortByComponent() {
 
 	// Verify sort by Component search label is transformed to sort by Component+Version.
 	query := pkgSearch.EmptyQuery()
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: pkgSearch.Component.String(),
 			},

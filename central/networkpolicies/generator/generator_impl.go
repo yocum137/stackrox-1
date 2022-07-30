@@ -15,6 +15,7 @@ import (
 	npDS "github.com/stackrox/rox/central/networkpolicies/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/networkgraph"
@@ -106,7 +107,7 @@ func (g *generator) getNetworkPolicies(ctx context.Context, deleteExistingMode v
 	}
 }
 
-func (g *generator) generateGraph(ctx context.Context, clusterID string, query *v1.Query, since *types.Timestamp, includePorts bool) (map[networkgraph.Entity]*node, error) {
+func (g *generator) generateGraph(ctx context.Context, clusterID string, query *aux.Query, since *types.Timestamp, includePorts bool) (map[networkgraph.Entity]*node, error) {
 	// Temporarily elevate permissions to obtain all network flows in cluster.
 	networkGraphGenElevatedCtx := sac.WithGlobalAccessScopeChecker(ctx,
 		sac.AllowFixedScopes(

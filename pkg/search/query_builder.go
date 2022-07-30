@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/conv"
 	"github.com/stackrox/rox/pkg/generic"
@@ -76,13 +76,13 @@ type fieldValue struct {
 // NewPagination create a new pagination object
 func NewPagination() *Pagination {
 	return &Pagination{
-		qp: &v1.QueryPagination{},
+		qp: &aux.QueryPagination{},
 	}
 }
 
 // Pagination defines the pagination to be used with the query
 type Pagination struct {
-	qp *v1.QueryPagination
+	qp *aux.QueryPagination
 }
 
 // Limit sets the limit
@@ -125,12 +125,12 @@ func (s *SortOption) SearchAfter(searchAfter string) *SortOption {
 
 // AddSortOption adds the sort option to the pagination object
 func (p *Pagination) AddSortOption(so *SortOption) *Pagination {
-	opt := &v1.QuerySortOption{
+	opt := &aux.QuerySortOption{
 		Field:    string(so.field),
 		Reversed: so.reversed,
 	}
 	if so.searchAfter != "" {
-		opt.SearchAfterOpt = &v1.QuerySortOption_SearchAfter{
+		opt.SearchAfterOpt = &aux.QuerySortOption_SearchAfter{
 			SearchAfter: so.searchAfter,
 		}
 	}
@@ -334,8 +334,8 @@ func (qb *QueryBuilder) Query() string {
 }
 
 // ProtoQuery generates a proto query from the query
-func (qb *QueryBuilder) ProtoQuery() *v1.Query {
-	queries := make([]*v1.Query, 0, len(qb.fieldsToValues)+len(qb.linkedFields))
+func (qb *QueryBuilder) ProtoQuery() *aux.Query {
+	queries := make([]*aux.Query, 0, len(qb.fieldsToValues)+len(qb.linkedFields))
 
 	if qb.ids != nil {
 		queries = append(queries, docIDQuery(*qb.ids))
@@ -382,26 +382,26 @@ func (qb *QueryBuilder) RawQuery() (string, error) {
 }
 
 // EmptyQuery is a shortcut function to receive an empty query, to avoid requiring having to create an empty query builder.
-func EmptyQuery() *v1.Query {
-	return &v1.Query{}
+func EmptyQuery() *aux.Query {
+	return &aux.Query{}
 }
 
 // MatchNoneQuery returns a v1.Query that maps to a bleve query that does not match any results
-func MatchNoneQuery() *v1.Query {
-	return &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchNoneQuery{},
+func MatchNoneQuery() *aux.Query {
+	return &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchNoneQuery{},
 			},
 		},
 	}
 }
 
 // NewBooleanQuery takes in a must conjunction query and a must not disjunction query
-func NewBooleanQuery(must *v1.ConjunctionQuery, mustNot *v1.DisjunctionQuery) *v1.Query {
-	return &v1.Query{
-		Query: &v1.Query_BooleanQuery{
-			BooleanQuery: &v1.BooleanQuery{
+func NewBooleanQuery(must *aux.ConjunctionQuery, mustNot *aux.DisjunctionQuery) *aux.Query {
+	return &aux.Query{
+		Query: &aux.Query_BooleanQuery{
+			BooleanQuery: &aux.BooleanQuery{
 				Must:    must,
 				MustNot: mustNot,
 			},

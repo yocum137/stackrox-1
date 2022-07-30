@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/central/policy/utils"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/logging"
@@ -57,7 +58,7 @@ func (ds *datastoreImpl) buildIndex() error {
 	return ds.indexer.AddPolicies(policies)
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.R
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -73,12 +74,12 @@ func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
 }
 
 // SearchPolicies
-func (ds *datastoreImpl) SearchPolicies(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchPolicies(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchPolicies(ctx, q)
 }
 
 // SearchRawPolicies
-func (ds *datastoreImpl) SearchRawPolicies(ctx context.Context, q *v1.Query) ([]*storage.Policy, error) {
+func (ds *datastoreImpl) SearchRawPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
 	return ds.searcher.SearchRawPolicies(ctx, q)
 }
 

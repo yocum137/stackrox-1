@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -38,7 +39,7 @@ func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockSearcher) Count(ctx context.Context, query *v1.Query) (int, error) {
+func (m *MockSearcher) Count(ctx context.Context, query *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, query)
 	ret0, _ := ret[0].(int)
@@ -53,7 +54,7 @@ func (mr *MockSearcherMockRecorder) Count(ctx, query interface{}) *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockSearcher) Search(ctx context.Context, query *v1.Query) ([]search.Result, error) {
+func (m *MockSearcher) Search(ctx context.Context, query *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
 	ret0, _ := ret[0].([]search.Result)
@@ -68,7 +69,7 @@ func (mr *MockSearcherMockRecorder) Search(ctx, query interface{}) *gomock.Call 
 }
 
 // SearchEdges mocks base method.
-func (m *MockSearcher) SearchEdges(arg0 context.Context, arg1 *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockSearcher) SearchEdges(arg0 context.Context, arg1 *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchEdges", arg0, arg1)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -83,7 +84,7 @@ func (mr *MockSearcherMockRecorder) SearchEdges(arg0, arg1 interface{}) *gomock.
 }
 
 // SearchRawEdges mocks base method.
-func (m *MockSearcher) SearchRawEdges(ctx context.Context, query *v1.Query) ([]*storage.ImageCVEEdge, error) {
+func (m *MockSearcher) SearchRawEdges(ctx context.Context, query *aux.Query) ([]*storage.ImageCVEEdge, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawEdges", ctx, query)
 	ret0, _ := ret[0].([]*storage.ImageCVEEdge)

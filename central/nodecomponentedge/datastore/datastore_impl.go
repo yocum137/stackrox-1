@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/nodecomponentedge/search"
 	"github.com/stackrox/rox/central/nodecomponentedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/features"
@@ -22,15 +23,15 @@ type datastoreImpl struct {
 	graphProvider graph.Provider
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchEdges(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.NodeComponentEdge, error) {
+func (ds *datastoreImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentEdge, error) {
 	edges, err := ds.searcher.SearchRawEdges(ctx, q)
 	if err != nil {
 		return nil, err

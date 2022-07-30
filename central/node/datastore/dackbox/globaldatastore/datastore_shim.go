@@ -6,7 +6,7 @@ import (
 	"github.com/stackrox/rox/central/node/datastore"
 	dackboxDatastore "github.com/stackrox/rox/central/node/datastore/dackbox/datastore"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
@@ -32,7 +32,7 @@ func newDatastoreShim(clusterID string, dacky dackboxDatastore.DataStore) datast
 	}
 }
 
-func (d *datastoreShim) clusterQuery() *v1.Query {
+func (d *datastoreShim) clusterQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ClusterID, d.clusterID).ProtoQuery()
 }
 

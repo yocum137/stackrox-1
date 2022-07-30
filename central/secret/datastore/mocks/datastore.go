@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -38,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -98,7 +99,7 @@ func (mr *MockDataStoreMockRecorder) RemoveSecret(ctx, id interface{}) *gomock.C
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -113,7 +114,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchListSecrets mocks base method.
-func (m *MockDataStore) SearchListSecrets(ctx context.Context, q *v1.Query) ([]*storage.ListSecret, error) {
+func (m *MockDataStore) SearchListSecrets(ctx context.Context, q *aux.Query) ([]*storage.ListSecret, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchListSecrets", ctx, q)
 	ret0, _ := ret[0].([]*storage.ListSecret)
@@ -128,7 +129,7 @@ func (mr *MockDataStoreMockRecorder) SearchListSecrets(ctx, q interface{}) *gomo
 }
 
 // SearchRawSecrets mocks base method.
-func (m *MockDataStore) SearchRawSecrets(ctx context.Context, q *v1.Query) ([]*storage.Secret, error) {
+func (m *MockDataStore) SearchRawSecrets(ctx context.Context, q *aux.Query) ([]*storage.Secret, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawSecrets", ctx, q)
 	ret0, _ := ret[0].([]*storage.Secret)
@@ -143,7 +144,7 @@ func (mr *MockDataStoreMockRecorder) SearchRawSecrets(ctx, q interface{}) *gomoc
 }
 
 // SearchSecrets mocks base method.
-func (m *MockDataStore) SearchSecrets(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchSecrets(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchSecrets", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)

@@ -6,7 +6,7 @@ import (
 	"github.com/stackrox/rox/central/processbaseline/index"
 	"github.com/stackrox/rox/central/processbaseline/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sac"
@@ -20,9 +20,9 @@ var (
 // Searcher provides search functionality on existing alerts
 //go:generate mockgen-wrapper
 type Searcher interface {
-	SearchRawProcessBaselines(ctx context.Context, q *v1.Query) ([]*storage.ProcessBaseline, error)
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

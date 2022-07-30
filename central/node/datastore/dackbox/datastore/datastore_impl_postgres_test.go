@@ -22,6 +22,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	mockRisks "github.com/stackrox/rox/central/risk/datastore/mocks"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/cve"
 	pkgCVE "github.com/stackrox/rox/pkg/cve"
@@ -389,8 +390,8 @@ func (suite *NodePostgresDataStoreTestSuite) TestSortByComponent() {
 
 	// Verify sort by Component search label is transformed to sort by Component+Version.
 	query := pkgSearch.EmptyQuery()
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: pkgSearch.Component.String(),
 			},
@@ -418,8 +419,8 @@ func (suite *NodePostgresDataStoreTestSuite) TestSortByComponent() {
 	suite.NoError(err)
 	suite.Equal(1, len(results))
 
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: pkgSearch.CVE.String(),
 			},

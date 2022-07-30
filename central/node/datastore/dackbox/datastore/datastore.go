@@ -18,6 +18,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	riskDS "github.com/stackrox/rox/central/risk/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -28,10 +29,10 @@ import (
 // DataStore is an intermediary to NodeStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchNodes(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error)
 
 	CountNodes(ctx context.Context) (int, error)
 	GetNode(ctx context.Context, id string) (*storage.Node, bool, error)

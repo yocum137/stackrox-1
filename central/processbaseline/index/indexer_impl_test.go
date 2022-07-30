@@ -5,7 +5,7 @@ import (
 
 	"github.com/blevesearch/bleve"
 	"github.com/stackrox/rox/central/globalindex"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/search"
@@ -44,7 +44,7 @@ func (suite *ProcessBaselineIndexTestSuite) getAndStoreBaseline() *storage.Proce
 	return baseline
 }
 
-func (suite *ProcessBaselineIndexTestSuite) search(q *v1.Query, expectedResultSize int) ([]search.Result, error) {
+func (suite *ProcessBaselineIndexTestSuite) search(q *aux.Query, expectedResultSize int) ([]search.Result, error) {
 	results, err := suite.indexer.Search(q)
 	suite.NoError(err)
 	suite.Equal(expectedResultSize, len(results))

@@ -7,14 +7,14 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/paginated"
 	"github.com/stretchr/testify/assert"
 )
 
-func emptyPaginatedQuery() *v1.Query {
+func emptyPaginatedQuery() *aux.Query {
 	q := search.EmptyQuery()
 	paginated.FillPagination(q, nil, math.MaxInt32)
 	return q

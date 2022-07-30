@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/vulnerabilityrequest/common"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -219,8 +220,8 @@ func (resolver *Resolver) TopImageVulnerability(ctx context.Context, args RawQue
 	if err != nil {
 		return nil, err
 	}
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -282,7 +283,7 @@ func (resolver *imageCVEResolver) withImageVulnerabilityScope(ctx context.Contex
 	})
 }
 
-func (resolver *imageCVEResolver) getImageCVEQuery() *v1.Query {
+func (resolver *imageCVEResolver) getImageCVEQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -341,7 +342,7 @@ func (resolver *imageCVEResolver) IsFixable(ctx context.Context, args RawQuery) 
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*v1.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(ctx); !ok || scope.Level != v1.SearchCategory_IMAGE_VULNERABILITIES {
@@ -368,10 +369,10 @@ func (resolver *imageCVEResolver) LastScanned(ctx context.Context) (*graphql.Tim
 	}
 
 	q := search.EmptyQuery()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.ImageScanTime.String(),
 				Reversed: true,

@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/policy/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
@@ -17,7 +18,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.SORTPolicyName.String(),
 	}
 
@@ -32,13 +33,13 @@ type searcherImpl struct {
 }
 
 // SearchRawPolicies retrieves Policies from the indexer and storage
-func (ds *searcherImpl) SearchRawPolicies(ctx context.Context, q *v1.Query) ([]*storage.Policy, error) {
+func (ds *searcherImpl) SearchRawPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
 	policies, _, err := ds.searchPolicies(ctx, q)
 	return policies, err
 }
 
 // Search retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchPolicies(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchPolicies(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	policies, results, err := ds.searchPolicies(ctx, q)
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (ds *searcherImpl) SearchPolicies(ctx context.Context, q *v1.Query) ([]*v1.
 	return protoResults, nil
 }
 
-func (ds *searcherImpl) searchPolicies(ctx context.Context, q *v1.Query) ([]*storage.Policy, []search.Result, error) {
+func (ds *searcherImpl) searchPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -73,7 +74,7 @@ func (ds *searcherImpl) searchPolicies(ctx context.Context, q *v1.Query) ([]*sto
 	return policies, newResults, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -81,7 +82,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Resul
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}

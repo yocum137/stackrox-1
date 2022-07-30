@@ -1,7 +1,7 @@
 package index
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 	blevesearch "github.com/stackrox/rox/pkg/search/blevesearch"
@@ -11,8 +11,8 @@ import (
 type Indexer interface {
 	AddNodeComponentCVEEdge(componentcveedge *storage.NodeComponentCVEEdge) error
 	AddNodeComponentCVEEdges(componentcveedges []*storage.NodeComponentCVEEdge) error
-	Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error)
+	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
 	DeleteNodeComponentCVEEdge(id string) error
 	DeleteNodeComponentCVEEdges(ids []string) error
-	Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }

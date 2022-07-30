@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/alert/convert"
 	"github.com/stackrox/rox/pkg/batcher"
@@ -49,41 +50,41 @@ type datastoreImpl struct {
 	keyedMutex *concurrency.KeyedMutex
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchCommon.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchCommon.Result, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Alert", "Search")
 
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Alert", "Count")
 
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchListAlerts(ctx context.Context, q *v1.Query) ([]*storage.ListAlert, error) {
+func (ds *datastoreImpl) SearchListAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Alert", "SearchListAlerts")
 
 	return ds.searcher.SearchListAlerts(ctx, q)
 }
 
 // SearchAlerts returns search results for the given request.
-func (ds *datastoreImpl) SearchAlerts(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchAlerts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Alert", "SearchAlerts")
 
 	return ds.searcher.SearchAlerts(ctx, q)
 }
 
 // SearchRawAlerts returns search results for the given request in the form of a slice of alerts.
-func (ds *datastoreImpl) SearchRawAlerts(ctx context.Context, q *v1.Query) ([]*storage.Alert, error) {
+func (ds *datastoreImpl) SearchRawAlerts(ctx context.Context, q *aux.Query) ([]*storage.Alert, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Alert", "SearchRawAlerts")
 
 	return ds.searcher.SearchRawAlerts(ctx, q)
 }
 
 func (ds *datastoreImpl) ListAlerts(ctx context.Context, request *v1.ListAlertsRequest) ([]*storage.ListAlert, error) {
-	var q *v1.Query
+	var q *aux.Query
 	if request.GetQuery() == "" {
 		q = searchCommon.EmptyQuery()
 	} else {

@@ -9,6 +9,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	policyUtils "github.com/stackrox/rox/central/policy/utils"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/policyutils"
@@ -179,7 +180,7 @@ func (resolver *policyResolver) FailingDeployments(ctx context.Context, args Pag
 	return resolver.failingDeployments(ctx, q)
 }
 
-func (resolver *policyResolver) failingDeployments(ctx context.Context, q *v1.Query) ([]*deploymentResolver, error) {
+func (resolver *policyResolver) failingDeployments(ctx context.Context, q *aux.Query) ([]*deploymentResolver, error) {
 	alertsQuery := search.ConjunctionQuery(resolver.getPolicyQuery(),
 		search.NewQueryBuilder().AddExactMatches(search.ViolationState, storage.ViolationState_ACTIVE.String()).ProtoQuery())
 	listAlerts, err := resolver.root.ViolationsDataStore.SearchListAlerts(ctx, alertsQuery)
@@ -331,7 +332,7 @@ func (resolver *policyResolver) FullMitreAttackVectors(ctx context.Context) ([]*
 	)
 }
 
-func (resolver *policyResolver) getPolicyQuery() *v1.Query {
+func (resolver *policyResolver) getPolicyQuery() *aux.Query {
 	return search.NewQueryBuilder().AddStrings(search.PolicyID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -343,11 +344,11 @@ func (resolver *policyResolver) UnusedVarSink(ctx context.Context, args RawQuery
 	return nil
 }
 
-func inverseFilterFailingDeploymentsQuery(q *v1.Query) (*v1.Query, bool) {
+func inverseFilterFailingDeploymentsQuery(q *aux.Query) (*aux.Query, bool) {
 	failingDeploymentsQuery := false
 	local := q.Clone()
-	filtered, _ := search.FilterQuery(local, func(bq *v1.BaseQuery) bool {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	filtered, _ := search.FilterQuery(local, func(bq *aux.BaseQuery) bool {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok {
 			if matchFieldQuery.MatchFieldQuery.GetField() == search.PolicyViolated.String() {
 				failingDeploymentsQuery = true

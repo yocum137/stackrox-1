@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/central/nodecomponent/datastore/mocks"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/suite"
@@ -119,7 +119,7 @@ func (suite *NodeComponentLoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &v1.Query{}
+	query := &aux.Query{}
 
 	results := []search.Result{
 		{

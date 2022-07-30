@@ -6,7 +6,7 @@ import (
 	"github.com/stackrox/rox/central/activecomponent/datastore/index"
 	"github.com/stackrox/rox/central/activecomponent/datastore/internal/store"
 	"github.com/stackrox/rox/central/activecomponent/datastore/search"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
@@ -15,8 +15,8 @@ import (
 // DataStore is an intermediary to ActiveComponent storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, query *v1.Query) ([]pkgSearch.Result, error)
-	SearchRawActiveComponents(ctx context.Context, q *v1.Query) ([]*storage.ActiveComponent, error)
+	Search(ctx context.Context, query *aux.Query) ([]pkgSearch.Result, error)
+	SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ActiveComponent, bool, error)

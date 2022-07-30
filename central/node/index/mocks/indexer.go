@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 	blevesearch "github.com/stackrox/rox/pkg/search/blevesearch"
@@ -66,7 +66,7 @@ func (mr *MockIndexerMockRecorder) AddNodes(nodes interface{}) *gomock.Call {
 }
 
 // Count mocks base method.
-func (m *MockIndexer) Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (m *MockIndexer) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{q}
 	for _, a := range opts {
@@ -143,7 +143,7 @@ func (mr *MockIndexerMockRecorder) NeedsInitialIndexing() *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockIndexer) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (m *MockIndexer) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{q}
 	for _, a := range opts {

@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/search"
@@ -100,7 +101,7 @@ func (resolver *Resolver) nodeComponentsV2(ctx context.Context, args PaginatedQu
 	return ret, err
 }
 
-func (resolver *Resolver) componentsV2Query(ctx context.Context, query *v1.Query) ([]ComponentResolver, error) {
+func (resolver *Resolver) componentsV2Query(ctx context.Context, query *aux.Query) ([]ComponentResolver, error) {
 	compRes, err := resolver.wrapImageComponents(resolver.imageComponentsLoaderQuery(ctx, query))
 	if err != nil {
 		return nil, err
@@ -127,7 +128,7 @@ func (resolver *Resolver) imageComponentDataStoreQuery(ctx context.Context, args
 	return component, err
 }
 
-func (resolver *Resolver) imageComponentsLoaderQuery(ctx context.Context, query *v1.Query) ([]*storage.ImageComponent, error) {
+func (resolver *Resolver) imageComponentsLoaderQuery(ctx context.Context, query *aux.Query) ([]*storage.ImageComponent, error) {
 	if features.PostgresDatastore.Enabled() {
 		return nil, errors.New("attempted to invoke legacy datastores with postgres enabled")
 	}
@@ -150,7 +151,7 @@ func (resolver *Resolver) componentCountV2(ctx context.Context, args RawQuery) (
 	return resolver.componentCountV2Query(ctx, q)
 }
 
-func (resolver *Resolver) componentCountV2Query(ctx context.Context, query *v1.Query) (int32, error) {
+func (resolver *Resolver) componentCountV2Query(ctx context.Context, query *aux.Query) (int32, error) {
 	componentLoader, err := loaders.GetComponentLoader(ctx)
 	if err != nil {
 		return 0, err
@@ -177,8 +178,8 @@ func (eicr *imageComponentResolver) unwrappedTopVulnQuery(ctx context.Context) (
 	}
 
 	query := eicr.componentQuery()
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,

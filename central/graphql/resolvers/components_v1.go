@@ -10,7 +10,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/deploymentctx"
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/image/mappings"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/scancomponent"
 	"github.com/stackrox/rox/pkg/search"
@@ -325,7 +325,7 @@ func (eicr *EmbeddedImageScanComponentResolver) NodeCount(ctx context.Context, a
 	return nodeLoader.CountFromQuery(ctx, query)
 }
 
-func (eicr *EmbeddedImageScanComponentResolver) loadImages(ctx context.Context, query *v1.Query) ([]*imageResolver, error) {
+func (eicr *EmbeddedImageScanComponentResolver) loadImages(ctx context.Context, query *aux.Query) ([]*imageResolver, error) {
 	imageLoader, err := loaders.GetImageLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -344,7 +344,7 @@ func (eicr *EmbeddedImageScanComponentResolver) loadImages(ctx context.Context, 
 	return eicr.root.wrapImages(imageLoader.FromQuery(ctx, query))
 }
 
-func (eicr *EmbeddedImageScanComponentResolver) loadDeployments(ctx context.Context, query *v1.Query) ([]*deploymentResolver, error) {
+func (eicr *EmbeddedImageScanComponentResolver) loadDeployments(ctx context.Context, query *aux.Query) ([]*deploymentResolver, error) {
 	deploymentBaseQuery, err := eicr.getDeploymentBaseQuery(ctx)
 	if err != nil || deploymentBaseQuery == nil {
 		return nil, err
@@ -368,7 +368,7 @@ func (eicr *EmbeddedImageScanComponentResolver) loadDeployments(ctx context.Cont
 	return eicr.root.wrapListDeployments(ListDeploymentLoader.FromQuery(ctx, query))
 }
 
-func (eicr *EmbeddedImageScanComponentResolver) getDeploymentBaseQuery(ctx context.Context) (*v1.Query, error) {
+func (eicr *EmbeddedImageScanComponentResolver) getDeploymentBaseQuery(ctx context.Context) (*aux.Query, error) {
 	imageQuery := eicr.componentQuery()
 	results, err := eicr.root.ImageDataStore.Search(ctx, imageQuery)
 	if err != nil || len(results) == 0 {
@@ -379,7 +379,7 @@ func (eicr *EmbeddedImageScanComponentResolver) getDeploymentBaseQuery(ctx conte
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, search.ResultsToIDs(results)...).ProtoQuery(), nil
 }
 
-func (eicr *EmbeddedImageScanComponentResolver) componentQuery() *v1.Query {
+func (eicr *EmbeddedImageScanComponentResolver) componentQuery() *aux.Query {
 	return search.NewQueryBuilder().
 		AddExactMatches(search.Component, eicr.data.GetName()).
 		AddExactMatches(search.ComponentVersion, eicr.data.GetVersion()).
@@ -390,7 +390,7 @@ func (eicr *EmbeddedImageScanComponentResolver) componentQuery() *v1.Query {
 //////////////////
 
 // Map the images that matched a query to the image components it contains.
-func mapImagesToComponentResolvers(root *Resolver, images []*storage.Image, query *v1.Query) ([]*EmbeddedImageScanComponentResolver, error) {
+func mapImagesToComponentResolvers(root *Resolver, images []*storage.Image, query *aux.Query) ([]*EmbeddedImageScanComponentResolver, error) {
 	query, _ = search.FilterQueryWithMap(query, mappings.ComponentOptionsMap)
 	componentPred, err := componentPredicateFactory.GeneratePredicate(query)
 	if err != nil {

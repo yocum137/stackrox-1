@@ -1,7 +1,7 @@
 package compound
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 )
 
@@ -81,10 +81,10 @@ func condenseBoolean(req *searchRequestSpec) (*searchRequestSpec, error) {
 	}, nil
 }
 
-func condenseList(children []*searchRequestSpec, combineQueries func(q ...*v1.Query) *v1.Query) ([]*searchRequestSpec, error) {
+func condenseList(children []*searchRequestSpec, combineQueries func(q ...*aux.Query) *aux.Query) ([]*searchRequestSpec, error) {
 	ret := make([]*searchRequestSpec, 0, len(children))
 	specQueryIndex := make(map[*SearcherSpec]int)
-	queriesPerSpec := make([][]*v1.Query, 0, len(children))
+	queriesPerSpec := make([][]*aux.Query, 0, len(children))
 	for _, child := range children {
 		condensed, err := condense(child)
 		if err != nil {
@@ -109,7 +109,7 @@ func condenseList(children []*searchRequestSpec, combineQueries func(q ...*v1.Qu
 	return ret, nil
 }
 
-func condenseMap(specQueryIndex map[*SearcherSpec]int, queriesPerSpec [][]*v1.Query, combineQueries func(q ...*v1.Query) *v1.Query) []*searchRequestSpec {
+func condenseMap(specQueryIndex map[*SearcherSpec]int, queriesPerSpec [][]*aux.Query, combineQueries func(q ...*aux.Query) *aux.Query) []*searchRequestSpec {
 	condensed := make([]*searchRequestSpec, len(queriesPerSpec))
 	for spec, index := range specQueryIndex {
 		queries := queriesPerSpec[index]

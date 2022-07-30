@@ -26,6 +26,7 @@ import (
 	nodeComponentEdgeMappings "github.com/stackrox/rox/central/nodecomponentedge/mappings"
 	nodeComponentEdgeSAC "github.com/stackrox/rox/central/nodecomponentedge/sac"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/derivedfields/counter"
@@ -39,7 +40,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.CVE.String(),
 	}
 )
@@ -51,7 +52,7 @@ type searcherImpl struct {
 	searcher      search.Searcher
 }
 
-func (ds *searcherImpl) SearchCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -59,27 +60,27 @@ func (ds *searcherImpl) SearchCVEs(ctx context.Context, q *v1.Query) ([]*v1.Sear
 	return ds.resultsToSearchResults(ctx, results)
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.getCount(ctx, q)
 }
 
-func (ds *searcherImpl) SearchRawCVEs(ctx context.Context, q *v1.Query) ([]*storage.CVE, error) {
+func (ds *searcherImpl) SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.CVE, error) {
 	return ds.searchCVEs(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
 	return res, err
 }
 
-func (ds *searcherImpl) getCount(ctx context.Context, q *v1.Query) (count int, err error) {
+func (ds *searcherImpl) getCount(ctx context.Context, q *aux.Query) (count int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		count, err = ds.searcher.Count(inner, q)
 	})
@@ -164,7 +165,7 @@ func formatSearcher(graphProvider graph.Provider,
 	return defaultSortedSearcher
 }
 
-func (ds *searcherImpl) searchCVEs(ctx context.Context, q *v1.Query) ([]*storage.CVE, error) {
+func (ds *searcherImpl) searchCVEs(ctx context.Context, q *aux.Query) ([]*storage.CVE, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store/rocksdb"
 	"github.com/stackrox/rox/central/serviceaccount/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgRocksDB "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -24,10 +25,10 @@ import (
 // DataStore is an intermediary to ServiceAccountStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchRawServiceAccounts(ctx context.Context, q *v1.Query) ([]*storage.ServiceAccount, error)
-	SearchServiceAccounts(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRawServiceAccounts(ctx context.Context, q *aux.Query) ([]*storage.ServiceAccount, error)
+	SearchServiceAccounts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
 
 	GetServiceAccount(ctx context.Context, id string) (*storage.ServiceAccount, bool, error)
 	UpsertServiceAccount(ctx context.Context, request *storage.ServiceAccount) error

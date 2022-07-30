@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/assert"
@@ -38,13 +38,13 @@ func getSubjects() []*storage.Subject {
 func TestSortSubjects(t *testing.T) {
 	cases := []struct {
 		name        string
-		sortOptions []*v1.QuerySortOption
+		sortOptions []*aux.QuerySortOption
 		expected    []*storage.Subject
 		hasError    bool
 	}{
 		{
 			name: "subject sort",
-			sortOptions: []*v1.QuerySortOption{
+			sortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.SubjectName.String(),
 					Reversed: false,
@@ -75,7 +75,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - reversed",
-			sortOptions: []*v1.QuerySortOption{
+			sortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.SubjectName.String(),
 					Reversed: true,
@@ -106,7 +106,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - kind sort",
-			sortOptions: []*v1.QuerySortOption{
+			sortOptions: []*aux.QuerySortOption{
 				{
 					Field: search.SubjectName.String(),
 				},
@@ -139,7 +139,7 @@ func TestSortSubjects(t *testing.T) {
 		},
 		{
 			name: "subject sort - kind sort",
-			sortOptions: []*v1.QuerySortOption{
+			sortOptions: []*aux.QuerySortOption{
 				{
 					Field: search.SubjectName.String(),
 				},
@@ -175,8 +175,8 @@ func TestSortSubjects(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			q := &v1.Query{
-				Pagination: &v1.QueryPagination{
+			q := &aux.Query{
+				Pagination: &aux.QueryPagination{
 					SortOptions: c.sortOptions,
 				},
 			}
@@ -196,7 +196,7 @@ func TestSortSubjects(t *testing.T) {
 func TestGetFiltered(t *testing.T) {
 	cases := []struct {
 		name             string
-		query            *v1.Query
+		query            *aux.Query
 		subjects         []*storage.Subject
 		expectedSubjects []*storage.Subject
 	}{

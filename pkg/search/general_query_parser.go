@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/set"
 )
@@ -70,7 +70,7 @@ func SortFieldLabels(fieldLabels []FieldLabel) []FieldLabel {
 }
 
 // parse parses the input query.
-func (pi generalQueryParser) parse(input string) (*v1.Query, error) {
+func (pi generalQueryParser) parse(input string) (*aux.Query, error) {
 	// Handle empty input query case.
 	fieldMap := getFieldMap(input)
 	if len(fieldMap) == 0 {
@@ -82,7 +82,7 @@ func (pi generalQueryParser) parse(input string) (*v1.Query, error) {
 	return pi.parseInternal(fieldMap)
 }
 
-func (pi generalQueryParser) parseInternal(fieldMap map[FieldLabel][]string) (*v1.Query, error) {
+func (pi generalQueryParser) parseInternal(fieldMap map[FieldLabel][]string) (*aux.Query, error) {
 	qb := NewQueryBuilder()
 	for fieldLabel, fieldValues := range fieldMap {
 		if pi.ExcludedFieldLabels.Contains(fieldLabel.String()) {

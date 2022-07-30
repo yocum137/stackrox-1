@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/cve/edgefields"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
@@ -40,7 +41,7 @@ type searcherImplV2 struct {
 }
 
 // SearchEdges returns the search results from indexed edges for the query.
-func (ds *searcherImplV2) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImplV2) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -49,17 +50,17 @@ func (ds *searcherImplV2) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.S
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImplV2) Search(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (ds *searcherImplV2) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImplV2) Count(ctx context.Context, q *v1.Query) (count int, err error) {
+func (ds *searcherImplV2) Count(ctx context.Context, q *aux.Query) (count int, err error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchRawEdges retrieves edges from the indexer and storage
-func (ds *searcherImplV2) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ClusterCVEEdge, error) {
+func (ds *searcherImplV2) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ClusterCVEEdge, error) {
 	return ds.searchImageComponentEdges(ctx, q)
 }
 
@@ -94,7 +95,7 @@ func convertOne(obj *storage.ClusterCVEEdge, result *search.Result) *v1.SearchRe
 	}
 }
 
-func (ds *searcherImplV2) searchImageComponentEdges(ctx context.Context, q *v1.Query) ([]*storage.ClusterCVEEdge, error) {
+func (ds *searcherImplV2) searchImageComponentEdges(ctx context.Context, q *aux.Query) ([]*storage.ClusterCVEEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

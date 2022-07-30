@@ -2,7 +2,7 @@ package index
 
 import (
 	bleve "github.com/blevesearch/bleve"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 	blevesearch "github.com/stackrox/rox/pkg/search/blevesearch"
@@ -17,8 +17,8 @@ type Indexer interface {
 	DeleteImages(ids []string) error
 	MarkInitialIndexingComplete() error
 	NeedsInitialIndexing() (bool, error)
-	Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
-	Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
 }
 
 // New returns a new image indexer.

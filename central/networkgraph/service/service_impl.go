@@ -17,6 +17,7 @@ import (
 	networkFlowDS "github.com/stackrox/rox/central/networkgraph/flow/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/errox"
@@ -313,7 +314,7 @@ func (s *serviceImpl) getNetworkGraph(ctx context.Context, request *v1.NetworkGr
 func (s *serviceImpl) addDeploymentFlowsToGraph(
 	ctx context.Context,
 	request *v1.NetworkGraphRequest,
-	scopeQuery *v1.Query,
+	scopeQuery *aux.Query,
 	withListenPorts bool,
 	graphBuilder *flowGraphBuilder,
 	deployments []*storage.ListDeployment,
@@ -415,7 +416,7 @@ func (s *serviceImpl) addDeploymentFlowsToGraph(
 func filterFlowsAndMaskScopeAlienDeployments(
 	ctx context.Context,
 	clusterID string,
-	scopeQuery *v1.Query,
+	scopeQuery *aux.Query,
 	flows []*storage.NetworkFlow,
 	deploymentsMap map[string]*storage.ListDeployment,
 	deploymentDS deploymentDS.DataStore,

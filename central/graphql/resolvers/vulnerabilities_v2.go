@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/vulnerabilityrequest/common"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/cve"
 	"github.com/stackrox/rox/pkg/dackbox/edges"
@@ -42,13 +43,13 @@ var (
 	}()
 )
 
-func getImageIDFromQuery(q *v1.Query) string {
+func getImageIDFromQuery(q *aux.Query) string {
 	if q == nil {
 		return ""
 	}
 	var imageID string
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -62,7 +63,7 @@ func getImageIDFromQuery(q *v1.Query) string {
 }
 
 // AddDistroContext adds the image distribution from the query or scope query if necessary
-func (resolver *Resolver) AddDistroContext(ctx context.Context, query, scopeQuery *v1.Query) (context.Context, error) {
+func (resolver *Resolver) AddDistroContext(ctx context.Context, query, scopeQuery *aux.Query) (context.Context, error) {
 	if distro := distroctx.FromContext(ctx); distro != "" {
 		return ctx, nil
 	}
@@ -90,7 +91,7 @@ func (resolver *Resolver) AddDistroContext(ctx context.Context, query, scopeQuer
 	return ctx, nil
 }
 
-func filterNamespacedFields(query *v1.Query, cves []*storage.CVE) ([]*storage.CVE, error) {
+func filterNamespacedFields(query *aux.Query, cves []*storage.CVE) ([]*storage.CVE, error) {
 	vulnQuery, _ := search.FilterQueryWithMap(query, cvePostFilteringOptionsMap)
 	vulnPred, err := cvePredicateFactory.GeneratePredicate(vulnQuery)
 	if err != nil {
@@ -105,7 +106,7 @@ func filterNamespacedFields(query *v1.Query, cves []*storage.CVE) ([]*storage.CV
 	return filtered, nil
 }
 
-func needsPostSorting(query *v1.Query) bool {
+func needsPostSorting(query *aux.Query) bool {
 	for _, so := range query.GetPagination().GetSortOptions() {
 		switch so.GetField() {
 		case search.Severity.String(), search.CVSS.String(), search.CVE.String(), search.ImpactScore.String():
@@ -117,7 +118,7 @@ func needsPostSorting(query *v1.Query) bool {
 	return false
 }
 
-func sortNamespacedFields(query *v1.Query, cves []*storage.CVE) ([]*storage.CVE, error) {
+func sortNamespacedFields(query *aux.Query, cves []*storage.CVE) ([]*storage.CVE, error) {
 	// Currently, only one sort option is supported on this endpoint
 	sortOption := query.GetPagination().SortOptions[0]
 	switch sortOption.Field {
@@ -318,7 +319,7 @@ func (resolver *Resolver) unwrappedVulnerabilitiesV2(ctx context.Context, args P
 	return resolver.unwrappedVulnerabilitiesV2Query(ctx, query)
 }
 
-func (resolver *Resolver) vulnerabilitiesV2Query(ctx context.Context, query *v1.Query) ([]VulnerabilityResolver, error) {
+func (resolver *Resolver) vulnerabilitiesV2Query(ctx context.Context, query *aux.Query) ([]VulnerabilityResolver, error) {
 	vulnResolvers, err := resolver.unwrappedVulnerabilitiesV2Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -331,7 +332,7 @@ func (resolver *Resolver) vulnerabilitiesV2Query(ctx context.Context, query *v1.
 	return ret, nil
 }
 
-func (resolver *Resolver) unwrappedVulnerabilitiesV2Query(ctx context.Context, query *v1.Query) ([]*cVEResolver, error) {
+func (resolver *Resolver) unwrappedVulnerabilitiesV2Query(ctx context.Context, query *aux.Query) ([]*cVEResolver, error) {
 	if features.PostgresDatastore.Enabled() {
 		return nil, errors.New("attempted to invoke legacy datastores with postgres enabled")
 	}
@@ -399,7 +400,7 @@ func (resolver *Resolver) vulnerabilityCountV2(ctx context.Context, args RawQuer
 	return resolver.vulnerabilityCountV2Query(ctx, query)
 }
 
-func (resolver *Resolver) vulnerabilityCountV2Query(ctx context.Context, query *v1.Query) (int32, error) {
+func (resolver *Resolver) vulnerabilityCountV2Query(ctx context.Context, query *aux.Query) (int32, error) {
 	if features.PostgresDatastore.Enabled() {
 		return 0, errors.New("attempted to invoke legacy datastores with postgres enabled")
 	}
@@ -434,7 +435,7 @@ func (resolver *Resolver) vulnCounterV2(ctx context.Context, args RawQuery) (*Vu
 	return resolver.vulnCounterV2Query(ctx, query)
 }
 
-func (resolver *Resolver) vulnCounterV2Query(ctx context.Context, query *v1.Query) (*VulnerabilityCounterResolver, error) {
+func (resolver *Resolver) vulnCounterV2Query(ctx context.Context, query *aux.Query) (*VulnerabilityCounterResolver, error) {
 	if features.PostgresDatastore.Enabled() {
 		return nil, errors.New("attempted to invoke legacy datastores with postgres enabled")
 	}
@@ -508,7 +509,7 @@ func (resolver *cVEResolver) CVE(ctx context.Context) string {
 	return resolver.data.GetId()
 }
 
-func (resolver *cVEResolver) getCVEQuery() *v1.Query {
+func (resolver *cVEResolver) getCVEQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVE, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -651,10 +652,10 @@ func (resolver *cVEResolver) LastScanned(ctx context.Context) (*graphql.Time, er
 	}
 
 	q := search.EmptyQuery()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.ImageScanTime.String(),
 				Reversed: true,
@@ -1062,7 +1063,7 @@ func (resolver *cVEResolver) OperatingSystem(ctx context.Context) string {
 	return ""
 }
 
-func (resolver *cVEResolver) addScopeContext(query *v1.Query) (context.Context, *v1.Query) {
+func (resolver *cVEResolver) addScopeContext(query *aux.Query) (context.Context, *aux.Query) {
 	ctx := resolver.ctx
 	scope, ok := scoped.GetScope(ctx)
 	if !ok {

@@ -20,6 +20,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	riskDS "github.com/stackrox/rox/central/risk/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -30,13 +31,13 @@ import (
 // DataStore is an intermediary to AlertStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	SearchListImages(ctx context.Context, q *v1.Query) ([]*storage.ListImage, error)
+	SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error)
 	ListImage(ctx context.Context, sha string) (*storage.ListImage, bool, error)
 
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchImages(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawImages(ctx context.Context, q *v1.Query) ([]*storage.Image, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error)
 
 	CountImages(ctx context.Context) (int, error)
 	GetImage(ctx context.Context, sha string) (*storage.Image, bool, error)

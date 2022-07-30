@@ -7,6 +7,7 @@ import (
 	k8sRoleDS "github.com/stackrox/rox/central/rbac/k8srole/datastore"
 	k8sRoleBindingDS "github.com/stackrox/rox/central/rbac/k8srolebinding/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/k8srbac"
 	"github.com/stackrox/rox/pkg/logging"
@@ -27,7 +28,7 @@ func getSubjectFromStores(ctx context.Context, subjectName string, roleDS k8sRol
 			[]search.FieldLabel{search.SubjectName, search.SubjectKind},
 			[]string{search.ExactMatchString(subjectName), search.ExactMatchString(storage.SubjectKind_GROUP.String())}).ProtoQuery(),
 	)
-	bindingsQuery.Pagination = &v1.QueryPagination{
+	bindingsQuery.Pagination = &aux.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	relevantBindings, err := bindingDS.SearchRawRoleBindings(ctx, bindingsQuery)
@@ -64,7 +65,7 @@ func getSubjectFromStores(ctx context.Context, subjectName string, roleDS k8sRol
 	}
 
 	rolesQuery := search.NewQueryBuilder().AddExactMatches(search.RoleID, roleIDs.AsSlice()...).ProtoQuery()
-	rolesQuery.Pagination = &v1.QueryPagination{
+	rolesQuery.Pagination = &aux.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	relevantRoles, err := roleDS.SearchRawRoles(ctx, rolesQuery)

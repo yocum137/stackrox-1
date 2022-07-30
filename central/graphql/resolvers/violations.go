@@ -6,7 +6,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -76,7 +76,7 @@ func (resolver *alertResolver) UnusedVarSink(ctx context.Context, args RawQuery)
 	return nil
 }
 
-func getLatestViolationTime(ctx context.Context, root *Resolver, q *v1.Query) (*graphql.Time, error) {
+func getLatestViolationTime(ctx context.Context, root *Resolver, q *aux.Query) (*graphql.Time, error) {
 	if err := readAlerts(ctx); err != nil {
 		return nil, err
 	}
@@ -85,8 +85,8 @@ func getLatestViolationTime(ctx context.Context, root *Resolver, q *v1.Query) (*
 		search.NewQueryBuilder().
 			AddExactMatches(search.ViolationState, storage.ViolationState_ACTIVE.String()).ProtoQuery())
 
-	q.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	q.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.ViolationTime.String(),
 				Reversed: true,
@@ -104,7 +104,7 @@ func getLatestViolationTime(ctx context.Context, root *Resolver, q *v1.Query) (*
 	return timestamp(alerts[0].GetTime())
 }
 
-func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *v1.Query) (bool, error) {
+func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *aux.Query) (bool, error) {
 	if err := readAlerts(ctx); err != nil {
 		return false, err
 	}
@@ -117,7 +117,7 @@ func anyActiveDeployAlerts(ctx context.Context, root *Resolver, q *v1.Query) (bo
 	if err != nil {
 		return false, err
 	}
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit: 1,
 	}
 

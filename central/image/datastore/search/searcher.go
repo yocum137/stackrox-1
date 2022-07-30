@@ -12,6 +12,7 @@ import (
 	imageComponentEdgeIndexer "github.com/stackrox/rox/central/imagecomponentedge/index"
 	imageCVEEdgeIndexer "github.com/stackrox/rox/central/imagecveedge/index"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/search"
@@ -20,12 +21,12 @@ import (
 // Searcher provides search functionality on existing alerts
 //go:generate mockgen-wrapper
 type Searcher interface {
-	SearchImages(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawImages(ctx context.Context, q *v1.Query) ([]*storage.Image, error)
-	SearchListImages(ctx context.Context, q *v1.Query) ([]*storage.ListImage, error)
+	SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error)
+	SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error)
 
-	Search(ctx context.Context, q *v1.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and indexer.

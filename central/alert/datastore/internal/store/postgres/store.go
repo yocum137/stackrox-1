@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/logging"
@@ -415,7 +415,7 @@ func (s *storeImpl) UpsertMany(ctx context.Context, objs []*storage.Alert) error
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Count, "Alert")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -435,7 +435,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Exists, "Alert")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
 	if err != nil {
@@ -461,7 +461,7 @@ func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 func (s *storeImpl) Get(ctx context.Context, id string) (*storage.Alert, bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Get, "Alert")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -503,7 +503,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 func (s *storeImpl) Delete(ctx context.Context, id string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Remove, "Alert")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
 	if err != nil {
@@ -525,7 +525,7 @@ func (s *storeImpl) Delete(ctx context.Context, id string) error {
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.GetAll, "storage.AlertIDs")
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.View(targetResource))
@@ -557,7 +557,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Alert
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.ResourceWithAccess{
@@ -613,7 +613,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Alert
 func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.RemoveMany, "Alert")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_WRITE_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.Modify(targetResource))
@@ -635,7 +635,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.Alert) error) error {
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	scopeChecker := sac.GlobalAccessScopeChecker(ctx).AccessMode(storage.Access_READ_ACCESS).Resource(targetResource)
 	scopeTree, err := scopeChecker.EffectiveAccessScope(permissions.ResourceWithAccess{
 		Resource: targetResource,

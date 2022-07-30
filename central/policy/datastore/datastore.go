@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/central/policy/store"
 	"github.com/stackrox/rox/central/policy/store/boltdb"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
@@ -17,10 +18,10 @@ import (
 // DataStore is an intermediary to PolicyStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchPolicies(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawPolicies(ctx context.Context, q *v1.Query) ([]*storage.Policy, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchPolicies(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawPolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error)
 
 	GetPolicy(ctx context.Context, id string) (*storage.Policy, bool, error)
 	GetAllPolicies(ctx context.Context) ([]*storage.Policy, error)

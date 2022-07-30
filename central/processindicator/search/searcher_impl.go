@@ -6,7 +6,7 @@ import (
 	"github.com/stackrox/rox/central/processindicator/index"
 	"github.com/stackrox/rox/central/processindicator/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
@@ -26,7 +26,7 @@ type searcherImpl struct {
 }
 
 // SearchRawProcessIndicators retrieves Policies from the indexer and storage
-func (s *searcherImpl) SearchRawProcessIndicators(ctx context.Context, q *v1.Query) ([]*storage.ProcessIndicator, error) {
+func (s *searcherImpl) SearchRawProcessIndicators(ctx context.Context, q *aux.Query) ([]*storage.ProcessIndicator, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (s *searcherImpl) SearchRawProcessIndicators(ctx context.Context, q *v1.Que
 	return processes, err
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	if features.PostgresDatastore.Enabled() {
 		return indicatorSACPostgresSearchHelper.Apply(s.indexer.Search)(ctx, q)
 	}
@@ -43,7 +43,7 @@ func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if features.PostgresDatastore.Enabled() {
 		return indicatorSACPostgresSearchHelper.ApplyCount(s.indexer.Count)(ctx, q)
 	}

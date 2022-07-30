@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/node/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 )
@@ -18,8 +19,8 @@ type GlobalDataStore interface {
 
 	CountAllNodes(ctx context.Context) (int, error)
 
-	SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error)
-	Search(ctx context.Context, q *v1.Query) ([]search.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error)
+	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 }

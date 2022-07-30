@@ -22,7 +22,7 @@ import (
 	riskDataStore "github.com/stackrox/rox/central/risk/datastore"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	vulnReqDataStore "github.com/stackrox/rox/central/vulnerabilityrequest/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/features"
@@ -209,7 +209,7 @@ func (g *garbageCollectorImpl) removeOrphanedPods(clusters set.FrozenStringSet) 
 	}
 }
 
-func removeOrphanedObjectsBySearch(searchQuery *v1.Query, name string, searchFn func(ctx context.Context, query *v1.Query) ([]search.Result, error), removeFn func(ctx context.Context, id string) error) {
+func removeOrphanedObjectsBySearch(searchQuery *aux.Query, name string, searchFn func(ctx context.Context, query *aux.Query) ([]search.Result, error), removeFn func(ctx context.Context, id string) error) {
 	searchRes, err := searchFn(pruningCtx, searchQuery)
 	if err != nil {
 		log.Errorf("Error finding orphaned %s: %v", name, err)
@@ -230,17 +230,17 @@ func removeOrphanedObjectsBySearch(searchQuery *v1.Query, name string, searchFn 
 }
 
 // Remove ServiceAccounts where the cluster has been deleted.
-func (g *garbageCollectorImpl) removeOrphanedServiceAccounts(searchQuery *v1.Query) {
+func (g *garbageCollectorImpl) removeOrphanedServiceAccounts(searchQuery *aux.Query) {
 	removeOrphanedObjectsBySearch(searchQuery, "service accounts", g.serviceAccts.Search, g.serviceAccts.RemoveServiceAccount)
 }
 
 // Remove K8SRoles where the cluster has been deleted.
-func (g *garbageCollectorImpl) removeOrphanedK8SRoles(searchQuery *v1.Query) {
+func (g *garbageCollectorImpl) removeOrphanedK8SRoles(searchQuery *aux.Query) {
 	removeOrphanedObjectsBySearch(searchQuery, "K8S roles", g.k8sRoles.Search, g.k8sRoles.RemoveRole)
 }
 
 // Remove K8SRoleBinding where the cluster has been deleted.
-func (g *garbageCollectorImpl) removeOrphanedK8SRoleBindings(searchQuery *v1.Query) {
+func (g *garbageCollectorImpl) removeOrphanedK8SRoleBindings(searchQuery *aux.Query) {
 	removeOrphanedObjectsBySearch(searchQuery, "K8S role bindings", g.k8sRoleBindings.Search, g.k8sRoleBindings.RemoveRoleBinding)
 }
 
@@ -281,28 +281,28 @@ func (g *garbageCollectorImpl) removeOrphanedResources() {
 	g.removeOrphanedK8SRoleBindings(q)
 }
 
-func clusterIDsToNegationQuery(clusterIDSet set.FrozenStringSet) *v1.Query {
+func clusterIDsToNegationQuery(clusterIDSet set.FrozenStringSet) *aux.Query {
 	// TODO: When searching can be done with SQL, this should be refactored to a simple `NOT IN...` query. This current one is inefficent
 	// with a large number of clusters and because of the required conjunction query that is taking a hit being a regex query to do nothing
 	// Bleve/booleanquery requires a conjunction so it can't be removed
-	var mustNot *v1.DisjunctionQuery
+	var mustNot *aux.DisjunctionQuery
 	if clusterIDSet.Cardinality() > 1 {
 		mustNot = search.DisjunctionQuery(search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterIDSet.AsSlice()...).ProtoQuery()).GetDisjunction()
 	} else {
 		// Manually generating a disjunction because search.DisjunctionQuery returns a v1.Query if there's only thing it's matching on
 		// which then results in a nil disjunction inside boolean query. That means this search will match everything.
-		mustNot = (&v1.Query{
-			Query: &v1.Query_Disjunction{Disjunction: &v1.DisjunctionQuery{
-				Queries: []*v1.Query{search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterIDSet.AsSlice()...).ProtoQuery()},
+		mustNot = (&aux.Query{
+			Query: &aux.Query_Disjunction{Disjunction: &aux.DisjunctionQuery{
+				Queries: []*aux.Query{search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterIDSet.AsSlice()...).ProtoQuery()},
 			}},
 		}).GetDisjunction()
 	}
 
-	must := (&v1.Query{
+	must := (&aux.Query{
 		// Similar to disjunction, conjunction needs multiple queries, or it has to be manually created
 		// Unlike disjunction, if there's only one query when the boolean query is used it will panic
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{search.NewQueryBuilder().AddStrings(search.ClusterID, search.WildcardString).ProtoQuery()},
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{search.NewQueryBuilder().AddStrings(search.ClusterID, search.WildcardString).ProtoQuery()},
 		}},
 	}).GetConjunction()
 
@@ -338,8 +338,8 @@ func (g *garbageCollectorImpl) removeOrphanedProcesses(deploymentIDs, podIDs set
 func (g *garbageCollectorImpl) removeOrphanedProcessBaselines(deployments set.FrozenStringSet) {
 	var baselineBatchOffset, prunedProcessBaselines int32
 	for {
-		allQuery := &v1.Query{
-			Pagination: &v1.QueryPagination{
+		allQuery := &aux.Query{
+			Pagination: &aux.QueryPagination{
 				Offset: baselineBatchOffset,
 				Limit:  baselineBatchLimit,
 			},
@@ -653,7 +653,7 @@ func (g *garbageCollectorImpl) collectAlerts(config *storage.PrivateConfig) {
 		pruneAttemptedDeployAfter,
 		pruneAttemptedRuntimeAfter := getConfigValues(config)
 
-	var queries []*v1.Query
+	var queries []*aux.Query
 
 	if pruneResolvedDeployAfter > 0 {
 		q := search.NewQueryBuilder().

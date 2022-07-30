@@ -14,7 +14,7 @@ import (
 	"github.com/stackrox/rox/central/risk/manager"
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	watchedImageDataStore "github.com/stackrox/rox/central/watchedimage/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -356,7 +356,7 @@ func (l *loopImpl) waitForIndexing() {
 }
 
 func (l *loopImpl) reprocessImagesAndResyncDeployments(fetchOpt imageEnricher.FetchOption,
-	imgReprocessingFunc imageReprocessingFunc, imageQuery *v1.Query) {
+	imgReprocessingFunc imageReprocessingFunc, imageQuery *aux.Query) {
 	if l.stopSig.IsDone() {
 		return
 	}

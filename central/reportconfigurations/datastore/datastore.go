@@ -8,7 +8,7 @@ import (
 	"github.com/stackrox/rox/central/reportconfigurations/search"
 	"github.com/stackrox/rox/central/reportconfigurations/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	searchPkg "github.com/stackrox/rox/pkg/search"
@@ -17,10 +17,10 @@ import (
 // DataStore is the datastore for report configurations.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 
-	GetReportConfigurations(ctx context.Context, query *v1.Query) ([]*storage.ReportConfiguration, error)
+	GetReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error)
 	GetReportConfiguration(ctx context.Context, id string) (*storage.ReportConfiguration, bool, error)
 	AddReportConfiguration(ctx context.Context, reportConfig *storage.ReportConfiguration) (string, error)
 	UpdateReportConfiguration(ctx context.Context, reportConfig *storage.ReportConfiguration) error

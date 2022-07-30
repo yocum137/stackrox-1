@@ -11,7 +11,7 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store"
 	"github.com/stackrox/rox/central/serviceaccount/internal/store/rocksdb"
 	serviceAccountSearch "github.com/stackrox/rox/central/serviceaccount/search"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	rocksdbHelper "github.com/stackrox/rox/pkg/rocksdb"
@@ -66,7 +66,7 @@ func (suite *ServiceAccountDataStoreTestSuite) TearDownSuite() {
 	suite.NoError(suite.bleveIndex.Close())
 }
 
-func (suite *ServiceAccountDataStoreTestSuite) assertSearchResults(q *v1.Query, s *storage.ServiceAccount) {
+func (suite *ServiceAccountDataStoreTestSuite) assertSearchResults(q *aux.Query, s *storage.ServiceAccount) {
 	results, err := suite.datastore.SearchServiceAccounts(suite.ctx, q)
 	suite.Require().NoError(err)
 	if s != nil {

@@ -1,16 +1,16 @@
 package policyutils
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 )
 
 // DeploymentExclusionToQuery returns the proto query to get all excluded deployments
-func DeploymentExclusionToQuery(exclusions []*storage.Exclusion) *v1.Query {
-	var queries []*v1.Query
+func DeploymentExclusionToQuery(exclusions []*storage.Exclusion) *aux.Query {
+	var queries []*aux.Query
 	for _, exclusion := range exclusions {
-		subqueries := make([]*v1.Query, 0, 2)
+		subqueries := make([]*aux.Query, 0, 2)
 		if exclusion.GetDeployment() != nil {
 			if exclusion.GetDeployment().GetName() != "" {
 				subqueries = append(subqueries, search.NewQueryBuilder().AddExactMatches(search.DeploymentName,

@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store/rocksdb"
 	"github.com/stackrox/rox/central/secret/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -23,11 +24,11 @@ import (
 // DataStore is an intermediary to SecretStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchSecrets(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawSecrets(ctx context.Context, q *v1.Query) ([]*storage.Secret, error)
-	SearchListSecrets(ctx context.Context, q *v1.Query) ([]*storage.ListSecret, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchSecrets(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawSecrets(ctx context.Context, q *aux.Query) ([]*storage.Secret, error)
+	SearchListSecrets(ctx context.Context, q *aux.Query) ([]*storage.ListSecret, error)
 
 	CountSecrets(ctx context.Context) (int, error)
 	GetSecret(ctx context.Context, id string) (*storage.Secret, bool, error)

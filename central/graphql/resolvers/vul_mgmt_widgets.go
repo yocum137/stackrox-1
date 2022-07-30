@@ -7,7 +7,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -90,7 +90,7 @@ func (r *FailingPolicyResolver) Severity(ctx context.Context) string {
 	return r.policy.GetSeverity().String()
 }
 
-func deploymentsWithMostSevereViolations(ctx context.Context, resolver *Resolver, q *v1.Query) ([]*DeploymentsWithMostSevereViolationsResolver, error) {
+func deploymentsWithMostSevereViolations(ctx context.Context, resolver *Resolver, q *aux.Query) ([]*DeploymentsWithMostSevereViolationsResolver, error) {
 	pagination := q.GetPagination()
 	q.Pagination = nil
 

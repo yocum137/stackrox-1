@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/sac"
@@ -49,7 +50,7 @@ func TestSearchHelper_TestApply_WithFilter(t *testing.T) {
 		},
 	})
 
-	mockSearchFunc := func(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+	mockSearchFunc := func(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 		return []search.Result{
 			fakeResult("1", "cluster1", "nsA"),
 			fakeResult("2", "cluster1", "nsB"),
@@ -98,7 +99,7 @@ func TestSearchHelper_TestApply_WithAllAccess(t *testing.T) {
 		},
 	})
 
-	mockSearchFunc := func(q *v1.Query, options ...blevesearch.SearchOption) ([]search.Result, error) {
+	mockSearchFunc := func(q *aux.Query, options ...blevesearch.SearchOption) ([]search.Result, error) {
 		return []search.Result{
 			fakeResult("1", "cluster1", "nsA"),
 			fakeResult("2", "cluster1", "nsB"),

@@ -7,7 +7,7 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -126,7 +126,7 @@ func (resolver *secretResolver) DeploymentCount(ctx context.Context, args RawQue
 	return int32(len(results)), nil
 }
 
-func (resolver *secretResolver) getDeploymentQuery(query *v1.Query) (*v1.Query, error) {
+func (resolver *secretResolver) getDeploymentQuery(query *aux.Query) (*aux.Query, error) {
 	secret := resolver.data
 	deploymentIDs := set.NewStringSet()
 

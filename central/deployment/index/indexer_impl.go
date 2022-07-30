@@ -8,6 +8,7 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/batcher"
 	"github.com/stackrox/rox/pkg/logging"
@@ -109,15 +110,15 @@ func (b *indexerImpl) NeedsInitialIndexing() (bool, error) {
 	return !bytes.Equal([]byte("old"), data), nil
 }
 
-func (b *indexerImpl) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "Deployment")
 
 	// Has process option
 	// if has process option
 	index := b.index
 	var hasProcessComponent bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -133,15 +134,15 @@ func (b *indexerImpl) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]s
 }
 
 // Count returns the number of search results from the query
-func (b *indexerImpl) Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "Deployment")
 
 	// Has process option
 	// if has process option
 	index := b.index
 	var hasProcessComponent bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

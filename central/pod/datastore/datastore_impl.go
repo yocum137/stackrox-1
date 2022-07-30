@@ -12,7 +12,7 @@ import (
 	podStore "github.com/stackrox/rox/central/pod/store"
 	piDS "github.com/stackrox/rox/central/processindicator/datastore"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/batcher"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -153,11 +153,11 @@ func (ds *datastoreImpl) fullReindex(ctx context.Context) error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.podSearcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawPods(ctx context.Context, q *v1.Query) ([]*storage.Pod, error) {
+func (ds *datastoreImpl) SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), resourceType, "SearchRawPods")
 
 	return ds.podSearcher.SearchRawPods(ctx, q)

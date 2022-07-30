@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,27 +12,27 @@ import (
 func TestFilterQuery(t *testing.T) {
 	optionsMap := Walk(v1.SearchCategory_IMAGES, "derp", &storage.Image{})
 
-	query := &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	query := &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
@@ -41,26 +42,26 @@ func TestFilterQuery(t *testing.T) {
 
 	newQuery, filtered := FilterQueryWithMap(query, optionsMap)
 	assert.True(t, filtered)
-	assert.Equal(t, &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	assert.Equal(t, &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 				},
 			},
 		},
 	}, newQuery)
 
-	var expected *v1.Query
+	var expected *aux.Query
 	newQuery, filtered = FilterQueryWithMap(EmptyQuery(), optionsMap)
 	assert.False(t, filtered)
 	assert.Equal(t, expected, newQuery)
 
-	q := &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{
+	q := &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{
 						Field: ImageSHA.String(),
 						Value: "blah",
 					},
@@ -76,27 +77,27 @@ func TestFilterQuery(t *testing.T) {
 func TestInverseFilterQuery(t *testing.T) {
 	optionsMap := Walk(v1.SearchCategory_IMAGES, "derp", &storage.Image{})
 
-	query := &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	query := &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
@@ -106,20 +107,20 @@ func TestInverseFilterQuery(t *testing.T) {
 
 	newQuery, filtered := InverseFilterQueryWithMap(query, optionsMap)
 	assert.True(t, filtered)
-	assert.Equal(t, &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+	assert.Equal(t, &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
@@ -127,16 +128,16 @@ func TestInverseFilterQuery(t *testing.T) {
 		}},
 	}, newQuery)
 
-	var expected *v1.Query
+	var expected *aux.Query
 	newQuery, filtered = InverseFilterQueryWithMap(EmptyQuery(), optionsMap)
 	assert.False(t, filtered)
 	assert.Equal(t, expected, newQuery)
 
-	q := &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{
+	q := &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{
 						Field: ImageSHA.String(),
 						Value: "blah",
 					},
@@ -150,30 +151,30 @@ func TestInverseFilterQuery(t *testing.T) {
 }
 
 func TestAddAsConjunction(t *testing.T) {
-	toAdd := &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	toAdd := &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 				},
 			},
 		},
 	}
 
-	addTo := &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+	addTo := &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
@@ -181,27 +182,27 @@ func TestAddAsConjunction(t *testing.T) {
 		}},
 	}
 
-	expected := &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+	expected := &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 						},
 					},
 				}},
@@ -213,30 +214,30 @@ func TestAddAsConjunction(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expected, added)
 
-	addTo = &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+	addTo = &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 				},
 			},
 		},
 	}
 
-	expected = &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	expected = &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},
@@ -248,20 +249,20 @@ func TestAddAsConjunction(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expected, added)
 
-	addTo = &v1.Query{
-		Query: &v1.Query_Disjunction{Disjunction: &v1.DisjunctionQuery{
-			Queries: []*v1.Query{
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
+	addTo = &aux.Query{
+		Query: &aux.Query_Disjunction{Disjunction: &aux.DisjunctionQuery{
+			Queries: []*aux.Query{
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: CVE.String(), Value: "cveId"},
 						},
 					},
 				}},
-				{Query: &v1.Query_BaseQuery{
-					BaseQuery: &v1.BaseQuery{
-						Query: &v1.BaseQuery_MatchFieldQuery{
-							MatchFieldQuery: &v1.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
+				{Query: &aux.Query_BaseQuery{
+					BaseQuery: &aux.BaseQuery{
+						Query: &aux.BaseQuery_MatchFieldQuery{
+							MatchFieldQuery: &aux.MatchFieldQuery{Field: DeploymentName.String(), Value: "depname"},
 						},
 					},
 				}},

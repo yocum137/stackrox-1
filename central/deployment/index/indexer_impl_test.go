@@ -9,7 +9,7 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/stackrox/rox/central/globalindex"
 	processIndicatorIndex "github.com/stackrox/rox/central/processindicator/index"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/images/types"
@@ -77,7 +77,7 @@ func (suite *DeploymentIndexTestSuite) TestHighlighting() {
 	suite.NoError(suite.indexer.AddDeployments([]*storage.Deployment{deployment22, deployment221, depWithBoth22And221}))
 
 	cases := []struct {
-		q                    *v1.Query
+		q                    *aux.Query
 		expectedIdsToMatches map[string]map[string][]string
 	}{
 		{
@@ -394,7 +394,7 @@ func (suite *DeploymentIndexTestSuite) TestCaseInsensitivityOfFieldNames() {
 	suite.NoError(err)
 	lowerCaseQ, err := search.ParseQuery(fmt.Sprintf("namespace:%s", ns))
 	suite.NoError(err)
-	for _, q := range []*v1.Query{upperCaseQ, lowerCaseQ} {
+	for _, q := range []*aux.Query{upperCaseQ, lowerCaseQ} {
 		results, err := suite.indexer.Search(q)
 		suite.NoError(err)
 		suite.Len(results, 1)
@@ -418,11 +418,11 @@ func (suite *DeploymentIndexTestSuite) TestDeploymentDelete() {
 	suite.Len(results, 0)
 }
 
-func newPagination(field search.FieldLabel, from, size int32, reversed bool) *v1.QueryPagination {
-	return &v1.QueryPagination{
+func newPagination(field search.FieldLabel, from, size int32, reversed bool) *aux.QueryPagination {
+	return &aux.QueryPagination{
 		Limit:  size,
 		Offset: from,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    field.String(),
 				Reversed: reversed,

@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	clusterCVEDataStore "github.com/stackrox/rox/central/cve/cluster/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/search"
@@ -45,9 +45,9 @@ func GetClusterCVELoader(ctx context.Context) (ClusterCVELoader, error) {
 type ClusterCVELoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.ClusterCVE, error)
 	FromID(ctx context.Context, id string) (*storage.ClusterCVE, error)
-	FromQuery(ctx context.Context, query *v1.Query) ([]*storage.ClusterCVE, error)
+	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ClusterCVE, error)
 
-	CountFromQuery(ctx context.Context, query *v1.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -78,7 +78,7 @@ func (idl *clusterCveLoaderImpl) FromID(ctx context.Context, id string) (*storag
 }
 
 // FromQuery loads a set of cluster cves that match a query.
-func (idl *clusterCveLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*storage.ClusterCVE, error) {
+func (idl *clusterCveLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.ClusterCVE, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (idl *clusterCveLoaderImpl) FromQuery(ctx context.Context, query *v1.Query)
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *clusterCveLoaderImpl) CountFromQuery(ctx context.Context, query *v1.Query) (int32, error) {
+func (idl *clusterCveLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
 	count, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

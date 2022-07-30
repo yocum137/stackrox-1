@@ -5,7 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/activecomponent/datastore/index"
 	"github.com/stackrox/rox/central/activecomponent/datastore/internal/store"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -29,7 +29,7 @@ type searcherImplV2 struct {
 }
 
 // SearchRawActiveComponents retrieves SearchResults from the indexer and storage
-func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *v1.Query) ([]*storage.ActiveComponent, error) {
+func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *aux.Query) ([]*storage.ActiveComponent, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -42,11 +42,11 @@ func (s *searcherImplV2) SearchRawActiveComponents(ctx context.Context, q *v1.Qu
 	return images, nil
 }
 
-func (s *searcherImplV2) Search(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (s *searcherImplV2) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImplV2) Count(ctx context.Context, q *v1.Query) (count int, err error) {
+func (s *searcherImplV2) Count(ctx context.Context, q *aux.Query) (count int, err error) {
 	return s.searcher.Count(ctx, q)
 }

@@ -15,7 +15,7 @@ import (
 	runtimeDetectorMocks "github.com/stackrox/rox/central/detection/runtime/mocks"
 	notifierMocks "github.com/stackrox/rox/central/notifier/processor/mocks"
 	policyMocks "github.com/stackrox/rox/central/policy/datastore/mocks"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/fieldnames"
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages/printer"
@@ -148,11 +148,11 @@ func (suite *AlertManagerTestSuite) TearDownTest() {
 // which ensure that the query specifies all the fields.
 func queryHasFields(fields ...search.FieldLabel) func(interface{}) bool {
 	return func(in interface{}) bool {
-		q := in.(*v1.Query)
+		q := in.(*aux.Query)
 
 		fieldsFound := make([]bool, len(fields))
-		search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-			mfQ, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+		search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+			mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 			if !ok {
 				return
 			}
@@ -188,11 +188,11 @@ func (suite *AlertManagerTestSuite) TestNotifyAndUpdateBatch() {
 	resolvedAlerts[1].ResolvedAt = protoconv.MustConvertTimeToTimestamp(time.Now().Add(-2 * time.Minute))
 
 	suite.alertsMock.EXPECT().SearchRawAlerts(suite.ctx,
-		testutils.PredMatcher("query for dep 1", func(q *v1.Query) bool {
+		testutils.PredMatcher("query for dep 1", func(q *aux.Query) bool {
 			return strings.Contains(proto.MarshalTextString(q), "Dep1")
 		})).Return([]*storage.Alert{resolvedAlerts[0]}, nil)
 	suite.alertsMock.EXPECT().SearchRawAlerts(suite.ctx,
-		testutils.PredMatcher("query for dep 2", func(q *v1.Query) bool {
+		testutils.PredMatcher("query for dep 2", func(q *aux.Query) bool {
 			return strings.Contains(proto.MarshalTextString(q), "Dep2")
 		})).Return([]*storage.Alert{resolvedAlerts[1]}, nil)
 

@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/policy/matcher"
 	riskDS "github.com/stackrox/rox/central/risk/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -93,14 +94,14 @@ func (resolver *namespaceResolver) getClusterNamespaceRawQuery() string {
 		Query()
 }
 
-func (resolver *namespaceResolver) getClusterNamespaceQuery() *v1.Query {
+func (resolver *namespaceResolver) getClusterNamespaceQuery() *aux.Query {
 	return search.NewQueryBuilder().
 		AddExactMatches(search.ClusterID, resolver.data.GetMetadata().GetClusterId()).
 		AddExactMatches(search.Namespace, resolver.data.Metadata.GetName()).
 		ProtoQuery()
 }
 
-func (resolver *namespaceResolver) getNamespaceConjunctionQuery(args RawQuery) (*v1.Query, error) {
+func (resolver *namespaceResolver) getNamespaceConjunctionQuery(args RawQuery) (*aux.Query, error) {
 	q1 := resolver.getClusterNamespaceQuery()
 	if args.String() == "" {
 		return q1, nil
@@ -330,7 +331,7 @@ func (resolver *namespaceResolver) ImageCount(ctx context.Context, args RawQuery
 	return resolver.root.ImageCount(ctx, RawQuery{Query: &query})
 }
 
-func (resolver *namespaceResolver) getApplicablePolicies(ctx context.Context, q *v1.Query) ([]*storage.Policy, error) {
+func (resolver *namespaceResolver) getApplicablePolicies(ctx context.Context, q *aux.Query) ([]*storage.Policy, error) {
 	policyLoader, err := loaders.GetPolicyLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -377,7 +378,7 @@ func (resolver *namespaceResolver) Policies(ctx context.Context, args PaginatedQ
 
 	// remove pagination from query since we want to paginate the final result
 	pagination := q.GetPagination()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		SortOptions: pagination.GetSortOptions(),
 	}
 
@@ -484,7 +485,7 @@ func (resolver *namespaceResolver) PolicyStatusOnly(ctx context.Context, args Ra
 	return "pass", nil
 }
 
-func (resolver *namespaceResolver) getActiveDeployAlerts(ctx context.Context, q *v1.Query) ([]*storage.ListAlert, error) {
+func (resolver *namespaceResolver) getActiveDeployAlerts(ctx context.Context, q *aux.Query) ([]*storage.ListAlert, error) {
 	if err := readAlerts(ctx); err != nil {
 		return nil, err
 	}

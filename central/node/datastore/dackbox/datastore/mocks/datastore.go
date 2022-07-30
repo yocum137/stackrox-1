@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -38,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -133,7 +134,7 @@ func (mr *MockDataStoreMockRecorder) GetNodesBatch(ctx, ids interface{}) *gomock
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -148,7 +149,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchNodes mocks base method.
-func (m *MockDataStore) SearchNodes(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchNodes", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)
@@ -163,7 +164,7 @@ func (mr *MockDataStoreMockRecorder) SearchNodes(ctx, q interface{}) *gomock.Cal
 }
 
 // SearchRawNodes mocks base method.
-func (m *MockDataStore) SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error) {
+func (m *MockDataStore) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawNodes", ctx, q)
 	ret0, _ := ret[0].([]*storage.Node)

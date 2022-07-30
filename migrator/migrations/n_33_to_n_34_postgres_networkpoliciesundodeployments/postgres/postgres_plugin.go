@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	ops "github.com/stackrox/rox/pkg/metrics"
@@ -224,7 +224,7 @@ func (s *storeImpl) UpsertMany(ctx context.Context, objs []*storage.NetworkPolic
 // Count returns the number of objects in the store
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	return postgres.RunCountRequestForSchema(schema, sacQueryFilter, s.db)
 }
@@ -232,7 +232,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 // Exists returns if the id exists in the store
 func (s *storeImpl) Exists(ctx context.Context, deploymentId string) (bool, error) {
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -248,7 +248,7 @@ func (s *storeImpl) Exists(ctx context.Context, deploymentId string) (bool, erro
 // Get returns the object, if it exists from the store
 func (s *storeImpl) Get(ctx context.Context, deploymentId string) (*storage.NetworkPolicyApplicationUndoDeploymentRecord, bool, error) {
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -278,7 +278,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 // Delete removes the specified ID from the store
 func (s *storeImpl) Delete(ctx context.Context, deploymentId string) error {
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -290,7 +290,7 @@ func (s *storeImpl) Delete(ctx context.Context, deploymentId string) error {
 
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	result, err := postgres.RunSearchRequestForSchema(schema, sacQueryFilter, s.db)
 	if err != nil {
 		return nil, err
@@ -311,7 +311,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Netwo
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
 		search.NewQueryBuilder().AddDocIDs(ids...).ProtoQuery(),
@@ -353,7 +353,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.Netwo
 // Delete removes the specified IDs from the store
 func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	q := search.ConjunctionQuery(
 		sacQueryFilter,
@@ -365,7 +365,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.NetworkPolicyApplicationUndoDeploymentRecord) error) error {
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	fetcher, closer, err := postgres.RunCursorQueryForSchema(ctx, schema, sacQueryFilter, s.db)
 	if err != nil {
 		return err

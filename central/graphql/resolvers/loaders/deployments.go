@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/deployment/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/sync"
@@ -42,9 +42,9 @@ func GetDeploymentLoader(ctx context.Context) (DeploymentLoader, error) {
 type DeploymentLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.Deployment, error)
 	FromID(ctx context.Context, id string) (*storage.Deployment, error)
-	FromQuery(ctx context.Context, query *v1.Query) ([]*storage.Deployment, error)
+	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Deployment, error)
 
-	CountFromQuery(ctx context.Context, query *v1.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -75,7 +75,7 @@ func (idl *deploymentLoaderImpl) FromID(ctx context.Context, id string) (*storag
 }
 
 // FromQuery loads a set of deployments that match a query.
-func (idl *deploymentLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*storage.Deployment, error) {
+func (idl *deploymentLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Deployment, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (idl *deploymentLoaderImpl) FromQuery(ctx context.Context, query *v1.Query)
 }
 
 // CountFromQuery returns the number of deployments that match a given query.
-func (idl *deploymentLoaderImpl) CountFromQuery(ctx context.Context, query *v1.Query) (int32, error) {
+func (idl *deploymentLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return 0, err

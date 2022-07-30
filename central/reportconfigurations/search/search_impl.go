@@ -5,7 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/reportconfigurations/index"
 	"github.com/stackrox/rox/central/reportconfigurations/store"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.ReportName.String(),
 	}
 )
@@ -24,20 +24,20 @@ type searcherImpl struct {
 	indexer  index.Indexer
 }
 
-func (s *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Search returns the raw search results from the query
-func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.getSearchResults(ctx, q)
 }
 
-func (s *searcherImpl) SearchReportConfigurations(ctx context.Context, query *v1.Query) ([]*storage.ReportConfiguration, error) {
+func (s *searcherImpl) SearchReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error) {
 	return s.searchReportConfigurations(ctx, query)
 }
 
-func (s *searcherImpl) Count(ctx context.Context, query *v1.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, query *aux.Query) (int, error) {
 	return s.searcher.Count(ctx, query)
 }
 
@@ -49,7 +49,7 @@ func formatSearcher(unsafeSearcher blevesearch.UnsafeSearcher) search.Searcher {
 	return defaultSortedSearcher
 }
 
-func (s *searcherImpl) searchReportConfigurations(ctx context.Context, q *v1.Query) ([]*storage.ReportConfiguration, error) {
+func (s *searcherImpl) searchReportConfigurations(ctx context.Context, q *aux.Query) ([]*storage.ReportConfiguration, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err

@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	legacyImageCVEDataStore "github.com/stackrox/rox/central/cve/datastore"
 	distroctx "github.com/stackrox/rox/central/graphql/resolvers/distroctx"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/cvss"
 	"github.com/stackrox/rox/pkg/features"
@@ -49,9 +49,9 @@ func GetCVELoader(ctx context.Context) (CVELoader, error) {
 type CVELoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.CVE, error)
 	FromID(ctx context.Context, id string) (*storage.CVE, error)
-	FromQuery(ctx context.Context, query *v1.Query) ([]*storage.CVE, error)
-	GetIDs(ctx context.Context, query *v1.Query) ([]string, error)
-	CountFromQuery(ctx context.Context, query *v1.Query) (int32, error)
+	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.CVE, error)
+	GetIDs(ctx context.Context, query *aux.Query) ([]string, error)
+	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -93,7 +93,7 @@ func (idl *cveLoaderImpl) FromID(ctx context.Context, id string) (*storage.CVE, 
 }
 
 // FromQuery loads a set of cves that match a query.
-func (idl *cveLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*storage.CVE, error) {
+func (idl *cveLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.CVE, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (idl *cveLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*st
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *cveLoaderImpl) GetIDs(ctx context.Context, query *v1.Query) ([]string, error) {
+func (idl *cveLoaderImpl) GetIDs(ctx context.Context, query *aux.Query) ([]string, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (idl *cveLoaderImpl) GetIDs(ctx context.Context, query *v1.Query) ([]string
 	return search.ResultsToIDs(results), nil
 }
 
-func (idl *cveLoaderImpl) CountFromQuery(ctx context.Context, query *v1.Query) (int32, error) {
+func (idl *cveLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
 	count, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

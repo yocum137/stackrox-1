@@ -11,6 +11,7 @@ import (
 	riskDataStore "github.com/stackrox/rox/central/risk/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/features"
@@ -34,20 +35,20 @@ type datastoreImpl struct {
 	imageComponentRanker *ranking.Ranker
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchImageComponents(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchImageComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchImageComponents(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawImageComponents(ctx context.Context, q *v1.Query) ([]*storage.ImageComponent, error) {
+func (ds *datastoreImpl) SearchRawImageComponents(ctx context.Context, q *aux.Query) ([]*storage.ImageComponent, error) {
 	components, err := ds.searcher.SearchRawImageComponents(ctx, q)
 	if err != nil {
 		return nil, err

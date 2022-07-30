@@ -7,6 +7,7 @@ import (
 	pkgNodeComponentEdgeSAC "github.com/stackrox/rox/central/nodecomponentedge/sac"
 	"github.com/stackrox/rox/central/nodecomponentedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -20,7 +21,7 @@ type searcherImpl struct {
 }
 
 // SearchEdges returns the search results from indexed edges for the query.
-func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -29,21 +30,21 @@ func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.Sea
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchRawEdges retrieves edges from the indexer and storage
-func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.NodeComponentEdge, error) {
+func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentEdge, error) {
 	return ds.searchNodeComponentEdges(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
@@ -85,7 +86,7 @@ func formatSearcher(unsafeSearcher blevesearch.UnsafeSearcher) search.Searcher {
 	return filtered.UnsafeSearcher(unsafeSearcher, pkgNodeComponentEdgeSAC.GetSACFilter())
 }
 
-func (ds *searcherImpl) searchNodeComponentEdges(ctx context.Context, q *v1.Query) ([]*storage.NodeComponentEdge, error) {
+func (ds *searcherImpl) searchNodeComponentEdges(ctx context.Context, q *aux.Query) ([]*storage.NodeComponentEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

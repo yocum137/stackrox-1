@@ -30,6 +30,7 @@ import (
 	secretDataStore "github.com/stackrox/rox/central/secret/datastore"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	protoSet "github.com/stackrox/rox/generated/set"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/features"
@@ -63,7 +64,7 @@ type autocompleteResult struct {
 }
 
 // SearchFunc represents a function that goes from a query to a proto search result.
-type SearchFunc func(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
+type SearchFunc func(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
 
 func (s *serviceImpl) getSearchFuncs() map[v1.SearchCategory]SearchFunc {
 	searchfuncs := map[v1.SearchCategory]SearchFunc{
@@ -198,7 +199,7 @@ func RunAutoComplete(ctx context.Context, queryString string, categories []v1.Se
 		return nil, errors.Wrapf(errox.InvalidArgs, "unable to parse query %q: %v", queryString, err)
 	}
 	// Set the max return size for the query
-	query.Pagination = &v1.QueryPagination{
+	query.Pagination = &aux.QueryPagination{
 		Limit: maxAutocompleteResults,
 	}
 
@@ -318,9 +319,9 @@ func (s *serviceImpl) AuthFuncOverride(ctx context.Context, fullMethodName strin
 
 // Special case alerts because they have a default search param of state:unresolved
 // TODO(cgorman) rework the options for global search to allow for transitive connections (policy <-> deployment, etc)
-func shouldProcessAlerts(q *v1.Query) (shouldProcess bool) {
-	fn := func(bq *v1.BaseQuery) {
-		mfq, ok := bq.Query.(*v1.BaseQuery_MatchFieldQuery)
+func shouldProcessAlerts(q *aux.Query) (shouldProcess bool) {
+	fn := func(bq *aux.BaseQuery) {
+		mfq, ok := bq.Query.(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

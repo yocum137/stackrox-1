@@ -14,7 +14,7 @@ import (
 	"github.com/stackrox/rox/central/processbaseline/store/rocksdb"
 	"github.com/stackrox/rox/central/processbaselineresults/datastore"
 	processIndicatorDatastore "github.com/stackrox/rox/central/processindicator/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
@@ -24,8 +24,8 @@ import (
 // DataStore wraps storage, indexer, and searcher for ProcessBaselines.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	SearchRawProcessBaselines(ctx context.Context, q *v1.Query) ([]*storage.ProcessBaseline, error)
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
+	SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
 
 	GetProcessBaseline(ctx context.Context, key *storage.ProcessBaselineKey) (*storage.ProcessBaseline, bool, error)
 	AddProcessBaseline(ctx context.Context, baseline *storage.ProcessBaseline) (string, error)

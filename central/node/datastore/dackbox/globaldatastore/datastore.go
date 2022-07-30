@@ -9,6 +9,7 @@ import (
 	dackboxDatastore "github.com/stackrox/rox/central/node/datastore/dackbox/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/logging"
@@ -135,7 +136,7 @@ func (s *globalDataStore) CountAllNodes(ctx context.Context) (int, error) {
 }
 
 // SearchResults returns any node matches to the query
-func (s *globalDataStore) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (s *globalDataStore) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -163,7 +164,7 @@ func (s *globalDataStore) SearchResults(ctx context.Context, q *v1.Query) ([]*v1
 }
 
 // SearchRawNodes returns nodes that match a query
-func (s *globalDataStore) SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error) {
+func (s *globalDataStore) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -183,11 +184,11 @@ func (s *globalDataStore) SearchRawNodes(ctx context.Context, q *v1.Query) ([]*s
 }
 
 // Search returns any node matches to the query
-func (s *globalDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *globalDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.datastore.Search(ctx, q)
 }
 
 // Count returns the number of nodes matches the query
-func (s *globalDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *globalDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.datastore.Count(ctx, q)
 }

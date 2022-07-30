@@ -3,12 +3,12 @@ package search
 import (
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEmptyQuery(t *testing.T) {
-	assert.Equal(t, &v1.Query{}, NewQueryBuilder().ProtoQuery())
+	assert.Equal(t, &aux.Query{}, NewQueryBuilder().ProtoQuery())
 }
 
 func TestDocIDs(t *testing.T) {
@@ -31,11 +31,11 @@ func TestDocIDs(t *testing.T) {
 	}
 	for _, c := range cases {
 		q := NewQueryBuilder().AddDocIDs(c.docIDs...).ProtoQuery()
-		expected := &v1.Query{
-			Query: &v1.Query_BaseQuery{
-				BaseQuery: &v1.BaseQuery{
-					Query: &v1.BaseQuery_DocIdQuery{
-						DocIdQuery: &v1.DocIDQuery{
+		expected := &aux.Query{
+			Query: &aux.Query_BaseQuery{
+				BaseQuery: &aux.BaseQuery{
+					Query: &aux.BaseQuery_DocIdQuery{
+						DocIdQuery: &aux.DocIDQuery{
 							Ids: c.docIDs,
 						},
 					},

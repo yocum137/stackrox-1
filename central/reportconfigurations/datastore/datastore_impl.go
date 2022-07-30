@@ -8,7 +8,7 @@ import (
 	"github.com/stackrox/rox/central/reportconfigurations/search"
 	"github.com/stackrox/rox/central/reportconfigurations/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/debug"
 	"github.com/stackrox/rox/pkg/features"
@@ -53,15 +53,15 @@ func (d *dataStoreImpl) buildIndex(ctx context.Context) error {
 	return nil
 }
 
-func (d *dataStoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (d *dataStoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return d.searcher.Search(ctx, q)
 }
 
-func (d *dataStoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (d *dataStoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return d.searcher.Count(ctx, q)
 }
 
-func (d *dataStoreImpl) GetReportConfigurations(ctx context.Context, query *v1.Query) ([]*storage.ReportConfiguration, error) {
+func (d *dataStoreImpl) GetReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error) {
 	if ok, err := reportConfigSAC.ReadAllowed(ctx); !ok || err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -391,7 +392,7 @@ func (resolver *nodeResolver) TopNodeVulnerability(ctx context.Context, args Raw
 	return resolver.root.TopNodeVulnerability(resolver.withNodeScopeContext(ctx), args)
 }
 
-func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*v1.Query, error) {
+func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*aux.Query, error) {
 	query, err := args.AsV1QueryOrEmpty()
 	if err != nil {
 		return nil, err
@@ -402,8 +403,8 @@ func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*v1.Query, er
 	}
 
 	query = search.ConjunctionQuery(query, resolver.getNodeQuery())
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -419,7 +420,7 @@ func (resolver *nodeResolver) getTopNodeCVEV1Query(args RawQuery) (*v1.Query, er
 	return query, nil
 }
 
-func (resolver *nodeResolver) unwrappedTopVulnQuery(ctx context.Context, query *v1.Query) (*cVEResolver, error) {
+func (resolver *nodeResolver) unwrappedTopVulnQuery(ctx context.Context, query *aux.Query) (*cVEResolver, error) {
 	vulnLoader, err := loaders.GetCVELoader(ctx)
 	if err != nil {
 		return nil, err
@@ -439,7 +440,7 @@ func (resolver *nodeResolver) getNodeRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.NodeID, resolver.data.GetId()).Query()
 }
 
-func (resolver *nodeResolver) getNodeQuery() *v1.Query {
+func (resolver *nodeResolver) getNodeQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.NodeID, resolver.data.GetId()).ProtoQuery()
 }
 

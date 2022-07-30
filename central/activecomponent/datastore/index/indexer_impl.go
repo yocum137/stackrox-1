@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/activecomponent/datastore/index/mappings"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	ops "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -26,12 +27,12 @@ type activeComponentWrapper struct {
 	Type            string                   `json:"type"`
 }
 
-func (b *indexerImpl) Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, resourceName)
 	return blevesearch.RunCountRequest(v1.SearchCategory_ACTIVE_COMPONENT, q, b.index, mappings.OptionsMap, opts...)
 }
 
-func (b *indexerImpl) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, resourceName)
 	return blevesearch.RunSearchRequest(v1.SearchCategory_ACTIVE_COMPONENT, q, b.index, mappings.OptionsMap, opts...)
 }

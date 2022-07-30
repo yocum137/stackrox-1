@@ -10,6 +10,7 @@ import (
 	deploymentMocks "github.com/stackrox/rox/central/deployment/datastore/mocks"
 	datastoreMocks "github.com/stackrox/rox/central/secret/datastore/mocks"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/suite"
@@ -157,7 +158,7 @@ func (suite *SecretServiceTestSuite) TestSearchSecret() {
 	}
 
 	emptyWithPag := search.EmptyQuery()
-	emptyWithPag.Pagination = &v1.QueryPagination{
+	emptyWithPag.Pagination = &aux.QueryPagination{
 		Limit: maxSecretsReturned,
 	}
 	suite.mockSecretStore.EXPECT().SearchListSecrets(gomock.Any(), emptyWithPag).Return(expectedReturns, nil)
@@ -171,7 +172,7 @@ func (suite *SecretServiceTestSuite) TestSearchSecretFailure() {
 	expectedError := errors.New("failure")
 
 	emptyWithPag := search.EmptyQuery()
-	emptyWithPag.Pagination = &v1.QueryPagination{
+	emptyWithPag.Pagination = &aux.QueryPagination{
 		Limit: maxSecretsReturned,
 	}
 	suite.mockSecretStore.EXPECT().SearchListSecrets(gomock.Any(), emptyWithPag).Return(([]*storage.ListSecret)(nil), expectedError)

@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	ops "github.com/stackrox/rox/pkg/metrics"
@@ -242,7 +242,7 @@ func (s *storeImpl) UpsertMany(ctx context.Context, objs []*storage.InitBundleMe
 func (s *storeImpl) Count(ctx context.Context) (int, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Count, "InitBundleMeta")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 
 	if ok, err := permissionCheckerSingleton().CountAllowed(ctx); err != nil || !ok {
 		return 0, err
@@ -255,7 +255,7 @@ func (s *storeImpl) Count(ctx context.Context) (int, error) {
 func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Exists, "InitBundleMeta")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().ExistsAllowed(ctx); err != nil || !ok {
 		return false, err
 	}
@@ -275,7 +275,7 @@ func (s *storeImpl) Exists(ctx context.Context, id string) (bool, error) {
 func (s *storeImpl) Get(ctx context.Context, id string) (*storage.InitBundleMeta, bool, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Get, "InitBundleMeta")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().GetAllowed(ctx); err != nil || !ok {
 		return nil, false, err
 	}
@@ -310,7 +310,7 @@ func (s *storeImpl) acquireConn(ctx context.Context, op ops.Op, typ string) (*pg
 func (s *storeImpl) Delete(ctx context.Context, id string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Remove, "InitBundleMeta")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().DeleteAllowed(ctx); err != nil {
 		return err
 	} else if !ok {
@@ -328,7 +328,7 @@ func (s *storeImpl) Delete(ctx context.Context, id string) error {
 // GetIDs returns all the IDs for the store
 func (s *storeImpl) GetIDs(ctx context.Context) ([]string, error) {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.GetAll, "storage.InitBundleMetaIDs")
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().GetIDsAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -353,7 +353,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.InitB
 		return nil, nil, nil
 	}
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().GetManyAllowed(ctx); err != nil {
 		return nil, nil, err
 	} else if !ok {
@@ -401,7 +401,7 @@ func (s *storeImpl) GetMany(ctx context.Context, ids []string) ([]*storage.InitB
 func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.RemoveMany, "InitBundleMeta")
 
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().DeleteManyAllowed(ctx); err != nil {
 		return err
 	} else if !ok {
@@ -418,7 +418,7 @@ func (s *storeImpl) DeleteMany(ctx context.Context, ids []string) error {
 
 // Walk iterates over all of the objects in the store and applies the closure
 func (s *storeImpl) Walk(ctx context.Context, fn func(obj *storage.InitBundleMeta) error) error {
-	var sacQueryFilter *v1.Query
+	var sacQueryFilter *aux.Query
 	if ok, err := permissionCheckerSingleton().WalkAllowed(ctx); err != nil || !ok {
 		return err
 	}

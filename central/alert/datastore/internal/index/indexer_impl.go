@@ -4,16 +4,18 @@ package index
 
 import (
 	"bytes"
+	"time"
+
 	bleve "github.com/blevesearch/bleve"
 	mappings "github.com/stackrox/rox/central/alert/mappings"
 	metrics "github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	batcher "github.com/stackrox/rox/pkg/batcher"
 	ops "github.com/stackrox/rox/pkg/metrics"
 	search "github.com/stackrox/rox/pkg/search"
 	blevesearch "github.com/stackrox/rox/pkg/search/blevesearch"
-	"time"
 )
 
 const batchSize = 5000
@@ -68,7 +70,7 @@ func (b *indexerImpl) processBatch(listalerts []*storage.ListAlert) error {
 	return b.index.Batch(batch)
 }
 
-func (b *indexerImpl) Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (b *indexerImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Count, "ListAlert")
 	return blevesearch.RunCountRequest(v1.SearchCategory_ALERTS, q, b.index, mappings.OptionsMap, opts...)
 }
@@ -105,7 +107,7 @@ func (b *indexerImpl) NeedsInitialIndexing() (bool, error) {
 	return !bytes.Equal([]byte("old"), data), nil
 }
 
-func (b *indexerImpl) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (b *indexerImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	defer metrics.SetIndexOperationDurationTime(time.Now(), ops.Search, "ListAlert")
 	return blevesearch.RunSearchRequest(v1.SearchCategory_ALERTS, q, b.index, mappings.OptionsMap, opts...)
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	searchMocks "github.com/stackrox/rox/pkg/search/mocks"
 	"github.com/stackrox/rox/pkg/search/sorted/mocks"
@@ -70,11 +70,11 @@ func (s *sortedTestSuite) TestHandlesSorting() {
 		fakeResults[4],
 	}
 
-	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &v1.Query{
-		Pagination: &v1.QueryPagination{
+	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &aux.Query{
+		Pagination: &aux.QueryPagination{
 			Limit:  0,
 			Offset: 0,
-			SortOptions: []*v1.QuerySortOption{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.Priority.String(),
 					Reversed: false,
@@ -89,11 +89,11 @@ func (s *sortedTestSuite) TestHandlesSorting() {
 func (s *sortedTestSuite) TestSkipsNonMatching() {
 	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Any()).Return(fakeResults, nil)
 
-	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &v1.Query{
-		Pagination: &v1.QueryPagination{
+	results, err := Searcher(s.mockSearcher, search.Priority, s.mockRanker).Search(context.Background(), &aux.Query{
+		Pagination: &aux.QueryPagination{
 			Limit:  0,
 			Offset: 0,
-			SortOptions: []*v1.QuerySortOption{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.CVE.String(),
 					Reversed: false,

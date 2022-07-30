@@ -9,7 +9,7 @@ import (
 	legacyImageCVEDataStore "github.com/stackrox/rox/central/cve/datastore"
 	imageCVEDataStore "github.com/stackrox/rox/central/cve/image/datastore"
 	nodeCVEDataStore "github.com/stackrox/rox/central/cve/node/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/cve"
 	"github.com/stackrox/rox/pkg/features"
@@ -37,7 +37,7 @@ type CVEUnsuppressLoop interface {
 
 type vulnsStore interface {
 	Unsuppress(ctx context.Context, ids ...string) error
-	Search(ctx context.Context, q *v1.Query) ([]search.Result, error)
+	Search(ctx context.Context, q *aux.Query) ([]search.Result, error)
 }
 
 // Singleton returns the singleton reprocessor loop

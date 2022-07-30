@@ -17,6 +17,7 @@ import (
 	imageCVEEdgeMappings "github.com/stackrox/rox/central/imagecveedge/mappings"
 	imageCVEEdgeSAC "github.com/stackrox/rox/central/imagecveedge/sac"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/derivedfields/counter"
@@ -34,7 +35,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.LastUpdatedTime.String(),
 	}
 	componentOptionsMap = search.CombineOptionsMaps(componentMappings.OptionsMap)
@@ -60,7 +61,7 @@ type searcherImpl struct {
 }
 
 // SearchImages retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchImages(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchImages(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	images, results, err := ds.searchImages(ctx, q)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (ds *searcherImpl) SearchImages(ctx context.Context, q *v1.Query) ([]*v1.Se
 	return protoResults, nil
 }
 
-func (ds *searcherImpl) SearchListImages(ctx context.Context, q *v1.Query) ([]*storage.ListImage, error) {
+func (ds *searcherImpl) SearchListImages(ctx context.Context, q *aux.Query) ([]*storage.ListImage, error) {
 	images, _, err := ds.searchImages(ctx, q)
 	listImages := make([]*storage.ListImage, 0, len(images))
 	for _, image := range images {
@@ -82,7 +83,7 @@ func (ds *searcherImpl) SearchListImages(ctx context.Context, q *v1.Query) ([]*s
 }
 
 // SearchRawImages retrieves SearchResults from the indexer and storage
-func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *v1.Query) ([]*storage.Image, error) {
+func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *aux.Query) ([]*storage.Image, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -95,7 +96,7 @@ func (ds *searcherImpl) SearchRawImages(ctx context.Context, q *v1.Query) ([]*st
 	return images, nil
 }
 
-func (ds *searcherImpl) searchImages(ctx context.Context, q *v1.Query) ([]*storage.Image, []search.Result, error) {
+func (ds *searcherImpl) searchImages(ctx context.Context, q *aux.Query) ([]*storage.Image, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -117,7 +118,7 @@ func (ds *searcherImpl) searchImages(ctx context.Context, q *v1.Query) ([]*stora
 	return images, newResults, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -125,7 +126,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) (res []search.R
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (count int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (count int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		count, err = ds.searcher.Count(inner, q)
 	})

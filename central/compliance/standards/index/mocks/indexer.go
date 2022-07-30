@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	search "github.com/stackrox/rox/pkg/search"
 )
 
@@ -78,7 +79,7 @@ func (mr *MockIndexerMockRecorder) IndexStandard(standard interface{}) *gomock.C
 }
 
 // SearchControls mocks base method.
-func (m *MockIndexer) SearchControls(q *v1.Query) ([]search.Result, error) {
+func (m *MockIndexer) SearchControls(q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchControls", q)
 	ret0, _ := ret[0].([]search.Result)
@@ -93,7 +94,7 @@ func (mr *MockIndexerMockRecorder) SearchControls(q interface{}) *gomock.Call {
 }
 
 // SearchStandards mocks base method.
-func (m *MockIndexer) SearchStandards(q *v1.Query) ([]search.Result, error) {
+func (m *MockIndexer) SearchStandards(q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchStandards", q)
 	ret0, _ := ret[0].([]search.Result)

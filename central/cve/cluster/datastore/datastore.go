@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/central/cve/common"
 	"github.com/stackrox/rox/central/cve/converter/v2"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
@@ -17,13 +18,13 @@ import (
 // DataStore is an intermediary to cluster CVE storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	SearchCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawCVEs(ctx context.Context, q *v1.Query) ([]*storage.ClusterCVE, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.ClusterCVE, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ClusterCVE, bool, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 	GetBatch(ctx context.Context, id []string) ([]*storage.ClusterCVE, error)
 
 	Suppress(ctx context.Context, start *types.Timestamp, duration *types.Duration, ids ...string) error

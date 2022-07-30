@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/cve/converter/utils"
 	genericCVEDataStore "github.com/stackrox/rox/central/cve/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
@@ -27,15 +28,15 @@ func isNodeCVE(genericCVE *storage.CVE) bool {
 	return false
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (s *nodeCVEDataStoreFromGenericStore) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return s.genericStore.Search(ctx, q)
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) SearchCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (s *nodeCVEDataStoreFromGenericStore) SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return s.genericStore.SearchCVEs(ctx, q)
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) SearchRawCVEs(ctx context.Context, q *v1.Query) ([]*storage.NodeCVE, error) {
+func (s *nodeCVEDataStoreFromGenericStore) SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.NodeCVE, error) {
 	cves, err := s.genericStore.SearchRawCVEs(ctx, q)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (s *nodeCVEDataStoreFromGenericStore) Get(ctx context.Context, id string) (
 	return utils.ProtoCVEToNodeCVE(cve), true, nil
 }
 
-func (s *nodeCVEDataStoreFromGenericStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *nodeCVEDataStoreFromGenericStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.genericStore.Count(ctx, q)
 }
 

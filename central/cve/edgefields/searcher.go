@@ -6,6 +6,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"
@@ -19,7 +20,7 @@ var (
 // TransformFixableFields transform fixable search fields for cluster vulnerabilities.
 func TransformFixableFields(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -30,7 +31,7 @@ func TransformFixableFields(searcher search.Searcher) search.Searcher {
 			local.Pagination = pagination
 			return searcher.Search(ctx, local)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -44,13 +45,13 @@ func TransformFixableFields(searcher search.Searcher) search.Searcher {
 	}
 }
 
-func handleFixableQuery(q *v1.Query) {
+func handleFixableQuery(q *aux.Query) {
 	if q.GetQuery() == nil {
 		return
 	}
 
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -68,7 +69,7 @@ func handleFixableQuery(q *v1.Query) {
 // HandleCVEEdgeSearchQuery handles the query cve edge query
 func HandleCVEEdgeSearchQuery(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -79,7 +80,7 @@ func HandleCVEEdgeSearchQuery(searcher search.Searcher) search.Searcher {
 			local.Pagination = pagination
 			return searcher.Search(ctx, local)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -93,22 +94,22 @@ func HandleCVEEdgeSearchQuery(searcher search.Searcher) search.Searcher {
 	}
 }
 
-func getCVEEdgeQuery(q *v1.Query) {
+func getCVEEdgeQuery(q *aux.Query) {
 	if q.GetQuery() == nil {
 		return
 	}
 
 	switch typedQ := q.GetQuery().(type) {
-	case *v1.Query_Disjunction:
+	case *aux.Query_Disjunction:
 		for _, subQ := range typedQ.Disjunction.GetQueries() {
 			getCVEEdgeQuery(subQ)
 		}
-	case *v1.Query_Conjunction:
+	case *aux.Query_Conjunction:
 		for _, subQ := range typedQ.Conjunction.GetQueries() {
 			getCVEEdgeQuery(subQ)
 		}
-	case *v1.Query_BaseQuery:
-		matchFieldQuery, ok := typedQ.BaseQuery.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	case *aux.Query_BaseQuery:
+		matchFieldQuery, ok := typedQ.BaseQuery.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}
@@ -138,7 +139,7 @@ func getCVEEdgeQuery(q *v1.Query) {
 // the vulns deferred by new workflow are also included.
 func HandleSnoozeSearchQuery(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -149,7 +150,7 @@ func HandleSnoozeSearchQuery(searcher search.Searcher) search.Searcher {
 			local.Pagination = pagination
 			return searcher.Search(ctx, local)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			// Local copy to avoid changing input.
 			local := q.Clone()
 			pagination := local.GetPagination()
@@ -163,10 +164,10 @@ func HandleSnoozeSearchQuery(searcher search.Searcher) search.Searcher {
 	}
 }
 
-func handleSnoozedCVEQuery(ctx context.Context, q *v1.Query) *v1.Query {
+func handleSnoozedCVEQuery(ctx context.Context, q *aux.Query) *aux.Query {
 	var searchBySuppressed, searchByVulnState bool
-	search.ApplyFnToAllBaseQueries(q, func(bq *v1.BaseQuery) {
-		mfQ, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(q, func(bq *aux.BaseQuery) {
+		mfQ, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if ok && mfQ.MatchFieldQuery.GetField() == search.CVESuppressed.String() && mfQ.MatchFieldQuery.GetValue() == "true" {
 			searchBySuppressed = true
 		}

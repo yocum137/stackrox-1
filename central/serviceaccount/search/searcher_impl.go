@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/serviceaccount/internal/store"
 	"github.com/stackrox/rox/central/serviceaccount/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
@@ -25,7 +26,7 @@ type searcherImpl struct {
 }
 
 // SearchRawServiceAccounts returns the search results from indexed service accounts for the query.
-func (ds *searcherImpl) SearchRawServiceAccounts(ctx context.Context, q *v1.Query) ([]*storage.ServiceAccount, error) {
+func (ds *searcherImpl) SearchRawServiceAccounts(ctx context.Context, q *aux.Query) ([]*storage.ServiceAccount, error) {
 	serviceAccounts, _, err := ds.searchServiceAccounts(ctx, q)
 	if err != nil {
 		return nil, err
@@ -36,7 +37,7 @@ func (ds *searcherImpl) SearchRawServiceAccounts(ctx context.Context, q *v1.Quer
 }
 
 // SearchServiceAccounts returns the search results from indexed service accounts for the query.
-func (ds *searcherImpl) SearchServiceAccounts(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchServiceAccounts(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	serviceAccounts, results, err := ds.searchServiceAccounts(ctx, q)
 	if err != nil {
 		return nil, err
@@ -47,30 +48,30 @@ func (ds *searcherImpl) SearchServiceAccounts(ctx context.Context, q *v1.Query) 
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.getCount(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	if features.PostgresDatastore.Enabled() {
 		return serviceAccountsSACPostgresSearchHelper.Apply(ds.indexer.Search)(ctx, q)
 	}
 	return serviceAccountsSACSearchHelper.Apply(ds.indexer.Search)(ctx, q)
 }
 
-func (ds *searcherImpl) getCount(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) getCount(ctx context.Context, q *aux.Query) (int, error) {
 	if features.PostgresDatastore.Enabled() {
 		return serviceAccountsSACPostgresSearchHelper.ApplyCount(ds.indexer.Count)(ctx, q)
 	}
 	return serviceAccountsSACSearchHelper.ApplyCount(ds.indexer.Count)(ctx, q)
 }
 
-func (ds *searcherImpl) searchServiceAccounts(ctx context.Context, q *v1.Query) ([]*storage.ServiceAccount, []search.Result, error) {
+func (ds *searcherImpl) searchServiceAccounts(ctx context.Context, q *aux.Query) ([]*storage.ServiceAccount, []search.Result, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, nil, err

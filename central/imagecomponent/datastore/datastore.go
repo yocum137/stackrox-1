@@ -23,6 +23,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	riskDataStore "github.com/stackrox/rox/central/risk/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -34,13 +35,13 @@ import (
 // DataStore is an intermediary to ImageComponent storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	SearchImageComponents(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawImageComponents(ctx context.Context, q *v1.Query) ([]*storage.ImageComponent, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	SearchImageComponents(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawImageComponents(ctx context.Context, q *aux.Query) ([]*storage.ImageComponent, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ImageComponent, bool, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
 	GetBatch(ctx context.Context, id []string) ([]*storage.ImageComponent, error)
 }
 

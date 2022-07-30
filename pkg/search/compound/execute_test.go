@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	searchMocks "github.com/stackrox/rox/pkg/search/mocks"
 	"github.com/stretchr/testify/suite"
@@ -49,7 +49,7 @@ func (suite *RequestExecutionTestSuite) TestExecuteBase() {
 		},
 	}
 
-	q1 := &v1.Query{}
+	q1 := &aux.Query{}
 
 	testRequest := searchRequestSpec{
 		base: &baseRequestSpec{
@@ -97,8 +97,8 @@ func (suite *RequestExecutionTestSuite) TestExecuteOr() {
 		},
 	}
 
-	q1 := &v1.Query{}
-	q2 := &v1.Query{}
+	q1 := &aux.Query{}
+	q2 := &aux.Query{}
 
 	testRequest := searchRequestSpec{
 		or: []*searchRequestSpec{
@@ -176,8 +176,8 @@ func (suite *RequestExecutionTestSuite) TestExecuteAnd() {
 		},
 	}
 
-	q1 := &v1.Query{}
-	q2 := &v1.Query{}
+	q1 := &aux.Query{}
+	q2 := &aux.Query{}
 
 	testRequest := searchRequestSpec{
 		and: []*searchRequestSpec{
@@ -246,8 +246,8 @@ func (suite *RequestExecutionTestSuite) TestExecuteBoolean() {
 		},
 	}
 
-	q1 := &v1.Query{}
-	q2 := &v1.Query{}
+	q1 := &aux.Query{}
+	q2 := &aux.Query{}
 
 	testRequest := searchRequestSpec{
 		boolean: &booleanRequestSpec{
@@ -316,8 +316,8 @@ func (suite *RequestExecutionTestSuite) TestExecuteLeftJoin() {
 		},
 	}
 
-	q1 := &v1.Query{}
-	q2 := &v1.Query{}
+	q1 := &aux.Query{}
+	q2 := &aux.Query{}
 
 	testRequest := searchRequestSpec{
 		leftJoinWithRightOrder: &joinRequestSpec{

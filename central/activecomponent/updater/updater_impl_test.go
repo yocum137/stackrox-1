@@ -15,7 +15,7 @@ import (
 	deploymentMocks "github.com/stackrox/rox/central/deployment/datastore/mocks"
 	imageMocks "github.com/stackrox/rox/central/image/datastore/mocks"
 	piMocks "github.com/stackrox/rox/central/processindicator/datastore/mocks"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/edges"
 	"github.com/stackrox/rox/pkg/features"
@@ -212,7 +212,7 @@ func (s *acUpdaterTestSuite) TestUpdater() {
 	s.mockDeploymentDatastore.EXPECT().GetDeploymentIDs(gomock.Any()).AnyTimes().Return(deploymentIDs, nil)
 	s.mockActiveComponentDataStore.EXPECT().SearchRawActiveComponents(gomock.Any(), gomock.Any()).AnyTimes().Return(nil, nil)
 	s.mockProcessIndicatorDataStore.EXPECT().SearchRawProcessIndicators(gomock.Any(), gomock.Any()).Times(3).DoAndReturn(
-		func(ctx context.Context, query *v1.Query) ([]*storage.ProcessIndicator, error) {
+		func(ctx context.Context, query *aux.Query) ([]*storage.ProcessIndicator, error) {
 			queries := query.GetConjunction().GetQueries()
 			s.Assert().Len(queries, 2)
 			var containerName, deploymentID string
@@ -244,7 +244,7 @@ func (s *acUpdaterTestSuite) TestUpdater() {
 			return nil, nil
 		})
 	s.mockImageDataStore.EXPECT().Search(gomock.Any(), gomock.Any()).Times(1).DoAndReturn(
-		func(ctx context.Context, query *v1.Query) ([]search.Result, error) {
+		func(ctx context.Context, query *aux.Query) ([]search.Result, error) {
 			return []search.Result{{ID: imageID}}, nil
 		})
 	s.mockActiveComponentDataStore.EXPECT().UpsertBatch(gomock.Any(), gomock.Any()).AnyTimes().Return(nil).Do(func(_ context.Context, acs []*storage.ActiveComponent) {
@@ -413,7 +413,7 @@ func (s *acUpdaterTestSuite) TestUpdater_Update() {
 	}
 
 	s.mockImageDataStore.EXPECT().Search(gomock.Any(), gomock.Any()).AnyTimes().DoAndReturn(
-		func(ctx context.Context, query *v1.Query) ([]search.Result, error) {
+		func(ctx context.Context, query *aux.Query) ([]search.Result, error) {
 			return []search.Result{{ID: image.GetId()}}, nil
 		})
 	s.Assert().NoError(updater.PopulateExecutableCache(updaterCtx, image.Clone()))
@@ -853,7 +853,7 @@ func (s *acUpdaterTestSuite) TestUpdater_Update() {
 			}
 			if databaseFetchCount > 0 {
 				s.mockProcessIndicatorDataStore.EXPECT().SearchRawProcessIndicators(gomock.Any(), gomock.Any()).Times(databaseFetchCount).DoAndReturn(
-					func(ctx context.Context, query *v1.Query) ([]*storage.ProcessIndicator, error) {
+					func(ctx context.Context, query *aux.Query) ([]*storage.ProcessIndicator, error) {
 						queries := query.GetConjunction().Queries
 						s.Assert().Len(queries, 2)
 						var containerName string
@@ -885,7 +885,7 @@ func (s *acUpdaterTestSuite) TestUpdater_Update() {
 					})
 			}
 			s.mockActiveComponentDataStore.EXPECT().SearchRawActiveComponents(gomock.Any(), gomock.Any()).AnyTimes().DoAndReturn(
-				func(ctx context.Context, query *v1.Query) ([]*storage.ActiveComponent, error) {
+				func(ctx context.Context, query *aux.Query) ([]*storage.ActiveComponent, error) {
 					existingImageID := image.GetId()
 					if testCase.imageChange {
 						existingImageID = "something_else"

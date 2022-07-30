@@ -7,7 +7,7 @@ import (
 	"github.com/stackrox/rox/central/risk/datastore/internal/store"
 	"github.com/stackrox/rox/central/risk/mappings"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field:    search.RiskScore.String(),
 		Reversed: true,
 	}
@@ -34,7 +34,7 @@ type searcherImpl struct {
 }
 
 // SearchRawRisks retrieves Risks from the indexer and storage
-func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *v1.Query) ([]*storage.Risk, error) {
+func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -48,12 +48,12 @@ func (s *searcherImpl) SearchRawRisks(ctx context.Context, q *v1.Query) ([]*stor
 	return risks, nil
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.searcher.Count(ctx, q)
 }
 

@@ -12,7 +12,7 @@ import (
 	processBaselineResultsStore "github.com/stackrox/rox/central/processbaselineresults/datastore"
 	processIndicatorDatastore "github.com/stackrox/rox/central/processindicator/datastore"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/env"
@@ -38,11 +38,11 @@ type datastoreImpl struct {
 	processesDataStore     processIndicatorDatastore.DataStore
 }
 
-func (ds *datastoreImpl) SearchRawProcessBaselines(ctx context.Context, q *v1.Query) ([]*storage.ProcessBaseline, error) {
+func (ds *datastoreImpl) SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error) {
 	return ds.searcher.SearchRawProcessBaselines(ctx, q)
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 

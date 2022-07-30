@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/image/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/sync"
@@ -41,9 +41,9 @@ func GetImageLoader(ctx context.Context) (ImageLoader, error) {
 type ImageLoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.Image, error)
 	FromID(ctx context.Context, id string) (*storage.Image, error)
-	FromQuery(ctx context.Context, query *v1.Query) ([]*storage.Image, error)
+	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Image, error)
 
-	CountFromQuery(ctx context.Context, query *v1.Query) (int32, error)
+	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -77,7 +77,7 @@ func (idl *imageLoaderImpl) FromID(ctx context.Context, id string) (*storage.Ima
 }
 
 // FromQuery loads a set of images that match a query.
-func (idl *imageLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*storage.Image, error) {
+func (idl *imageLoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.Image, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (idl *imageLoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *imageLoaderImpl) CountFromQuery(ctx context.Context, query *v1.Query) (int32, error) {
+func (idl *imageLoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
 	count, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

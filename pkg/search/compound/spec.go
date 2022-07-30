@@ -1,7 +1,7 @@
 package compound
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 )
 
 type searchRequestSpec struct {
@@ -24,5 +24,5 @@ type joinRequestSpec struct {
 
 type baseRequestSpec struct {
 	Spec  *SearcherSpec
-	Query *v1.Query
+	Query *aux.Query
 }

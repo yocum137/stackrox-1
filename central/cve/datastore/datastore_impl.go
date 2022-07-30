@@ -13,6 +13,7 @@ import (
 	"github.com/stackrox/rox/central/cve/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
@@ -62,15 +63,15 @@ func (ds *datastoreImpl) buildSuppressedCache() error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchCVEs(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawCVEs(ctx context.Context, q *v1.Query) ([]*storage.CVE, error) {
+func (ds *datastoreImpl) SearchRawCVEs(ctx context.Context, q *aux.Query) ([]*storage.CVE, error) {
 	cves, err := ds.searcher.SearchRawCVEs(ctx, q)
 	if err != nil {
 		return nil, err
@@ -78,7 +79,7 @@ func (ds *datastoreImpl) SearchRawCVEs(ctx context.Context, q *v1.Query) ([]*sto
 	return cves, nil
 }
 
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if q == nil {
 		q = searchPkg.EmptyQuery()
 	}

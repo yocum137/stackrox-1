@@ -11,7 +11,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	rocksdbStore "github.com/stackrox/rox/central/secret/internal/store/rocksdb"
 	secretSearch "github.com/stackrox/rox/central/secret/search"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/rocksdb"
@@ -67,7 +67,7 @@ func (suite *SecretDataStoreTestSuite) TearDownSuite() {
 	rocksdbtest.TearDownRocksDB(suite.db)
 }
 
-func (suite *SecretDataStoreTestSuite) assertSearchResults(q *v1.Query, s *storage.Secret) {
+func (suite *SecretDataStoreTestSuite) assertSearchResults(q *aux.Query, s *storage.Secret) {
 	results, err := suite.datastore.SearchSecrets(suite.ctx, q)
 	suite.Require().NoError(err)
 	if s != nil {

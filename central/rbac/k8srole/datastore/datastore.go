@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/rbac/k8srole/search"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgRocksDB "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -24,10 +25,10 @@ import (
 // DataStore is an intermediary to RoleStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchRoles(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawRoles(ctx context.Context, q *v1.Query) ([]*storage.K8SRole, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRoles(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawRoles(ctx context.Context, q *aux.Query) ([]*storage.K8SRole, error)
 
 	GetRole(ctx context.Context, id string) (*storage.K8SRole, bool, error)
 	UpsertRole(ctx context.Context, request *storage.K8SRole) error

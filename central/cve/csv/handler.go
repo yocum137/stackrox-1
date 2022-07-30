@@ -17,6 +17,7 @@ import (
 	nsMappings "github.com/stackrox/rox/central/namespace/index/mappings"
 	nodeMappings "github.com/stackrox/rox/central/node/index/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/csv"
 	"github.com/stackrox/rox/pkg/errorhelpers"
 	"github.com/stackrox/rox/pkg/logging"
@@ -251,7 +252,7 @@ func CVECSVHandler() http.HandlerFunc {
 	}
 }
 
-func (h *handlerImpl) getScopeContext(ctx context.Context, query *v1.Query) (context.Context, error) {
+func (h *handlerImpl) getScopeContext(ctx context.Context, query *aux.Query) (context.Context, error) {
 	if _, ok := scoped.GetScope(ctx); ok {
 		return ctx, nil
 	}

@@ -3,7 +3,7 @@ package filtered
 import (
 	"context"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 	"github.com/stackrox/rox/pkg/sliceutils"
@@ -20,7 +20,7 @@ type Filter interface {
 // UnsafeSearcher generates a Searcher from an UnsafeSearcher by filtering its outputs with the input filter.
 func UnsafeSearcher(searcher blevesearch.UnsafeSearcher, filter Filter) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			results, err := searcher.Search(q)
 			if err != nil {
 				return results, err
@@ -31,7 +31,7 @@ func UnsafeSearcher(searcher blevesearch.UnsafeSearcher, filter Filter) search.S
 			}
 			return results, nil
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			if filter == nil {
 				return searcher.Count(q)
 			}
@@ -51,7 +51,7 @@ func UnsafeSearcher(searcher blevesearch.UnsafeSearcher, filter Filter) search.S
 // Searcher returns a new searcher based on the filtered output from the input Searcher.
 func Searcher(searcher search.Searcher, filter Filter) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			results, err := searcher.Search(ctx, q)
 			if err != nil {
 				return results, err
@@ -63,7 +63,7 @@ func Searcher(searcher search.Searcher, filter Filter) search.Searcher {
 
 			return results, nil
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			if filter == nil {
 				return searcher.Count(ctx, q)
 			}

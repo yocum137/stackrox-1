@@ -52,7 +52,7 @@ import (
 	connectionMocks "github.com/stackrox/rox/central/sensor/service/connection/mocks"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	serviceAccountMocks "github.com/stackrox/rox/central/serviceaccount/datastore/mocks"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/alert/convert"
 	"github.com/stackrox/rox/pkg/auth/permissions"
@@ -1814,7 +1814,7 @@ func testDackBoxInstance(t *testing.T, db *rocksdb.RocksDB, index bleve.Index) (
 	return dacky, reg, indexingQ
 }
 
-func getAllAlerts() *v1.Query {
+func getAllAlerts() *aux.Query {
 	return search.NewQueryBuilder().AddStrings(
 		search.ViolationState,
 		storage.ViolationState_ACTIVE.String(),

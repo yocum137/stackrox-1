@@ -13,6 +13,7 @@ import (
 	"github.com/stackrox/rox/central/ranking"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/derivedfields/counter"
@@ -25,7 +26,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field:    search.Cluster.String(),
 		Reversed: false,
 	}
@@ -39,7 +40,7 @@ type searcherImpl struct {
 	formattedSearcher search.Searcher
 }
 
-func (ds *searcherImpl) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	clusters, results, err := ds.searchClusters(ctx, q)
 	if err != nil {
 		return nil, err
@@ -51,12 +52,12 @@ func (ds *searcherImpl) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.S
 	return protoResults, nil
 }
 
-func (ds *searcherImpl) SearchClusters(ctx context.Context, q *v1.Query) ([]*storage.Cluster, error) {
+func (ds *searcherImpl) SearchClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error) {
 	clusters, _, err := ds.searchClusters(ctx, q)
 	return clusters, err
 }
 
-func (ds *searcherImpl) searchClusters(ctx context.Context, q *v1.Query) ([]*storage.Cluster, []search.Result, error) {
+func (ds *searcherImpl) searchClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, []search.Result, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err
@@ -71,12 +72,12 @@ func (ds *searcherImpl) searchClusters(ctx context.Context, q *v1.Query) ([]*sto
 	return clusters, results, nil
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.formattedSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.formattedSearcher.Count(ctx, q)
 }
 

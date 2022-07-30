@@ -13,7 +13,7 @@ import (
 	"github.com/stackrox/rox/central/pod/store/rocksdb"
 	piDS "github.com/stackrox/rox/central/processindicator/datastore"
 	piFilter "github.com/stackrox/rox/central/processindicator/filter"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/process/filter"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
@@ -23,8 +23,8 @@ import (
 // DataStore is an intermediary to PodStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
-	SearchRawPods(ctx context.Context, q *v1.Query) ([]*storage.Pod, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	SearchRawPods(ctx context.Context, q *aux.Query) ([]*storage.Pod, error)
 
 	GetPod(ctx context.Context, id string) (*storage.Pod, bool, error)
 	WalkAll(ctx context.Context, fn func(pod *storage.Pod) error) error

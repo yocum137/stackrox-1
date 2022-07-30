@@ -31,6 +31,7 @@ import (
 	nodeComponentEdgeMappings "github.com/stackrox/rox/central/nodecomponentedge/mappings"
 	nodeComponentEdgeSAC "github.com/stackrox/rox/central/nodecomponentedge/sac"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/search"
@@ -49,7 +50,7 @@ type searcherImpl struct {
 }
 
 // SearchComponentCVEEdges returns the search results from indexed cves for the query.
-func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err
@@ -58,7 +59,7 @@ func (ds *searcherImpl) SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.Sea
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		res, err = ds.searcher.Search(inner, q)
 	})
@@ -66,7 +67,7 @@ func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) (res []search.R
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (count int, err error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (count int, err error) {
 	graph.Context(ctx, ds.graphProvider, func(inner context.Context) {
 		count, err = ds.searcher.Count(inner, q)
 	})
@@ -74,7 +75,7 @@ func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (count int, err 
 }
 
 // SearchRawComponentCVEEdges retrieves cves from the indexer and storage
-func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ComponentCVEEdge, error) {
+func (ds *searcherImpl) SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ComponentCVEEdge, error) {
 	return ds.searchComponentCVEEdges(ctx, q)
 }
 
@@ -132,7 +133,7 @@ func formatSearcher(indexer index.Indexer,
 	return paginated.Paginated(filteredSearcher)
 }
 
-func (ds *searcherImpl) searchComponentCVEEdges(ctx context.Context, q *v1.Query) ([]*storage.ComponentCVEEdge, error) {
+func (ds *searcherImpl) searchComponentCVEEdges(ctx context.Context, q *aux.Query) ([]*storage.ComponentCVEEdge, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

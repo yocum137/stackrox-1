@@ -7,7 +7,7 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/node/mappings"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/scancomponent"
 	"github.com/stackrox/rox/pkg/search"
@@ -183,7 +183,7 @@ func (encr *EmbeddedNodeScanComponentResolver) VulnCounter(ctx context.Context, 
 //////////////////
 
 // Map the nodes that matched a query to the node components it contains.
-func mapNodesToComponentResolvers(root *Resolver, nodes []*storage.Node, query *v1.Query) ([]*EmbeddedNodeScanComponentResolver, error) {
+func mapNodesToComponentResolvers(root *Resolver, nodes []*storage.Node, query *aux.Query) ([]*EmbeddedNodeScanComponentResolver, error) {
 	query, _ = search.FilterQueryWithMap(query, mappings.ComponentOptionsMap)
 	componentPred, err := componentPredicateFactory.GeneratePredicate(query)
 	if err != nil {

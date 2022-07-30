@@ -9,6 +9,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -172,7 +173,7 @@ func (resolver *nodeComponentResolver) withNodeComponentScope(ctx context.Contex
 	})
 }
 
-func (resolver *nodeComponentResolver) nodeComponentQuery() *v1.Query {
+func (resolver *nodeComponentResolver) nodeComponentQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ComponentID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -199,10 +200,10 @@ func (resolver *nodeComponentResolver) NodeComponentLastScanned(_ context.Contex
 	}
 
 	componentQuery := resolver.nodeComponentQuery()
-	componentQuery.Pagination = &v1.QueryPagination{
+	componentQuery.Pagination = &aux.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.NodeScanTime.String(),
 				Reversed: true,
@@ -279,8 +280,8 @@ func (resolver *nodeComponentResolver) TopNodeVulnerability(ctx context.Context)
 	defer metrics.SetGraphQLOperationDurationTime(time.Now(), pkgMetrics.NodeComponents, "TopNodeVulnerability")
 	if !features.PostgresDatastore.Enabled() {
 		query := resolver.nodeComponentQuery()
-		query.Pagination = &v1.QueryPagination{
-			SortOptions: []*v1.QuerySortOption{
+		query.Pagination = &aux.QueryPagination{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.CVSS.String(),
 					Reversed: true,

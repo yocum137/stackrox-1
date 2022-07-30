@@ -7,7 +7,7 @@ import (
 	"github.com/stackrox/rox/central/processbaseline/index/mappings"
 	"github.com/stackrox/rox/central/processbaseline/store"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/debug"
 	"github.com/stackrox/rox/pkg/features"
@@ -61,7 +61,7 @@ func (s *searcherImpl) buildIndex(ctx context.Context) error {
 	return nil
 }
 
-func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *v1.Query) ([]*storage.ProcessBaseline, error) {
+func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *aux.Query) ([]*storage.ProcessBaseline, error) {
 	var (
 		results []search.Result
 		err     error
@@ -82,12 +82,12 @@ func (s *searcherImpl) SearchRawProcessBaselines(ctx context.Context, q *v1.Quer
 	return baselines, nil
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.formattedSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.formattedSearcher.Count(ctx, q)
 }
 

@@ -20,6 +20,7 @@ import (
 	riskDS "github.com/stackrox/rox/central/risk/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/errorhelpers"
@@ -128,12 +129,12 @@ func (ds *datastoreImpl) initializeRanker() {
 	}
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.deploymentSearcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.deploymentSearcher.Count(ctx, q)
 }
 
@@ -150,7 +151,7 @@ func (ds *datastoreImpl) ListDeployment(ctx context.Context, id string) (*storag
 	return deployment, true, nil
 }
 
-func (ds *datastoreImpl) SearchListDeployments(ctx context.Context, q *v1.Query) ([]*storage.ListDeployment, error) {
+func (ds *datastoreImpl) SearchListDeployments(ctx context.Context, q *aux.Query) ([]*storage.ListDeployment, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Deployment", "SearchListDeployments")
 
 	listDeployments, err := ds.deploymentSearcher.SearchListDeployments(ctx, q)
@@ -162,14 +163,14 @@ func (ds *datastoreImpl) SearchListDeployments(ctx context.Context, q *v1.Query)
 }
 
 // SearchDeployments
-func (ds *datastoreImpl) SearchDeployments(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchDeployments(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Deployment", "SearchDeployments")
 
 	return ds.deploymentSearcher.SearchDeployments(ctx, q)
 }
 
 // SearchRawDeployments
-func (ds *datastoreImpl) SearchRawDeployments(ctx context.Context, q *v1.Query) ([]*storage.Deployment, error) {
+func (ds *datastoreImpl) SearchRawDeployments(ctx context.Context, q *aux.Query) ([]*storage.Deployment, error) {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), "Deployment", "SearchRawDeployments")
 
 	deployments, err := ds.deploymentSearcher.SearchRawDeployments(ctx, q)

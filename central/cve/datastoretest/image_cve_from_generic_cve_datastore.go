@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/cve/converter/utils"
 	genericCVEDataStore "github.com/stackrox/rox/central/cve/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	searchPkg "github.com/stackrox/rox/pkg/search"
 )
@@ -27,15 +28,15 @@ func isImageCVE(genericCVE *storage.CVE) bool {
 	return false
 }
 
-func (s *imageCVEDataStoreFromGenericStore) Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error) {
+func (s *imageCVEDataStoreFromGenericStore) Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error) {
 	return s.genericStore.Search(ctx, q)
 }
 
-func (s *imageCVEDataStoreFromGenericStore) SearchImageCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (s *imageCVEDataStoreFromGenericStore) SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return s.genericStore.SearchCVEs(ctx, q)
 }
 
-func (s *imageCVEDataStoreFromGenericStore) SearchRawImageCVEs(ctx context.Context, q *v1.Query) ([]*storage.ImageCVE, error) {
+func (s *imageCVEDataStoreFromGenericStore) SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
 	cves, error := s.genericStore.SearchRawCVEs(ctx, q)
 	if error != nil {
 		return nil, error
@@ -65,7 +66,7 @@ func (s *imageCVEDataStoreFromGenericStore) Get(ctx context.Context, id string) 
 	return utils.ProtoCVEToImageCVE(cve), true, nil
 }
 
-func (s *imageCVEDataStoreFromGenericStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *imageCVEDataStoreFromGenericStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.genericStore.Count(ctx, q)
 }
 

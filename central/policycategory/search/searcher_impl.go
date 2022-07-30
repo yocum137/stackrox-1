@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/policycategory/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
@@ -17,7 +18,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.PolicyCategoryName.String(),
 	}
 
@@ -31,7 +32,7 @@ type searcherImpl struct {
 	searcher search.Searcher
 }
 
-func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func (s *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result
 	return s.searcher.Search(ctx, q)
 }
 
-func (s *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if ok, err := policySAC.ReadAllowed(ctx); err != nil || !ok {
 		return 0, err
 	}
@@ -47,12 +48,12 @@ func (s *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
 	return s.searcher.Count(ctx, q)
 }
 
-func (s searcherImpl) SearchRawCategories(ctx context.Context, q *v1.Query) ([]*storage.PolicyCategory, error) {
+func (s searcherImpl) SearchRawCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, error) {
 	categories, _, err := s.searchCategories(ctx, q)
 	return categories, err
 }
 
-func (s searcherImpl) SearchCategories(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (s searcherImpl) SearchCategories(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	categories, results, err := s.searchCategories(ctx, q)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (s searcherImpl) SearchCategories(ctx context.Context, q *v1.Query) ([]*v1.
 	return protoResults, nil
 }
 
-func (s *searcherImpl) searchCategories(ctx context.Context, q *v1.Query) ([]*storage.PolicyCategory, []search.Result, error) {
+func (s *searcherImpl) searchCategories(ctx context.Context, q *aux.Query) ([]*storage.PolicyCategory, []search.Result, error) {
 	results, err := s.Search(ctx, q)
 	if err != nil {
 		return nil, nil, err

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/mocks"
 	"github.com/stretchr/testify/suite"
@@ -36,20 +36,20 @@ func (s *paginationTestSuite) TearDownTest() {
 func (s *paginationTestSuite) TestHandlesNoPagination() {
 	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Any()).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &v1.Query{})
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{})
 	s.NoError(err, "expected no error, should return nil without access")
 	s.Equal(fakeResults, results, "with no pagination the result should be the same as the search output")
 }
 
 func (s *paginationTestSuite) TestHandlesNoOffset() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&v1.Query{
-		Pagination: &v1.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
+		Pagination: &aux.QueryPagination{
 			Limit: 0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &v1.Query{
-		Pagination: &v1.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
+		Pagination: &aux.QueryPagination{
 			Limit: 1,
 		},
 	})
@@ -58,14 +58,14 @@ func (s *paginationTestSuite) TestHandlesNoOffset() {
 }
 
 func (s *paginationTestSuite) TestHandlesNoLimit() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&v1.Query{
-		Pagination: &v1.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
+		Pagination: &aux.QueryPagination{
 			Offset: 0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &v1.Query{
-		Pagination: &v1.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
+		Pagination: &aux.QueryPagination{
 			Offset: 1,
 		},
 	})
@@ -74,15 +74,15 @@ func (s *paginationTestSuite) TestHandlesNoLimit() {
 }
 
 func (s *paginationTestSuite) TestHandlesOffSetAndLimit() {
-	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&v1.Query{
-		Pagination: &v1.QueryPagination{
+	s.mockSearcher.EXPECT().Search(gomock.Any(), gomock.Eq(&aux.Query{
+		Pagination: &aux.QueryPagination{
 			Offset: 0,
 			Limit:  0,
 		},
 	})).Return(fakeResults, nil)
 
-	results, err := Paginated(s.mockSearcher).Search(context.Background(), &v1.Query{
-		Pagination: &v1.QueryPagination{
+	results, err := Paginated(s.mockSearcher).Search(context.Background(), &aux.Query{
+		Pagination: &aux.QueryPagination{
 			Offset: 1,
 			Limit:  3,
 		},

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/reportconfigurations/index"
 	"github.com/stackrox/rox/central/reportconfigurations/store"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"
@@ -18,9 +18,9 @@ var (
 // Searcher provides search functionality on existing report configurations.
 //go:generate mockgen-wrapper
 type Searcher interface {
-	Search(ctx context.Context, query *v1.Query) ([]search.Result, error)
-	SearchReportConfigurations(ctx context.Context, query *v1.Query) ([]*storage.ReportConfiguration, error)
-	Count(ctx context.Context, query *v1.Query) (int, error)
+	Search(ctx context.Context, query *aux.Query) ([]search.Result, error)
+	SearchReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error)
+	Count(ctx context.Context, query *aux.Query) (int, error)
 }
 
 // New returns a new instance of Searcher for the given storage and index.

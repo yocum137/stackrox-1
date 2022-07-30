@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -38,7 +39,7 @@ func (m *MockDataStore) EXPECT() *MockDataStoreMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -83,7 +84,7 @@ func (mr *MockDataStoreMockRecorder) RemoveRoleBinding(ctx, id interface{}) *gom
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -98,7 +99,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchRawRoleBindings mocks base method.
-func (m *MockDataStore) SearchRawRoleBindings(ctx context.Context, q *v1.Query) ([]*storage.K8SRoleBinding, error) {
+func (m *MockDataStore) SearchRawRoleBindings(ctx context.Context, q *aux.Query) ([]*storage.K8SRoleBinding, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRawRoleBindings", ctx, q)
 	ret0, _ := ret[0].([]*storage.K8SRoleBinding)
@@ -113,7 +114,7 @@ func (mr *MockDataStoreMockRecorder) SearchRawRoleBindings(ctx, q interface{}) *
 }
 
 // SearchRoleBindings mocks base method.
-func (m *MockDataStore) SearchRoleBindings(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchRoleBindings(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRoleBindings", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)

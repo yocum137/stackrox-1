@@ -13,7 +13,7 @@ import (
 	"github.com/stackrox/rox/central/processbaselineresults/datastore/mocks"
 	indicatorMocks "github.com/stackrox/rox/central/processindicator/datastore/mocks"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/rocksdb"
@@ -277,7 +277,7 @@ func (suite *ProcessBaselineDataStoreTestSuite) TestGraveyard() {
 	suite.ElementsMatch(itemList, updatedItems)
 }
 
-func (suite *ProcessBaselineDataStoreTestSuite) doQuery(q *v1.Query, len int) {
+func (suite *ProcessBaselineDataStoreTestSuite) doQuery(q *aux.Query, len int) {
 	result, err := suite.datastore.SearchRawProcessBaselines(suite.requestContext, q)
 	suite.NoError(err)
 	suite.Len(result, len)

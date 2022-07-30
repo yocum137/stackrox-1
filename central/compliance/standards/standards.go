@@ -2,6 +2,7 @@ package standards
 
 import (
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 )
 
@@ -18,6 +19,6 @@ type Repository interface {
 	GetCISDockerStandardID() (string, error)
 	GetCISKubernetesStandardID() (string, error)
 
-	SearchStandards(q *v1.Query) ([]search.Result, error)
-	SearchControls(q *v1.Query) ([]search.Result, error)
+	SearchStandards(q *aux.Query) ([]search.Result, error)
+	SearchControls(q *aux.Query) ([]search.Result, error)
 }

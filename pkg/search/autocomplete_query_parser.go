@@ -4,14 +4,14 @@ import (
 	"errors"
 	"strings"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 )
 
 // autocompleteQueryParser provides an autocomplete specific query parser.
 type autocompleteQueryParser struct{}
 
 // parse parses the input query.
-func (pi autocompleteQueryParser) parse(input string) (*v1.Query, string, error) {
+func (pi autocompleteQueryParser) parse(input string) (*aux.Query, string, error) {
 	// Handle empty input query case.
 	if len(input) == 0 {
 		return nil, "", errors.New("parser not configured to handle empty queries")
@@ -20,10 +20,10 @@ func (pi autocompleteQueryParser) parse(input string) (*v1.Query, string, error)
 	return pi.parseInternal(input)
 }
 
-func (pi autocompleteQueryParser) parseInternal(query string) (*v1.Query, string, error) {
+func (pi autocompleteQueryParser) parseInternal(query string) (*aux.Query, string, error) {
 	pairs := strings.Split(query, "+")
 
-	queries := make([]*v1.Query, 0, len(pairs))
+	queries := make([]*aux.Query, 0, len(pairs))
 	var autocompleteKey string
 	for i, pair := range pairs {
 		key, commaSeparatedValues, valid := parsePair(pair, true)

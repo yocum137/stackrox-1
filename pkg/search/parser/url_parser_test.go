@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,18 +18,18 @@ func TestParseURLQuery(t *testing.T) {
 		"pagination.sortOption.reversed": []string{"true"},
 	}
 
-	expectedQuery := &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+	expectedQuery := &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 				},
 			},
 		},
-		Pagination: &v1.QueryPagination{
+		Pagination: &aux.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*v1.QuerySortOption{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,
@@ -53,18 +53,18 @@ func TestParseURLQueryWithExtraValues(t *testing.T) {
 		"blah":                           []string{"blah"},
 	}
 
-	expectedQuery := &v1.Query{
-		Query: &v1.Query_BaseQuery{
-			BaseQuery: &v1.BaseQuery{
-				Query: &v1.BaseQuery_MatchFieldQuery{
-					MatchFieldQuery: &v1.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+	expectedQuery := &aux.Query{
+		Query: &aux.Query_BaseQuery{
+			BaseQuery: &aux.BaseQuery{
+				Query: &aux.BaseQuery_MatchFieldQuery{
+					MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 				},
 			},
 		},
-		Pagination: &v1.QueryPagination{
+		Pagination: &aux.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*v1.QuerySortOption{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,
@@ -87,33 +87,33 @@ func TestParseURLQueryConjunctionQuery(t *testing.T) {
 		"pagination.sortOption.reversed": []string{"true"},
 	}
 
-	expectedQuery := &v1.Query{
-		Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{
-			Queries: []*v1.Query{
+	expectedQuery := &aux.Query{
+		Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{
+			Queries: []*aux.Query{
 				{
-					Query: &v1.Query_BaseQuery{
-						BaseQuery: &v1.BaseQuery{
-							Query: &v1.BaseQuery_MatchFieldQuery{
-								MatchFieldQuery: &v1.MatchFieldQuery{Field: search.Cluster.String(), Value: "ABC"},
+					Query: &aux.Query_BaseQuery{
+						BaseQuery: &aux.BaseQuery{
+							Query: &aux.BaseQuery_MatchFieldQuery{
+								MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Cluster.String(), Value: "ABC"},
 							},
 						},
 					},
 				},
 				{
-					Query: &v1.Query_BaseQuery{
-						BaseQuery: &v1.BaseQuery{
-							Query: &v1.BaseQuery_MatchFieldQuery{
-								MatchFieldQuery: &v1.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
+					Query: &aux.Query_BaseQuery{
+						BaseQuery: &aux.BaseQuery{
+							Query: &aux.BaseQuery_MatchFieldQuery{
+								MatchFieldQuery: &aux.MatchFieldQuery{Field: search.Namespace.String(), Value: "ABC"},
 							},
 						},
 					},
 				},
 			},
 		}},
-		Pagination: &v1.QueryPagination{
+		Pagination: &aux.QueryPagination{
 			Offset: 5,
 			Limit:  50,
-			SortOptions: []*v1.QuerySortOption{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field:    search.DeploymentName.String(),
 					Reversed: true,

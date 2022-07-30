@@ -14,7 +14,7 @@ import (
 	"github.com/stackrox/rox/central/risk/datastore/internal/store/postgres"
 	"github.com/stackrox/rox/central/risk/datastore/internal/store/rocksdb"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	rocksdbBase "github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -24,9 +24,9 @@ import (
 // DataStore is an intermediary to RiskStorage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchRawRisks(ctx context.Context, q *v1.Query) ([]*storage.Risk, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRawRisks(ctx context.Context, q *aux.Query) ([]*storage.Risk, error)
 
 	GetRisk(ctx context.Context, subjectID string, subjectType storage.RiskSubjectType) (*storage.Risk, bool, error)
 	GetRiskForDeployment(ctx context.Context, deployment *storage.Deployment) (*storage.Risk, bool, error)

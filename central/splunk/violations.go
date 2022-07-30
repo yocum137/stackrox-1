@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/alert/datastore"
 	"github.com/stackrox/rox/generated/api/integrations"
-	apiV1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/booleanpolicy/violationmessages/printer"
 	"github.com/stackrox/rox/pkg/httputil"
@@ -186,13 +186,13 @@ func queryAlerts(ctx context.Context, alertDS datastore.DataStore, checkpoint sp
 
 	pq := query.ProtoQuery()
 
-	pq.Pagination = &apiV1.QueryPagination{
+	pq.Pagination = &aux.QueryPagination{
 		Limit:  maxAlertsFromQuery,
 		Offset: 0,
-		SortOptions: []*apiV1.QuerySortOption{{
+		SortOptions: []*aux.QuerySortOption{{
 			Field:          search.DocID.String(),
 			Reversed:       false,
-			SearchAfterOpt: &apiV1.QuerySortOption_SearchAfter{SearchAfter: checkpoint.fromAlertID},
+			SearchAfterOpt: &aux.QuerySortOption_SearchAfter{SearchAfter: checkpoint.fromAlertID},
 		}},
 	}
 

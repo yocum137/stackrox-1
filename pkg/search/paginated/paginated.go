@@ -4,18 +4,19 @@ import (
 	"context"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 )
 
 // WithDefaultSortOption is a higher order function that makes sure results are sorted.
-func WithDefaultSortOption(searcher search.Searcher, defaultSortOption *v1.QuerySortOption) search.Searcher {
+func WithDefaultSortOption(searcher search.Searcher, defaultSortOption *aux.QuerySortOption) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			// Add pagination sort order if needed.
 			local := FillDefaultSortOption(q, defaultSortOption)
 			return searcher.Search(ctx, local)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			return searcher.Count(ctx, q)
 		},
 	}
@@ -24,7 +25,7 @@ func WithDefaultSortOption(searcher search.Searcher, defaultSortOption *v1.Query
 // Paginated is a higher order function for applying pagination.
 func Paginated(searcher search.Searcher) search.Searcher {
 	return search.FuncSearcher{
-		SearchFunc: func(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+		SearchFunc: func(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 			// If pagination not set, just skip.
 			if q.GetPagination() == nil {
 				return searcher.Search(ctx, q)
@@ -43,7 +44,7 @@ func Paginated(searcher search.Searcher) search.Searcher {
 			results, err := searcher.Search(ctx, local)
 			return paginate(offset, limit, results, err)
 		},
-		CountFunc: func(ctx context.Context, q *v1.Query) (int, error) {
+		CountFunc: func(ctx context.Context, q *aux.Query) (int, error) {
 			return searcher.Count(ctx, q)
 		},
 	}
@@ -80,8 +81,8 @@ func paginate(offset, limit int, results []search.Result, err error) ([]search.R
 }
 
 // FillPagination fills in the pagination information for a query.
-func FillPagination(query *v1.Query, pagination *v1.Pagination, maxLimit int32) {
-	queryPagination := &v1.QueryPagination{}
+func FillPagination(query *aux.Query, pagination *v1.Pagination, maxLimit int32) {
+	queryPagination := &aux.QueryPagination{}
 
 	// Fill in limit, and check boundaries.
 	if pagination.GetLimit() == 0 || pagination.GetLimit() > maxLimit {
@@ -91,7 +92,7 @@ func FillPagination(query *v1.Query, pagination *v1.Pagination, maxLimit int32) 
 	}
 	// Fill in sort options.
 	if pagination.GetSortOption() != nil {
-		queryPagination.SortOptions = []*v1.QuerySortOption{
+		queryPagination.SortOptions = []*aux.QuerySortOption{
 			{
 				Field:    pagination.GetSortOption().GetField(),
 				Reversed: pagination.GetSortOption().GetReversed(),
@@ -105,14 +106,14 @@ func FillPagination(query *v1.Query, pagination *v1.Pagination, maxLimit int32) 
 }
 
 // FillDefaultSortOption returns a copy of the query with the default sort option added if none is present.
-func FillDefaultSortOption(q *v1.Query, defaultSortOption *v1.QuerySortOption) *v1.Query {
+func FillDefaultSortOption(q *aux.Query, defaultSortOption *aux.QuerySortOption) *aux.Query {
 	if q == nil {
 		q = search.EmptyQuery()
 	}
 	// Add pagination sort order if needed.
 	local := q.Clone()
 	if local.GetPagination() == nil {
-		local.Pagination = new(v1.QueryPagination)
+		local.Pagination = new(aux.QueryPagination)
 	}
 	if len(local.GetPagination().GetSortOptions()) == 0 {
 		local.Pagination.SortOptions = append(local.Pagination.SortOptions, defaultSortOption)

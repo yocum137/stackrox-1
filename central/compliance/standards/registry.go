@@ -9,6 +9,7 @@ import (
 	"github.com/stackrox/rox/central/compliance/standards/index"
 	"github.com/stackrox/rox/central/compliance/standards/metadata"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/sync"
 )
@@ -265,14 +266,14 @@ func (r *Registry) GetCISKubernetesStandardID() (string, error) {
 }
 
 // SearchStandards searches across standards
-func (r *Registry) SearchStandards(q *v1.Query) ([]search.Result, error) {
+func (r *Registry) SearchStandards(q *aux.Query) ([]search.Result, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return r.indexer.SearchStandards(q)
 }
 
 // SearchControls searches across controls
-func (r *Registry) SearchControls(q *v1.Query) ([]search.Result, error) {
+func (r *Registry) SearchControls(q *aux.Query) ([]search.Result, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return r.indexer.SearchControls(q)

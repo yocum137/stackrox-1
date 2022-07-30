@@ -11,6 +11,7 @@ import (
 	"github.com/stackrox/rox/central/cve/image/datastore/store"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
 	"github.com/stackrox/rox/pkg/sac"
@@ -56,15 +57,15 @@ func (ds *datastoreImpl) buildSuppressedCache() error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchImageCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchImageCVEs(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *v1.Query) ([]*storage.ImageCVE, error) {
+func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
 	cves, err := ds.searcher.SearchRawImageCVEs(ctx, q)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (ds *datastoreImpl) SearchRawImageCVEs(ctx context.Context, q *v1.Query) ([
 	return cves, nil
 }
 
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	if q == nil {
 		q = pkgSearch.EmptyQuery()
 	}

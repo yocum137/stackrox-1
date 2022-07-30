@@ -14,6 +14,7 @@ import (
 	notifierMocks "github.com/stackrox/rox/central/notifier/processor/mocks"
 	baselineMocks "github.com/stackrox/rox/central/processbaseline/datastore/mocks"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/search"
@@ -1119,7 +1120,7 @@ func (s *baseSuite) TestDeleteAlerts() {
 		AddStrings(search.DeploymentName, "deployment").
 		AddStrings(search.ViolationState, storage.ViolationState_RESOLVED.String())
 	expectedQuery := expectedQueryBuilder.ProtoQuery()
-	expectedQuery.Pagination = &v1.QueryPagination{
+	expectedQuery.Pagination = &aux.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 

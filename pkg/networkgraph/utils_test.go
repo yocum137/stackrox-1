@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,8 +18,8 @@ func TestGetQueries(t *testing.T) {
 		desc   string
 		rawQ   string
 		scope  *v1.NetworkGraphScope
-		depQ   *v1.Query
-		scopeQ *v1.Query
+		depQ   *aux.Query
+		scopeQ *aux.Query
 	}{
 		{
 			desc:   "query; no scope",

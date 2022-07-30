@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/dackbox"
@@ -105,7 +105,7 @@ func (s *filteredSearcherTestSuite) TestGlobalAllowed() {
 
 	testutils.DoWithGraph(ctx, testGraph, func(ctx context.Context) {
 		searcher := UnsafeSearcher(s.mockUnsafeSearcher, filter)
-		results, err := searcher.Search(ctx, &v1.Query{})
+		results, err := searcher.Search(ctx, &aux.Query{})
 		s.NoError(err, "search should have succeeded")
 		s.Equal([]search.Result{
 			{
@@ -150,7 +150,7 @@ func (s *filteredSearcherTestSuite) TestGlobalDenied() {
 
 	testutils.DoWithGraph(ctx, testGraph, func(ctx context.Context) {
 		searcher := UnsafeSearcher(s.mockUnsafeSearcher, filter)
-		results, err := searcher.Search(ctx, &v1.Query{})
+		results, err := searcher.Search(ctx, &aux.Query{})
 		s.NoError(err, "search should have succeeded")
 		s.Equal([]search.Result{}, results)
 	})
@@ -186,7 +186,7 @@ func (s *filteredSearcherTestSuite) TestScoped() {
 
 	testutils.DoWithGraph(ctx, testGraph, func(ctx context.Context) {
 		searcher := UnsafeSearcher(s.mockUnsafeSearcher, filter)
-		results, err := searcher.Search(ctx, &v1.Query{})
+		results, err := searcher.Search(ctx, &aux.Query{})
 		s.NoError(err, "search should have succeeded")
 		s.Equal([]search.Result{
 			// id1 and id3 are the only ids in cluster1
@@ -232,7 +232,7 @@ func (s *filteredSearcherTestSuite) TestMultiScoped() {
 
 	testutils.DoWithGraph(ctx, testGraph, func(ctx context.Context) {
 		searcher := UnsafeSearcher(s.mockUnsafeSearcher, filter)
-		results, err := searcher.Search(ctx, &v1.Query{})
+		results, err := searcher.Search(ctx, &aux.Query{})
 		s.NoError(err, "search should have succeeded")
 		s.Equal([]search.Result{
 			// Only id2 and id3 are allowed since they are the only ids in cluster2:namespace2

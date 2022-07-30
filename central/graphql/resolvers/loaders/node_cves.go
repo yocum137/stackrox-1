@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	nodeCVEDataStore "github.com/stackrox/rox/central/cve/node/datastore"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/search"
@@ -45,9 +45,9 @@ func GetNodeCVELoader(ctx context.Context) (NodeCVELoader, error) {
 type NodeCVELoader interface {
 	FromIDs(ctx context.Context, ids []string) ([]*storage.NodeCVE, error)
 	FromID(ctx context.Context, id string) (*storage.NodeCVE, error)
-	FromQuery(ctx context.Context, query *v1.Query) ([]*storage.NodeCVE, error)
-	GetIDs(ctx context.Context, query *v1.Query) ([]string, error)
-	CountFromQuery(ctx context.Context, query *v1.Query) (int32, error)
+	FromQuery(ctx context.Context, query *aux.Query) ([]*storage.NodeCVE, error)
+	GetIDs(ctx context.Context, query *aux.Query) ([]string, error)
+	CountFromQuery(ctx context.Context, query *aux.Query) (int32, error)
 	CountAll(ctx context.Context) (int32, error)
 }
 
@@ -78,7 +78,7 @@ func (idl *nodeCVELoaderImpl) FromID(ctx context.Context, id string) (*storage.N
 }
 
 // FromQuery loads a set of nodeCVEs that match a query.
-func (idl *nodeCVELoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([]*storage.NodeCVE, error) {
+func (idl *nodeCVELoaderImpl) FromQuery(ctx context.Context, query *aux.Query) ([]*storage.NodeCVE, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (idl *nodeCVELoaderImpl) FromQuery(ctx context.Context, query *v1.Query) ([
 	return idl.FromIDs(ctx, search.ResultsToIDs(results))
 }
 
-func (idl *nodeCVELoaderImpl) GetIDs(ctx context.Context, query *v1.Query) ([]string, error) {
+func (idl *nodeCVELoaderImpl) GetIDs(ctx context.Context, query *aux.Query) ([]string, error) {
 	results, err := idl.ds.Search(ctx, query)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (idl *nodeCVELoaderImpl) GetIDs(ctx context.Context, query *v1.Query) ([]st
 	return search.ResultsToIDs(results), nil
 }
 
-func (idl *nodeCVELoaderImpl) CountFromQuery(ctx context.Context, query *v1.Query) (int32, error) {
+func (idl *nodeCVELoaderImpl) CountFromQuery(ctx context.Context, query *aux.Query) (int32, error) {
 	count, err := idl.ds.Count(ctx, query)
 	if err != nil {
 		return 0, err

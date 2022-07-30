@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/secret/internal/store"
 	"github.com/stackrox/rox/central/secret/mappings"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/sac"
@@ -18,7 +19,7 @@ import (
 )
 
 var (
-	defaultSortOption = &v1.QuerySortOption{
+	defaultSortOption = &aux.QuerySortOption{
 		Field: search.CreatedTime.String(),
 	}
 
@@ -34,7 +35,7 @@ type searcherImpl struct {
 }
 
 // SearchSecrets returns the search results from indexed secrets for the query.
-func (ds *searcherImpl) SearchSecrets(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchSecrets(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -43,17 +44,17 @@ func (ds *searcherImpl) SearchSecrets(ctx context.Context, q *v1.Query) ([]*v1.S
 }
 
 // Search returns the raw search results from the query
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
 // SearchSecrets returns the secrets and relationships that match the query.
-func (ds *searcherImpl) SearchListSecrets(ctx context.Context, q *v1.Query) ([]*storage.ListSecret, error) {
+func (ds *searcherImpl) SearchListSecrets(ctx context.Context, q *aux.Query) ([]*storage.ListSecret, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -63,11 +64,11 @@ func (ds *searcherImpl) SearchListSecrets(ctx context.Context, q *v1.Query) ([]*
 }
 
 // SearchRawSecrets retrieves secrets from the indexer and storage
-func (ds *searcherImpl) SearchRawSecrets(ctx context.Context, q *v1.Query) ([]*storage.Secret, error) {
+func (ds *searcherImpl) SearchRawSecrets(ctx context.Context, q *aux.Query) ([]*storage.Secret, error) {
 	return ds.searchSecrets(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
@@ -128,7 +129,7 @@ func formatSearcher(unsafeSearcher blevesearch.UnsafeSearcher) search.Searcher {
 	return defaultSortedSearcher
 }
 
-func (ds *searcherImpl) searchSecrets(ctx context.Context, q *v1.Query) ([]*storage.Secret, error) {
+func (ds *searcherImpl) searchSecrets(ctx context.Context, q *aux.Query) ([]*storage.Secret, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

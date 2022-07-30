@@ -24,6 +24,7 @@ import (
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -67,10 +68,10 @@ type DataStore interface {
 	// states is a map of node name to the state for that node
 	UpdateAuditLogFileStates(ctx context.Context, id string, states map[string]*storage.AuditLogFileState) error
 
-	Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error)
-	Count(ctx context.Context, q *v1.Query) (int, error)
-	SearchRawClusters(ctx context.Context, q *v1.Query) ([]*storage.Cluster, error)
-	SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
+	Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error)
+	Count(ctx context.Context, q *aux.Query) (int, error)
+	SearchRawClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error)
+	SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
 
 	LookupOrCreateClusterFromConfig(ctx context.Context, clusterID, bundleID string, hello *central.SensorHello) (*storage.Cluster, error)
 }

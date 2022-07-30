@@ -6,7 +6,7 @@ import (
 
 	"github.com/stackrox/rox/central/globalindex"
 	imageIndex "github.com/stackrox/rox/central/image/index"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/search"
@@ -29,7 +29,7 @@ func compareResults(t *testing.T, matches bool, predResult *search.Result, searc
 func TestImageSearchResults(t *testing.T) {
 	cases := []struct {
 		image *storage.Image
-		query *v1.Query
+		query *aux.Query
 	}{
 		{
 			image: fixtures.GetImage(),
@@ -76,7 +76,7 @@ func TestImageSearchResults(t *testing.T) {
 func TestDeploymentSearchResults(t *testing.T) {
 	cases := []struct {
 		deployment *storage.Deployment
-		query      *v1.Query
+		query      *aux.Query
 	}{
 		{
 			deployment: fixtures.GetDeployment(),

@@ -6,6 +6,7 @@ import (
 	"github.com/stackrox/rox/central/cve/image/datastore/index"
 	"github.com/stackrox/rox/central/cve/image/datastore/store/postgres"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 )
@@ -16,7 +17,7 @@ type searcherImpl struct {
 	searcher search.Searcher
 }
 
-func (ds *searcherImpl) SearchImageCVEs(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *searcherImpl) SearchImageCVEs(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := ds.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -24,24 +25,24 @@ func (ds *searcherImpl) SearchImageCVEs(ctx context.Context, q *v1.Query) ([]*v1
 	return ds.resultsToSearchResults(ctx, results)
 }
 
-func (ds *searcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (ds *searcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return ds.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *searcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *searcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.getCount(ctx, q)
 }
 
-func (ds *searcherImpl) SearchRawImageCVEs(ctx context.Context, q *v1.Query) ([]*storage.ImageCVE, error) {
+func (ds *searcherImpl) SearchRawImageCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
 	return ds.searchCVEs(ctx, q)
 }
 
-func (ds *searcherImpl) getSearchResults(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (ds *searcherImpl) getSearchResults(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	return ds.searcher.Search(ctx, q)
 }
 
-func (ds *searcherImpl) getCount(ctx context.Context, q *v1.Query) (count int, err error) {
+func (ds *searcherImpl) getCount(ctx context.Context, q *aux.Query) (count int, err error) {
 	return ds.searcher.Count(ctx, q)
 }
 
@@ -76,7 +77,7 @@ func convertOne(cve *storage.ImageCVE, result *search.Result) *v1.SearchResult {
 	}
 }
 
-func (ds *searcherImpl) searchCVEs(ctx context.Context, q *v1.Query) ([]*storage.ImageCVE, error) {
+func (ds *searcherImpl) searchCVEs(ctx context.Context, q *aux.Query) ([]*storage.ImageCVE, error) {
 	results, err := ds.Search(ctx, q)
 	if err != nil {
 		return nil, err

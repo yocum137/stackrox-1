@@ -2,7 +2,7 @@ package index
 
 import (
 	"github.com/blevesearch/bleve"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
 )
@@ -10,8 +10,8 @@ import (
 //go:generate mockgen-wrapper
 // Indexer is the interface for indexing active component
 type Indexer interface {
-	Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error)
-	Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+	Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error)
+	Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 }
 
 // New creates a new active component indexer

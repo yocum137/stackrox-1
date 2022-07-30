@@ -3,6 +3,7 @@ package index
 import (
 	"github.com/blevesearch/bleve"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -23,8 +24,8 @@ type Indexer interface {
 	IndexStandard(standard *v1.ComplianceStandard) error
 	DeleteStandard(id string) error
 	DeleteControl(id string) error
-	SearchStandards(q *v1.Query) ([]search.Result, error)
-	SearchControls(q *v1.Query) ([]search.Result, error)
+	SearchStandards(q *aux.Query) ([]search.Result, error)
+	SearchControls(q *aux.Query) ([]search.Result, error)
 }
 
 type controlWrapper struct {
@@ -72,11 +73,11 @@ func (i *indexer) DeleteControl(id string) error {
 }
 
 // SearchStandards searches standards
-func (i *indexer) SearchStandards(q *v1.Query) ([]search.Result, error) {
+func (i *indexer) SearchStandards(q *aux.Query) ([]search.Result, error) {
 	return blevesearch.RunSearchRequest(v1.SearchCategory_COMPLIANCE_STANDARD, q, i.indexer, StandardOptions)
 }
 
 // SearchControls searches controls
-func (i *indexer) SearchControls(q *v1.Query) ([]search.Result, error) {
+func (i *indexer) SearchControls(q *aux.Query) ([]search.Result, error) {
 	return blevesearch.RunSearchRequest(v1.SearchCategory_COMPLIANCE_CONTROL, q, i.indexer, ControlOptions)
 }

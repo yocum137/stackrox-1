@@ -3,7 +3,7 @@ package search
 import (
 	"strings"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/set"
 )
@@ -13,12 +13,12 @@ var (
 )
 
 // ParseQueryForAutocomplete parses the input string specific for autocomplete requests.
-func ParseQueryForAutocomplete(query string) (*v1.Query, string, error) {
+func ParseQueryForAutocomplete(query string) (*aux.Query, string, error) {
 	return autocompleteQueryParser{}.parse(query)
 }
 
 // ParseQuery parses the input query with the supplied options.
-func ParseQuery(query string, opts ...ParseQueryOption) (*v1.Query, error) {
+func ParseQuery(query string, opts ...ParseQueryOption) (*aux.Query, error) {
 	parser := generalQueryParser{}
 	for _, opt := range opts {
 		opt(&parser)
@@ -89,8 +89,8 @@ func parsePair(pair string, allowEmpty bool) (key string, values string, valid b
 	return spl[0], spl[1], true
 }
 
-func queryFromFieldValues(field string, values []string, highlight bool) *v1.Query {
-	queries := make([]*v1.Query, 0, len(values))
+func queryFromFieldValues(field string, values []string, highlight bool) *aux.Query {
+	queries := make([]*aux.Query, 0, len(values))
 	for _, value := range values {
 		queries = append(queries, MatchFieldQuery(field, value, highlight))
 	}
@@ -99,67 +99,67 @@ func queryFromFieldValues(field string, values []string, highlight bool) *v1.Que
 }
 
 // DisjunctionQuery returns a disjunction query of the provided queries.
-func DisjunctionQuery(queries ...*v1.Query) *v1.Query {
+func DisjunctionQuery(queries ...*aux.Query) *aux.Query {
 	return disjunctOrConjunctQueries(false, queries...)
 }
 
 // ConjunctionQuery returns a conjunction query of the provided queries.
-func ConjunctionQuery(queries ...*v1.Query) *v1.Query {
+func ConjunctionQuery(queries ...*aux.Query) *aux.Query {
 	return disjunctOrConjunctQueries(true, queries...)
 }
 
 // Helper function that DisjunctionQuery and ConjunctionQuery proxy to.
 // Do NOT call this directly.
-func disjunctOrConjunctQueries(isConjunct bool, queries ...*v1.Query) *v1.Query {
+func disjunctOrConjunctQueries(isConjunct bool, queries ...*aux.Query) *aux.Query {
 	if len(queries) == 0 {
-		return &v1.Query{}
+		return &aux.Query{}
 	}
 
 	if len(queries) == 1 {
 		return queries[0]
 	}
 	if isConjunct {
-		return &v1.Query{
-			Query: &v1.Query_Conjunction{Conjunction: &v1.ConjunctionQuery{Queries: queries}},
+		return &aux.Query{
+			Query: &aux.Query_Conjunction{Conjunction: &aux.ConjunctionQuery{Queries: queries}},
 		}
 	}
 
-	return &v1.Query{
-		Query: &v1.Query_Disjunction{Disjunction: &v1.DisjunctionQuery{Queries: queries}},
+	return &aux.Query{
+		Query: &aux.Query_Disjunction{Disjunction: &aux.DisjunctionQuery{Queries: queries}},
 	}
 }
 
-func queryFromBaseQuery(baseQuery *v1.BaseQuery) *v1.Query {
-	return &v1.Query{
-		Query: &v1.Query_BaseQuery{BaseQuery: baseQuery},
+func queryFromBaseQuery(baseQuery *aux.BaseQuery) *aux.Query {
+	return &aux.Query{
+		Query: &aux.Query_BaseQuery{BaseQuery: baseQuery},
 	}
 }
 
 // MatchFieldQuery returns a match field query.
 // It's a simple convenience wrapper around initializing the struct.
-func MatchFieldQuery(field, value string, highlight bool) *v1.Query {
-	return queryFromBaseQuery(&v1.BaseQuery{
-		Query: &v1.BaseQuery_MatchFieldQuery{MatchFieldQuery: &v1.MatchFieldQuery{Field: field, Value: value, Highlight: highlight}},
+func MatchFieldQuery(field, value string, highlight bool) *aux.Query {
+	return queryFromBaseQuery(&aux.BaseQuery{
+		Query: &aux.BaseQuery_MatchFieldQuery{MatchFieldQuery: &aux.MatchFieldQuery{Field: field, Value: value, Highlight: highlight}},
 	})
 }
 
 // matchLinkedFieldsQuery returns a query that matches
-func matchLinkedFieldsQuery(fieldValues []fieldValue) *v1.Query {
-	mfqs := make([]*v1.MatchFieldQuery, len(fieldValues))
+func matchLinkedFieldsQuery(fieldValues []fieldValue) *aux.Query {
+	mfqs := make([]*aux.MatchFieldQuery, len(fieldValues))
 	for i, fv := range fieldValues {
-		mfqs[i] = &v1.MatchFieldQuery{Field: fv.l.String(), Value: fv.v, Highlight: fv.highlighted}
+		mfqs[i] = &aux.MatchFieldQuery{Field: fv.l.String(), Value: fv.v, Highlight: fv.highlighted}
 	}
 
-	return queryFromBaseQuery(&v1.BaseQuery{
-		Query: &v1.BaseQuery_MatchLinkedFieldsQuery{MatchLinkedFieldsQuery: &v1.MatchLinkedFieldsQuery{
+	return queryFromBaseQuery(&aux.BaseQuery{
+		Query: &aux.BaseQuery_MatchLinkedFieldsQuery{MatchLinkedFieldsQuery: &aux.MatchLinkedFieldsQuery{
 			Query: mfqs,
 		}},
 	})
 }
 
-func docIDQuery(ids []string) *v1.Query {
-	return queryFromBaseQuery(&v1.BaseQuery{
-		Query: &v1.BaseQuery_DocIdQuery{DocIdQuery: &v1.DocIDQuery{Ids: ids}},
+func docIDQuery(ids []string) *aux.Query {
+	return queryFromBaseQuery(&aux.BaseQuery{
+		Query: &aux.BaseQuery_DocIdQuery{DocIdQuery: &aux.DocIDQuery{Ids: ids}},
 	})
 }
 

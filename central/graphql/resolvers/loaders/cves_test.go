@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/central/cve/datastore/mocks"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stretchr/testify/suite"
@@ -122,7 +122,7 @@ func (suite *CVELoaderTestSuite) TestFromQuery() {
 		},
 		ds: suite.mockDataStore,
 	}
-	query := &v1.Query{}
+	query := &aux.Query{}
 
 	// Get a preloaded cve from id.
 	results := []search.Result{

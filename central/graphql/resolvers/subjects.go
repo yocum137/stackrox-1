@@ -9,7 +9,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/rbac/service"
 	rbacUtils "github.com/stackrox/rox/central/rbac/utils"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/k8srbac"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -95,7 +95,7 @@ func (resolver *Resolver) SubjectCount(ctx context.Context, args RawQuery) (int3
 	return int32(len(filteredSubjects)), nil
 }
 
-func (resolver *Resolver) getFilteredSubjects(ctx context.Context, query *v1.Query) ([]*storage.Subject, error) {
+func (resolver *Resolver) getFilteredSubjects(ctx context.Context, query *aux.Query) ([]*storage.Subject, error) {
 	if err := readK8sSubjects(ctx); err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (resolver *subjectResolver) K8sRoles(ctx context.Context, args PaginatedQue
 	return resolvers.([]*k8SRoleResolver), err
 }
 
-func (resolver *subjectResolver) getRolesForSubject(ctx context.Context, filterQ *v1.Query) ([]*storage.K8SRole, error) {
+func (resolver *subjectResolver) getRolesForSubject(ctx context.Context, filterQ *aux.Query) ([]*storage.K8SRole, error) {
 	q := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).
 		AddExactMatches(search.SubjectName, resolver.data.GetName()).
 		AddExactMatches(search.SubjectKind, resolver.data.GetKind().String()).

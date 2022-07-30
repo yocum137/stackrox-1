@@ -5,7 +5,7 @@ import (
 
 	"github.com/blevesearch/bleve"
 	"github.com/stackrox/rox/central/globalindex"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/search"
@@ -54,7 +54,7 @@ func (suite *SecretIndexTestSuite) SetupSuite() {
 func (suite *SecretIndexTestSuite) TestSecretSearch() {
 	cases := []struct {
 		name        string
-		q           *v1.Query
+		q           *aux.Query
 		expectedIDs []string
 	}{
 		{

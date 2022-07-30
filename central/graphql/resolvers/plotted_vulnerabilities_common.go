@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/search"
 )
@@ -31,15 +31,15 @@ func getPlottedVulnsIdsAndFixableCount(ctx context.Context, root *Resolver, args
 	return search.ResultsToIDs(all), fixable, nil
 }
 
-func getPlottedVulnsV1Query(args RawQuery) (*v1.Query, error) {
+func getPlottedVulnsV1Query(args RawQuery) (*aux.Query, error) {
 	q, err := args.AsV1QueryOrEmpty()
 	if err != nil {
 		return nil, err
 	}
 
 	q = tryUnsuppressedQuery(q)
-	q.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	q.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,

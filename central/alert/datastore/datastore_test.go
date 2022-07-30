@@ -14,6 +14,7 @@ import (
 	"github.com/stackrox/rox/central/alerttest"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/alert/convert"
 	"github.com/stackrox/rox/pkg/features"
@@ -72,27 +73,27 @@ func (s *alertDataStoreTestSuite) SetupTest() {
 }
 
 func (s *alertDataStoreTestSuite) TestSearchAlerts() {
-	s.searcher.EXPECT().SearchAlerts(s.hasReadCtx, &v1.Query{}).Return([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, errFake)
+	s.searcher.EXPECT().SearchAlerts(s.hasReadCtx, &aux.Query{}).Return([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, errFake)
 
-	result, err := s.dataStore.SearchAlerts(s.hasReadCtx, &v1.Query{})
+	result, err := s.dataStore.SearchAlerts(s.hasReadCtx, &aux.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal([]*v1.SearchResult{{Id: alerttest.FakeAlertID}}, result)
 }
 
 func (s *alertDataStoreTestSuite) TestSearchRawAlerts() {
-	s.searcher.EXPECT().SearchRawAlerts(s.hasReadCtx, &v1.Query{}).Return([]*storage.Alert{{Id: alerttest.FakeAlertID}}, errFake)
+	s.searcher.EXPECT().SearchRawAlerts(s.hasReadCtx, &aux.Query{}).Return([]*storage.Alert{{Id: alerttest.FakeAlertID}}, errFake)
 
-	result, err := s.dataStore.SearchRawAlerts(s.hasReadCtx, &v1.Query{})
+	result, err := s.dataStore.SearchRawAlerts(s.hasReadCtx, &aux.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal([]*storage.Alert{{Id: alerttest.FakeAlertID}}, result)
 }
 
 func (s *alertDataStoreTestSuite) TestSearchListAlerts() {
-	s.searcher.EXPECT().SearchListAlerts(s.hasReadCtx, &v1.Query{}).Return(alerttest.NewFakeListAlertSlice(), errFake)
+	s.searcher.EXPECT().SearchListAlerts(s.hasReadCtx, &aux.Query{}).Return(alerttest.NewFakeListAlertSlice(), errFake)
 
-	result, err := s.dataStore.SearchListAlerts(s.hasReadCtx, &v1.Query{})
+	result, err := s.dataStore.SearchListAlerts(s.hasReadCtx, &aux.Query{})
 
 	s.Equal(errFake, err)
 	s.Equal(alerttest.NewFakeListAlertSlice(), result)

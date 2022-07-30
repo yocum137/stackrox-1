@@ -11,6 +11,7 @@ import (
 	"github.com/stackrox/rox/central/metrics"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -187,8 +188,8 @@ func (resolver *imageResolver) topVulnV2(ctx context.Context, args RawQuery) (*c
 	}
 
 	query = search.ConjunctionQuery(query, resolver.getImageQuery())
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -385,7 +386,7 @@ func (resolver *imageResolver) getImageRawQuery() string {
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, resolver.data.GetId()).Query()
 }
 
-func (resolver *imageResolver) getImageQuery() *v1.Query {
+func (resolver *imageResolver) getImageQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.ImageSHA, resolver.data.GetId()).ProtoQuery()
 }
 

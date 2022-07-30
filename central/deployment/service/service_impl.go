@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/central/risk/manager"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/errox"
@@ -185,9 +186,9 @@ func (s *serviceImpl) ListDeployments(ctx context.Context, request *v1.RawQuery)
 	}, nil
 }
 
-func queryForLabels() *v1.Query {
+func queryForLabels() *aux.Query {
 	q := search.NewQueryBuilder().AddStringsHighlighted(search.Label, search.WildcardString).ProtoQuery()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	return q

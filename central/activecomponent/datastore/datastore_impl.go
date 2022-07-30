@@ -9,7 +9,7 @@ import (
 	"github.com/stackrox/rox/central/activecomponent/datastore/search"
 	sacFilters "github.com/stackrox/rox/central/activecomponent/sac"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	"github.com/stackrox/rox/pkg/sac"
@@ -28,11 +28,11 @@ type datastoreImpl struct {
 	searcher      search.Searcher
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, query *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, query *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, query)
 }
 
-func (ds *datastoreImpl) SearchRawActiveComponents(ctx context.Context, query *v1.Query) ([]*storage.ActiveComponent, error) {
+func (ds *datastoreImpl) SearchRawActiveComponents(ctx context.Context, query *aux.Query) ([]*storage.ActiveComponent, error) {
 	return ds.searcher.SearchRawActiveComponents(ctx, query)
 }
 

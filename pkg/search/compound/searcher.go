@@ -3,7 +3,7 @@ package compound
 import (
 	"context"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/pkg/dackbox/keys/transformation"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/paginated"
@@ -45,18 +45,18 @@ type compoundSearcherImpl struct {
 
 // Search constructs and executes the necessary queries on the searchers that the compound searcher is configured to
 // use.
-func (cs *compoundSearcherImpl) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (cs *compoundSearcherImpl) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return cs.searchInternal(ctx, q, false)
 }
 
 // Count uses Search function to get the search results and then count them
-func (cs *compoundSearcherImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (cs *compoundSearcherImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	results, err := cs.searchInternal(ctx, q, true)
 	return len(results), err
 }
 
-func (cs *compoundSearcherImpl) searchInternal(ctx context.Context, q *v1.Query, skipSort bool) ([]search.Result, error) {
-	var local *v1.Query
+func (cs *compoundSearcherImpl) searchInternal(ctx context.Context, q *aux.Query, skipSort bool) ([]search.Result, error) {
+	var local *aux.Query
 	if q != nil {
 		local = q.Clone()
 	}

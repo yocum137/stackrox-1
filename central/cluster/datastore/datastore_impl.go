@@ -30,6 +30,7 @@ import (
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	serviceAccountDataStore "github.com/stackrox/rox/central/serviceaccount/datastore"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	clusterValidation "github.com/stackrox/rox/pkg/cluster"
@@ -199,20 +200,20 @@ func (ds *datastoreImpl) registerClusterForNetworkGraphExtSrcs() error {
 	return nil
 }
 
-func (ds *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]pkgSearch.Result, error) {
+func (ds *datastoreImpl) Search(ctx context.Context, q *aux.Query) ([]pkgSearch.Result, error) {
 	return ds.searcher.Search(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (ds *datastoreImpl) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (ds *datastoreImpl) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return ds.searcher.Count(ctx, q)
 }
 
-func (ds *datastoreImpl) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (ds *datastoreImpl) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	return ds.searcher.SearchResults(ctx, q)
 }
 
-func (ds *datastoreImpl) searchRawClusters(ctx context.Context, q *v1.Query) ([]*storage.Cluster, error) {
+func (ds *datastoreImpl) searchRawClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error) {
 	clusters, err := ds.searcher.SearchClusters(ctx, q)
 	if err != nil {
 		return nil, err
@@ -278,7 +279,7 @@ func (ds *datastoreImpl) Exists(ctx context.Context, id string) (bool, error) {
 	return ok, nil
 }
 
-func (ds *datastoreImpl) SearchRawClusters(ctx context.Context, q *v1.Query) ([]*storage.Cluster, error) {
+func (ds *datastoreImpl) SearchRawClusters(ctx context.Context, q *aux.Query) ([]*storage.Cluster, error) {
 	clusters, err := ds.searchRawClusters(ctx, q)
 	if err != nil {
 		return nil, err

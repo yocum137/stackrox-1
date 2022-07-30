@@ -11,7 +11,7 @@ import (
 	image "github.com/stackrox/rox/central/image/dackbox"
 	imageStore "github.com/stackrox/rox/central/image/datastore/store/dackbox"
 	imageIndexer "github.com/stackrox/rox/central/image/index"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox"
 	"github.com/stackrox/rox/pkg/dackbox/concurrency"
@@ -87,9 +87,9 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 	ctx := sac.WithGlobalAccessScopeChecker(context.Background(), sac.AllowAllAccessScopeChecker())
 
 	// Sort by priority aka high risk to low risk.
-	q := &v1.Query{
-		Pagination: &v1.QueryPagination{
-			SortOptions: []*v1.QuerySortOption{
+	q := &aux.Query{
+		Pagination: &aux.QueryPagination{
+			SortOptions: []*aux.QuerySortOption{
 				{
 					Field: search.ImagePriority.String(),
 				},
@@ -102,8 +102,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Get images in namespace 'n1' sorted by priority in reverse order.
 	q = search.NewQueryBuilder().AddExactMatches(search.Namespace, "n1").ProtoQuery()
-	q.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	q.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.ImagePriority.String(),
 				Reversed: true,
@@ -116,8 +116,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Get images in namespace 'n2' sorted by priority.
 	q = search.NewQueryBuilder().AddExactMatches(search.Namespace, "n2").ProtoQuery()
-	q.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	q.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: search.ImagePriority.String(),
 			},
@@ -129,8 +129,8 @@ func (suite *ImageSearcherTestSuite) TestRiskOrdering() {
 
 	// Sort by namespace.
 	q = search.EmptyQuery()
-	q.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	q.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field: search.Namespace.String(),
 			},

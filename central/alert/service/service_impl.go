@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
@@ -373,8 +374,8 @@ func (s *serviceImpl) DeleteAlerts(ctx context.Context, request *v1.DeleteAlerts
 	paginated.FillPagination(query, request.GetQuery().GetPagination(), math.MaxInt32)
 
 	specified := false
-	search.ApplyFnToAllBaseQueries(query, func(bq *v1.BaseQuery) {
-		matchFieldQuery, ok := bq.GetQuery().(*v1.BaseQuery_MatchFieldQuery)
+	search.ApplyFnToAllBaseQueries(query, func(bq *aux.BaseQuery) {
+		matchFieldQuery, ok := bq.GetQuery().(*aux.BaseQuery_MatchFieldQuery)
 		if !ok {
 			return
 		}

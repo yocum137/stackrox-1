@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/imagecomponentedge/search"
 	"github.com/stackrox/rox/central/imagecomponentedge/store"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/dackbox/graph"
 	searchPkg "github.com/stackrox/rox/pkg/search"
@@ -15,9 +16,9 @@ import (
 // DataStore is an intermediary to Image/Component edge storage.
 //go:generate mockgen-wrapper
 type DataStore interface {
-	Search(ctx context.Context, q *v1.Query) ([]searchPkg.Result, error)
-	SearchEdges(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error)
-	SearchRawEdges(ctx context.Context, q *v1.Query) ([]*storage.ImageComponentEdge, error)
+	Search(ctx context.Context, q *aux.Query) ([]searchPkg.Result, error)
+	SearchEdges(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error)
+	SearchRawEdges(ctx context.Context, q *aux.Query) ([]*storage.ImageComponentEdge, error)
 
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.ImageComponentEdge, bool, error)

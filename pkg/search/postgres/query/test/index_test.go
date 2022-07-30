@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/postgres/pgtest"
@@ -33,7 +33,7 @@ type SingleIndexSuite struct {
 	pool    *pgxpool.Pool
 	store   postgres.Store
 	indexer interface {
-		Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
+		Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error)
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/stackrox/rox/central/metrics"
 	rbacUtils "github.com/stackrox/rox/central/rbac/utils"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/k8srbac"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -136,7 +136,7 @@ func (resolver *serviceAccountResolver) K8sRoles(ctx context.Context, args Pagin
 	return resolvers.([]*k8SRoleResolver), err
 }
 
-func (resolver *serviceAccountResolver) getRolesAndBindings(ctx context.Context, passedQuery *v1.Query) ([]*storage.K8SRoleBinding, []*storage.K8SRole, error) {
+func (resolver *serviceAccountResolver) getRolesAndBindings(ctx context.Context, passedQuery *aux.Query) ([]*storage.K8SRoleBinding, []*storage.K8SRole, error) {
 	bindingQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, resolver.data.GetClusterId()).ProtoQuery()
 	bindings, err := resolver.root.K8sRoleBindingStore.SearchRawRoleBindings(ctx, bindingQuery)
 	if err != nil {

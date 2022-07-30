@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -38,7 +38,7 @@ func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder {
 }
 
 // Count mocks base method.
-func (m *MockSearcher) Count(ctx context.Context, query *v1.Query) (int, error) {
+func (m *MockSearcher) Count(ctx context.Context, query *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, query)
 	ret0, _ := ret[0].(int)
@@ -53,7 +53,7 @@ func (mr *MockSearcherMockRecorder) Count(ctx, query interface{}) *gomock.Call {
 }
 
 // Search mocks base method.
-func (m *MockSearcher) Search(ctx context.Context, query *v1.Query) ([]search.Result, error) {
+func (m *MockSearcher) Search(ctx context.Context, query *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
 	ret0, _ := ret[0].([]search.Result)
@@ -68,7 +68,7 @@ func (mr *MockSearcherMockRecorder) Search(ctx, query interface{}) *gomock.Call 
 }
 
 // SearchReportConfigurations mocks base method.
-func (m *MockSearcher) SearchReportConfigurations(ctx context.Context, query *v1.Query) ([]*storage.ReportConfiguration, error) {
+func (m *MockSearcher) SearchReportConfigurations(ctx context.Context, query *aux.Query) ([]*storage.ReportConfiguration, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchReportConfigurations", ctx, query)
 	ret0, _ := ret[0].([]*storage.ReportConfiguration)

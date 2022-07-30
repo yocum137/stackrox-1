@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stackrox/rox/central/metrics"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
 	"github.com/stackrox/rox/pkg/search"
@@ -47,7 +47,7 @@ func (resolver *Resolver) ClusterHealthCounter(ctx context.Context, args RawQuer
 	return newClusterHealthCounterResolver(ctx, resolver, q)
 }
 
-func newClusterHealthCounterResolver(ctx context.Context, root *Resolver, q *v1.Query) (*ClusterHealthCounterResolver, error) {
+func newClusterHealthCounterResolver(ctx context.Context, root *Resolver, q *aux.Query) (*ClusterHealthCounterResolver, error) {
 	total, err := root.ClusterDataStore.Search(ctx, q)
 	if err != nil {
 		return nil, err

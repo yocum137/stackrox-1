@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	storage "github.com/stackrox/rox/generated/storage"
 	search "github.com/stackrox/rox/pkg/search"
 )
@@ -52,7 +53,7 @@ func (mr *MockDataStoreMockRecorder) AddNamespace(arg0, arg1 interface{}) *gomoc
 }
 
 // Count mocks base method.
-func (m *MockDataStore) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (m *MockDataStore) Count(ctx context.Context, q *aux.Query) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Count", ctx, q)
 	ret0, _ := ret[0].(int)
@@ -112,7 +113,7 @@ func (mr *MockDataStoreMockRecorder) RemoveNamespace(ctx, id interface{}) *gomoc
 }
 
 // Search mocks base method.
-func (m *MockDataStore) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (m *MockDataStore) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, q)
 	ret0, _ := ret[0].([]search.Result)
@@ -127,7 +128,7 @@ func (mr *MockDataStoreMockRecorder) Search(ctx, q interface{}) *gomock.Call {
 }
 
 // SearchNamespaces mocks base method.
-func (m *MockDataStore) SearchNamespaces(ctx context.Context, q *v1.Query) ([]*storage.NamespaceMetadata, error) {
+func (m *MockDataStore) SearchNamespaces(ctx context.Context, q *aux.Query) ([]*storage.NamespaceMetadata, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchNamespaces", ctx, q)
 	ret0, _ := ret[0].([]*storage.NamespaceMetadata)
@@ -142,7 +143,7 @@ func (mr *MockDataStoreMockRecorder) SearchNamespaces(ctx, q interface{}) *gomoc
 }
 
 // SearchResults mocks base method.
-func (m *MockDataStore) SearchResults(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (m *MockDataStore) SearchResults(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchResults", ctx, q)
 	ret0, _ := ret[0].([]*v1.SearchResult)

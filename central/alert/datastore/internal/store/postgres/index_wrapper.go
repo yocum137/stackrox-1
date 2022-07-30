@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/blevesearch"
@@ -29,7 +29,7 @@ func (w *indexWrapperImpl) AddListAlerts(_ []*storage.ListAlert) error {
 	return nil
 }
 
-func (w *indexWrapperImpl) Count(q *v1.Query, opts ...blevesearch.SearchOption) (int, error) {
+func (w *indexWrapperImpl) Count(q *aux.Query, opts ...blevesearch.SearchOption) (int, error) {
 	return w.indexer.Count(q, opts...)
 }
 
@@ -49,6 +49,6 @@ func (w *indexWrapperImpl) NeedsInitialIndexing() (bool, error) {
 	return false, nil
 }
 
-func (w *indexWrapperImpl) Search(q *v1.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
+func (w *indexWrapperImpl) Search(q *aux.Query, opts ...blevesearch.SearchOption) ([]search.Result, error) {
 	return w.indexer.Search(q, opts...)
 }

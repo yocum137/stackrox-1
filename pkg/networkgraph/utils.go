@@ -3,6 +3,7 @@ package networkgraph
 import (
 	"github.com/pkg/errors"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/search"
@@ -164,7 +165,7 @@ func PopulateExternalSrcsDesc(entity *storage.NetworkEntityInfo, extSrcMapper fu
 }
 
 // GetFilterAndScopeQueries returns parses the raw deployment query string and network graph scope into v1.Query.
-func GetFilterAndScopeQueries(clusterID, rawQ string, scope *v1.NetworkGraphScope) (*v1.Query, *v1.Query, error) {
+func GetFilterAndScopeQueries(clusterID, rawQ string, scope *v1.NetworkGraphScope) (*aux.Query, *aux.Query, error) {
 	allClusterDepsQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).ProtoQuery()
 
 	scopeQuery := allClusterDepsQuery

@@ -8,6 +8,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -335,7 +336,7 @@ func clusterCveToVulnerabilityWithSeverity(in []*storage.ClusterCVE) []Vulnerabi
 	return ret
 }
 
-func (resolver *clusterCVEResolver) getClusterCVEQuery() *v1.Query {
+func (resolver *clusterCVEResolver) getClusterCVEQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -411,7 +412,7 @@ func (resolver *clusterCVEResolver) IsFixable(ctx context.Context, args RawQuery
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*v1.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(ctx); !ok || scope.Level != v1.SearchCategory_CLUSTER_VULNERABILITIES {

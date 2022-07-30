@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/central/compliance/framework"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/internalapi/compliance"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/compliance/compress"
@@ -210,7 +211,7 @@ func (r *repository) init(ctx context.Context, domain framework.ComplianceDomain
 	clusterID := r.cluster.GetId()
 
 	clusterQuery := search.NewQueryBuilder().AddExactMatches(search.ClusterID, clusterID).ProtoQuery()
-	infPagination := &v1.QueryPagination{
+	infPagination := &aux.QueryPagination{
 		Limit: math.MaxInt32,
 	}
 	clusterQuery.Pagination = infPagination

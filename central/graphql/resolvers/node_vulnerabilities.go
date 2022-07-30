@@ -9,6 +9,7 @@ import (
 	"github.com/stackrox/rox/central/graphql/resolvers/loaders"
 	"github.com/stackrox/rox/central/metrics"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/features"
 	pkgMetrics "github.com/stackrox/rox/pkg/metrics"
@@ -195,8 +196,8 @@ func (resolver *Resolver) TopNodeVulnerability(ctx context.Context, args RawQuer
 	if err != nil {
 		return nil, err
 	}
-	query.Pagination = &v1.QueryPagination{
-		SortOptions: []*v1.QuerySortOption{
+	query.Pagination = &aux.QueryPagination{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.CVSS.String(),
 				Reversed: true,
@@ -234,7 +235,7 @@ func (resolver *Resolver) TopNodeVulnerability(ctx context.Context, args RawQuer
 Utility Functions
 */
 
-func (resolver *nodeCVEResolver) getNodeCVEQuery() *v1.Query {
+func (resolver *nodeCVEResolver) getNodeCVEQuery() *aux.Query {
 	return search.NewQueryBuilder().AddExactMatches(search.CVEID, resolver.data.GetId()).ProtoQuery()
 }
 
@@ -324,7 +325,7 @@ func (resolver *nodeCVEResolver) IsFixable(ctx context.Context, args RawQuery) (
 	// check for Fixable fields in args
 	logErrorOnQueryContainingField(query, search.Fixable, "IsFixable")
 
-	conjuncts := []*v1.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
+	conjuncts := []*aux.Query{query, search.NewQueryBuilder().AddBools(search.Fixable, true).ProtoQuery()}
 
 	// check scoping, add as conjunction if needed
 	if scope, ok := scoped.GetScope(resolver.ctx); !ok || scope.Level != v1.SearchCategory_NODE_VULNERABILITIES {
@@ -353,10 +354,10 @@ func (resolver *nodeCVEResolver) LastScanned(ctx context.Context) (*graphql.Time
 	}
 
 	q := resolver.getNodeCVEQuery()
-	q.Pagination = &v1.QueryPagination{
+	q.Pagination = &aux.QueryPagination{
 		Limit:  1,
 		Offset: 0,
-		SortOptions: []*v1.QuerySortOption{
+		SortOptions: []*aux.QuerySortOption{
 			{
 				Field:    search.NodeScanTime.String(),
 				Reversed: true,

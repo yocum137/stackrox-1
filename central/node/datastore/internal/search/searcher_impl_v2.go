@@ -7,6 +7,7 @@ import (
 	"github.com/stackrox/rox/central/node/index"
 	"github.com/stackrox/rox/central/role/resources"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/aux"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/postgres/schema"
 	"github.com/stackrox/rox/pkg/sac"
@@ -43,16 +44,16 @@ type searcherImplV2 struct {
 	searcher search.Searcher
 }
 
-func (s *searcherImplV2) Search(ctx context.Context, q *v1.Query) ([]search.Result, error) {
+func (s *searcherImplV2) Search(ctx context.Context, q *aux.Query) ([]search.Result, error) {
 	return s.getSearchResults(ctx, q)
 }
 
 // Count returns the number of search results from the query
-func (s *searcherImplV2) Count(ctx context.Context, q *v1.Query) (int, error) {
+func (s *searcherImplV2) Count(ctx context.Context, q *aux.Query) (int, error) {
 	return s.getCountResults(ctx, q)
 }
 
-func (s *searcherImplV2) SearchNodes(ctx context.Context, q *v1.Query) ([]*v1.SearchResult, error) {
+func (s *searcherImplV2) SearchNodes(ctx context.Context, q *aux.Query) ([]*v1.SearchResult, error) {
 	results, err := s.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -60,11 +61,11 @@ func (s *searcherImplV2) SearchNodes(ctx context.Context, q *v1.Query) ([]*v1.Se
 	return s.resultsToSearchResults(ctx, results)
 }
 
-func (s *searcherImplV2) SearchRawNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error) {
+func (s *searcherImplV2) SearchRawNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
 	return s.searchNodes(ctx, q)
 }
 
-func (s *searcherImplV2) searchNodes(ctx context.Context, q *v1.Query) ([]*storage.Node, error) {
+func (s *searcherImplV2) searchNodes(ctx context.Context, q *aux.Query) ([]*storage.Node, error) {
 	results, err := s.getSearchResults(ctx, q)
 	if err != nil {
 		return nil, err
@@ -78,11 +79,11 @@ func (s *searcherImplV2) searchNodes(ctx context.Context, q *v1.Query) ([]*stora
 	return components, nil
 }
 
-func (s *searcherImplV2) getSearchResults(ctx context.Context, q *v1.Query) (res []search.Result, err error) {
+func (s *searcherImplV2) getSearchResults(ctx context.Context, q *aux.Query) (res []search.Result, err error) {
 	return s.searcher.Search(ctx, q)
 }
 
-func (s *searcherImplV2) getCountResults(ctx context.Context, q *v1.Query) (count int, err error) {
+func (s *searcherImplV2) getCountResults(ctx context.Context, q *aux.Query) (count int, err error) {
 	return s.searcher.Count(ctx, q)
 }
 
