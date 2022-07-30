@@ -1,16 +1,15 @@
 package utils
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 )
 
 // Converts a slice of ResourceWithAccess to a slice of *v1.Permission.
-func resourcesWithAccessToPermissions(resourceWithAccess ...permissions.ResourceWithAccess) []*v1.Permission {
-	var perms []*v1.Permission
+func resourcesWithAccessToPermissions(resourceWithAccess ...permissions.ResourceWithAccess) []*storage.Permission {
+	var perms []*storage.Permission
 	for _, rAndA := range resourceWithAccess {
-		perms = append(perms, &v1.Permission{
+		perms = append(perms, &storage.Permission{
 			Resource: string(rAndA.Resource.GetResource()),
 			Access:   rAndA.Access,
 		})
@@ -20,7 +19,7 @@ func resourcesWithAccessToPermissions(resourceWithAccess ...permissions.Resource
 
 // FromProtos combines permissions into a map by resource name, using the
 // maximum access level for any resource with more than one permission set.
-func FromProtos(permissions ...*v1.Permission) map[string]storage.Access {
+func FromProtos(permissions ...*storage.Permission) map[string]storage.Access {
 	resourceToAccess := make(map[string]storage.Access, len(permissions))
 	for _, permission := range permissions {
 		if access, exists := resourceToAccess[permission.GetResource()]; exists {

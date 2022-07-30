@@ -13,11 +13,6 @@ package v1;
 
 // storage.Access values should be in escalating order. IE READ_WRITE means you have READ as well.
 
-message Permission {
-    string         resource = 1;
-    storage.Access access   = 2;
-}
-
 message GetRolesResponse {
     repeated storage.Role roles = 1;
 }

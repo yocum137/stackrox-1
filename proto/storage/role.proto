@@ -39,6 +39,11 @@ enum Access {
     READ_WRITE_ACCESS = 2;
 }
 
+message Permission {
+    string         resource = 1;
+    Access         access   = 2;
+}
+
 // This encodes a set of permissions for StackRox resources.
 message PermissionSet {
     // id is generated and cannot be changed.
