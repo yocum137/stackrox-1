@@ -88,34 +88,26 @@ func (s *ServiceDependencySuite) Test_PermutationTest() {
 }
 
 func (s *ServiceDependencySuite) Test_ServiceSelectorAndPodLabelsMatch() {
-	s.testContext.RunWithResources(
+	s.testContext.RunWithResourcesPermutation(
 		[]resource.YamlTestFile{
 			NginxDeployment,
+			NginxService,
 			NginxPod,
-		}, func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
+		}, "Label Selector Matching", func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
 
-		})
-	/*
-		s.testContext.RunWithResources(
-			[]resource.YamlTestFile{
-				NginxDeployment,
-				NginxService,
-				NginxPod,
-			}, func(t *testing.T, testC *resource.TestContext, _ map[string]k8s.Object) {
-				/*
-					time.Sleep(10 * time.Second)
-					messages := testC.GetFakeCentral().GetAllMessages()
-					deployment := resource.GetLastMessageWithDeploymentName(messages, "sensor-integration", "nginx-deployment").
-						GetEvent().
-						GetDeployment()
-					require.NotNil(t, deployment, "Deployment object can't be nil")
+			time.Sleep(10 * time.Second)
+			messages := testC.GetFakeCentral().GetAllMessages()
+			deployment := resource.GetLastMessageWithDeploymentName(messages, "sensor-integration", "nginx-deployment").
+				GetEvent().
+				GetDeployment()
+			require.NotNil(t, deployment, "Deployment object can't be nil")
 
-					pod := resource.GetLastMessageWithPodName(messages, "sensor-integration", "nginx-rogue").
-						GetEvent().
-						GetPod()
-					require.NotNil(t, pod, "Pod object can't be nil")
+			pod := resource.GetLastMessageWithPodName(messages, "sensor-integration", "nginx-rogue").
+				GetEvent().
+				GetPod()
+			require.NotNil(t, pod, "Pod object can't be nil")
 
-				//TODO(JS): get pod and service and assert labels / selector equality
-			})
-	*/
+			//TODO(JS): get pod and service and assert labels / selector equality
+		},
+	)
 }
