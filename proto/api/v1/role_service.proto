@@ -8,6 +8,7 @@ import weak "google/api/annotations.proto";
 import "api/v1/common.proto";
 import "api/v1/empty.proto";
 import "storage/role.proto";
+import "storage/sac.proto";
 
 package v1;
 
@@ -38,11 +39,6 @@ message ListSimpleAccessScopesResponse {
 }
 
 message ComputeEffectiveAccessScopeRequest {
-    enum Detail {
-        STANDARD = 0;
-        MINIMAL  = 1;
-        HIGH     = 2;
-    }
 
     message Payload {
         // Other definitions of access scope rules is science fiction for now;
@@ -52,7 +48,7 @@ message ComputeEffectiveAccessScopeRequest {
         }
     }
 
-    Detail  detail       = 1;
+    storage.ComputeEffectiveAccessScopeRequest.Detail  detail       = 1;
     Payload access_scope = 2;
 }
 

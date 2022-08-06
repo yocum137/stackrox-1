@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option go_package = "storage";
+option java_package = "io.stackrox.proto.storage";
+
+
+import "google/protobuf/timestamp.proto";
+
+import "gogoproto/gogo.proto";
+
+import "storage/auth_provider.proto";
+import "storage/service_identity.proto";
+import "storage/user.proto";
+
+
+package storage;
+
+
+message AuthStatus {
+  message UserAttribute {
+    string          key    = 1;
+    repeated string values = 2;
+  }
+
+  oneof id {
+    string                user_id     = 1;
+    ServiceIdentity       service_id  = 2;
+  }
+  google.protobuf.Timestamp expires     = 3;
+  string                    refresh_url = 4;
+
+  AuthProvider   auth_provider   = 5;
+  UserInfo       user_info       = 6;
+  repeated UserAttribute user_attributes = 7;
+}

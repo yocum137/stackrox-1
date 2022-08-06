@@ -347,7 +347,7 @@ func (s *serviceImpl) ComputeEffectiveAccessScope(ctx context.Context, req *v1.C
 
 // effectiveAccessScopeForSimpleAccessScope computes the effective access scope
 // for the given rules and converts it to the desired response.
-func effectiveAccessScopeForSimpleAccessScope(scopeRules *storage.SimpleAccessScope_Rules, clusters []*storage.Cluster, namespaces []*storage.NamespaceMetadata, detail v1.ComputeEffectiveAccessScopeRequest_Detail) (*storage.EffectiveAccessScope, error) {
+func effectiveAccessScopeForSimpleAccessScope(scopeRules *storage.SimpleAccessScope_Rules, clusters []*storage.Cluster, namespaces []*storage.NamespaceMetadata, detail storage.ComputeEffectiveAccessScopeRequest_Detail) (*storage.EffectiveAccessScope, error) {
 	tree, err := effectiveaccessscope.ComputeEffectiveAccessScope(scopeRules, clusters, namespaces, detail)
 	if err != nil {
 		return nil, err

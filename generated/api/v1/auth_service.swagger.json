@@ -18,7 +18,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1AuthStatus"
+              "$ref": "#/definitions/storageAuthStatus"
             }
           },
           "default": {
@@ -155,6 +155,50 @@
       },
       "title": "Next Tag: 9"
     },
+    "storageAuthStatus": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "serviceId": {
+          "$ref": "#/definitions/storageServiceIdentity"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "refreshUrl": {
+          "type": "string"
+        },
+        "authProvider": {
+          "$ref": "#/definitions/storageAuthProvider"
+        },
+        "userInfo": {
+          "$ref": "#/definitions/storageUserInfo"
+        },
+        "userAttributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/storageAuthStatusUserAttribute"
+          }
+        }
+      }
+    },
+    "storageAuthStatusUserAttribute": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "storageServiceIdentity": {
       "type": "object",
       "properties": {
@@ -228,50 +272,6 @@
         }
       },
       "description": "Role is wire compatible with the old format of storage.Role and\nhence only includes role name and associated permissions."
-    },
-    "v1AuthStatus": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
-        },
-        "serviceId": {
-          "$ref": "#/definitions/storageServiceIdentity"
-        },
-        "expires": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "refreshUrl": {
-          "type": "string"
-        },
-        "authProvider": {
-          "$ref": "#/definitions/storageAuthProvider"
-        },
-        "userInfo": {
-          "$ref": "#/definitions/storageUserInfo"
-        },
-        "userAttributes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1UserAttribute"
-          }
-        }
-      }
-    },
-    "v1UserAttribute": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string"
-        },
-        "values": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
     }
   }
 }

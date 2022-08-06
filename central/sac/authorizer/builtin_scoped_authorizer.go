@@ -8,7 +8,6 @@ import (
 	namespaceStore "github.com/stackrox/rox/central/namespace/datastore"
 	rolePkg "github.com/stackrox/rox/central/role"
 	"github.com/stackrox/rox/central/role/resources"
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/sac"
@@ -315,7 +314,7 @@ func (c *authorizerDataCache) computeEffectiveAccessScope(accessScope *storage.S
 	if accessScope.Id == rolePkg.AccessScopeIncludeAll.Id {
 		return effectiveaccessscope.UnrestrictedEffectiveAccessScope(), nil
 	}
-	eas, err := effectiveaccessscope.ComputeEffectiveAccessScope(accessScope.GetRules(), c.clusters, c.namespaces, v1.ComputeEffectiveAccessScopeRequest_MINIMAL)
+	eas, err := effectiveaccessscope.ComputeEffectiveAccessScope(accessScope.GetRules(), c.clusters, c.namespaces, storage.ComputeEffectiveAccessScopeRequest_MINIMAL)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not compute effective access scope for access scope with id %q", accessScope.GetId())
 	}

@@ -92,11 +92,11 @@ func getTokenForUserPKIAuthProvider(t *testing.T, authProviderID string, tlsConf
 	return token
 }
 
-func validateAuthStatusResponseForClientCert(t *testing.T, cert *x509.Certificate, authStatus *v1.AuthStatus) {
+func validateAuthStatusResponseForClientCert(t *testing.T, cert *x509.Certificate, authStatus *storage.AuthStatus) {
 	assert.Equal(t, "userpki", authStatus.GetAuthProvider().GetType())
 	fingerprint := cryptoutils.CertFingerprint(cert)
 
-	userIDAttributeIdx := sliceutils.FindMatching(authStatus.UserAttributes, func(attr *v1.UserAttribute) bool {
+	userIDAttributeIdx := sliceutils.FindMatching(authStatus.UserAttributes, func(attr *storage.UserAttribute) bool {
 		return attr.Key == "userid"
 	})
 	assert.True(t, userIDAttributeIdx >= 0, "couldn't find userid attribute in resp %+v", authStatus)
@@ -105,7 +105,7 @@ func validateAuthStatusResponseForClientCert(t *testing.T, cert *x509.Certificat
 	assert.Equal(t, fmt.Sprintf("userpki:%s", fingerprint), userIDAttr.Values[0])
 }
 
-func getAuthStatus(t *testing.T, tlsConf *tls.Config, token string) (*v1.AuthStatus, error) {
+func getAuthStatus(t *testing.T, tlsConf *tls.Config, token string) (*storage.AuthStatus, error) {
 	var opts []grpc.DialOption
 	if token != "" {
 		opts = append(opts, grpc.WithPerRPCCredentials(tokenbased.PerRPCCredentials(token)))

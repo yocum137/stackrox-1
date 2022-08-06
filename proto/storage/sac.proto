@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "storage";
+option java_package = "io.stackrox.proto.storage";
+
+package storage;
+
+message ComputeEffectiveAccessScopeRequest {
+  enum Detail {
+    STANDARD = 0;
+    MINIMAL = 1;
+    HIGH = 2;
+  }
+}
+

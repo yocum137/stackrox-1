@@ -15,6 +15,7 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/pkg/errors"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/utils"
 	"github.com/stretchr/testify/assert"
@@ -199,11 +200,11 @@ func (c *endpointsTestCase) runConnectionTest(t *testing.T, testCtx *endpointsTe
 	}
 }
 
-func (c *endpointsTestCase) verifyAuthStatus(t *testing.T, testCtx *endpointsTestContext, authStatus *v1.AuthStatus) {
+func (c *endpointsTestCase) verifyAuthStatus(t *testing.T, testCtx *endpointsTestContext, authStatus *storage.AuthStatus) {
 	switch id := authStatus.GetId().(type) {
-	case *v1.AuthStatus_ServiceId:
+	case *storage.AuthStatus_ServiceId:
 		assert.Equal(t, serviceAuth, c.expectAuth, "got service ID from auth status, expected this to be a service client")
-	case *v1.AuthStatus_UserId:
+	case *storage.AuthStatus_UserId:
 		if assert.Equal(t, userAuth, c.expectAuth, "got user ID from auth status, expected this to be a non-service client") {
 			assert.Equal(t, userPKIProviderName, authStatus.GetAuthProvider().GetName())
 		}
@@ -325,7 +326,7 @@ func (c *endpointsTestCase) runHTTPTest(t *testing.T, testCtx *endpointsTestCont
 		return
 	}
 
-	var authStatus v1.AuthStatus
+	var authStatus storage.AuthStatus
 	if !assert.NoError(t, jsonpb.Unmarshal(resp.Body, &authStatus), "expected response for auth status request to be unmarshalable into auth status PB") {
 		return
 	}

@@ -3,7 +3,6 @@ package effectiveaccessscope
 import (
 	"sort"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/logging"
 	"k8s.io/apimachinery/pkg/labels"
@@ -77,7 +76,7 @@ func DenyAllEffectiveAccessScope() *ScopeTree {
 // ComputeEffectiveAccessScope applies a simple access scope to provided
 // clusters and namespaces and yields ScopeTree. Empty access scope rules
 // mean nothing is included.
-func ComputeEffectiveAccessScope(scopeRules *storage.SimpleAccessScope_Rules, clusters []*storage.Cluster, namespaces []*storage.NamespaceMetadata, detail v1.ComputeEffectiveAccessScopeRequest_Detail) (*ScopeTree, error) {
+func ComputeEffectiveAccessScope(scopeRules *storage.SimpleAccessScope_Rules, clusters []*storage.Cluster, namespaces []*storage.NamespaceMetadata, detail storage.ComputeEffectiveAccessScopeRequest_Detail) (*ScopeTree, error) {
 	root := newEffectiveAccessScopeTree(Excluded)
 
 	// Compile scope into cluster and namespace selectors.
@@ -230,7 +229,7 @@ func (root *ScopeTree) GetClusterByID(clusterID string) *clustersScopeSubTree {
 // populateStateForCluster adds given cluster as Included or Excluded to root.
 // Only the last observed cluster is considered if multiple ones with the same
 // name exist.
-func (root *ScopeTree) populateStateForCluster(cluster *storage.Cluster, clusterSelectors []labels.Selector, detail v1.ComputeEffectiveAccessScopeRequest_Detail) {
+func (root *ScopeTree) populateStateForCluster(cluster *storage.Cluster, clusterSelectors []labels.Selector, detail storage.ComputeEffectiveAccessScopeRequest_Detail) {
 	clusterName := cluster.GetName()
 
 	// There is no need to check if root is Included as we start with Excluded root.
@@ -257,8 +256,8 @@ func (root *ScopeTree) populateStateForCluster(cluster *storage.Cluster, cluster
 // For MINIMAL level of detail, delete from the tree:
 //   * subtrees *with roots* in the Excluded state,
 //   * subtrees *of nodes* in the Included state.
-func (root *ScopeTree) bubbleUpStatesAndCompactify(detail v1.ComputeEffectiveAccessScopeRequest_Detail) {
-	deleteUnnecessaryNodes := detail == v1.ComputeEffectiveAccessScopeRequest_MINIMAL
+func (root *ScopeTree) bubbleUpStatesAndCompactify(detail storage.ComputeEffectiveAccessScopeRequest_Detail) {
+	deleteUnnecessaryNodes := detail == storage.ComputeEffectiveAccessScopeRequest_MINIMAL
 	for clusterName, cluster := range root.Clusters {
 		for namespaceName, namespace := range cluster.Namespaces {
 			// Update the cluster's state from Excluded to Partial
@@ -333,7 +332,7 @@ func (root *ScopeTree) Merge(tree *ScopeTree) {
 			}
 		}
 	}
-	root.bubbleUpStatesAndCompactify(v1.ComputeEffectiveAccessScopeRequest_MINIMAL)
+	root.bubbleUpStatesAndCompactify(storage.ComputeEffectiveAccessScopeRequest_MINIMAL)
 }
 
 func (cluster *clustersScopeSubTree) copy() *clustersScopeSubTree {
@@ -351,7 +350,7 @@ func (cluster *clustersScopeSubTree) copy() *clustersScopeSubTree {
 // populateStateForNamespace adds given namespace as Included or Excluded to
 // parent cluster. Only the last observed namespace is considered if multiple
 // ones with the same <cluster name, namespace name> exist.
-func (cluster *clustersScopeSubTree) populateStateForNamespace(namespace *storage.NamespaceMetadata, namespaceSelectors []labels.Selector, detail v1.ComputeEffectiveAccessScopeRequest_Detail) {
+func (cluster *clustersScopeSubTree) populateStateForNamespace(namespace *storage.NamespaceMetadata, namespaceSelectors []labels.Selector, detail storage.ComputeEffectiveAccessScopeRequest_Detail) {
 	clusterName := namespace.GetClusterName()
 	namespaceName := namespace.GetName()
 	namespaceFQSN := getNamespaceFQSN(clusterName, namespaceName)

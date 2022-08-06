@@ -3,7 +3,6 @@ package service
 import (
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/labels"
 	"github.com/stretchr/testify/assert"
@@ -433,17 +432,17 @@ func TestEffectiveAccessScopeForSimpleAccessScope(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc+"detail: HIGH", func(t *testing.T) {
-			resHigh, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, v1.ComputeEffectiveAccessScopeRequest_HIGH)
+			resHigh, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, storage.ComputeEffectiveAccessScopeRequest_HIGH)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedHigh, resHigh)
 		})
 		t.Run(tc.desc+"detail: STANDARD", func(t *testing.T) {
-			resStandard, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, v1.ComputeEffectiveAccessScopeRequest_STANDARD)
+			resStandard, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, storage.ComputeEffectiveAccessScopeRequest_STANDARD)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedStandard, resStandard)
 		})
 		t.Run(tc.desc+"detail: MINIMAL", func(t *testing.T) {
-			resMinimal, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, v1.ComputeEffectiveAccessScopeRequest_MINIMAL)
+			resMinimal, err := effectiveAccessScopeForSimpleAccessScope(tc.rules, clusters, namespaces, storage.ComputeEffectiveAccessScopeRequest_MINIMAL)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedMinimal, resMinimal)
 		})

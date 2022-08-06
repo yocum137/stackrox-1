@@ -1,7 +1,6 @@
 package effectiveaccessscope
 
 import (
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 )
 
@@ -24,27 +23,27 @@ func (t *treeNodeAttributes) copy() *treeNodeAttributes {
 	}
 }
 
-func nodeAttributesForCluster(cluster *storage.Cluster, detail v1.ComputeEffectiveAccessScopeRequest_Detail) treeNodeAttributes {
+func nodeAttributesForCluster(cluster *storage.Cluster, detail storage.ComputeEffectiveAccessScopeRequest_Detail) treeNodeAttributes {
 	attributes := treeNodeAttributes{
 		ID: cluster.GetId(),
 	}
-	if detail != v1.ComputeEffectiveAccessScopeRequest_MINIMAL {
+	if detail != storage.ComputeEffectiveAccessScopeRequest_MINIMAL {
 		attributes.Name = cluster.GetName()
 	}
-	if detail == v1.ComputeEffectiveAccessScopeRequest_HIGH {
+	if detail == storage.ComputeEffectiveAccessScopeRequest_HIGH {
 		attributes.Labels = cluster.GetLabels()
 	}
 	return attributes
 }
 
-func nodeAttributesForNamespace(namespace *storage.NamespaceMetadata, detail v1.ComputeEffectiveAccessScopeRequest_Detail) treeNodeAttributes {
+func nodeAttributesForNamespace(namespace *storage.NamespaceMetadata, detail storage.ComputeEffectiveAccessScopeRequest_Detail) treeNodeAttributes {
 	attributes := treeNodeAttributes{
 		ID: namespace.GetId(),
 	}
-	if detail != v1.ComputeEffectiveAccessScopeRequest_MINIMAL {
+	if detail != storage.ComputeEffectiveAccessScopeRequest_MINIMAL {
 		attributes.Name = namespace.GetName()
 	}
-	if detail == v1.ComputeEffectiveAccessScopeRequest_HIGH {
+	if detail == storage.ComputeEffectiveAccessScopeRequest_HIGH {
 		attributes.Labels = namespace.GetLabels()
 	}
 	return attributes

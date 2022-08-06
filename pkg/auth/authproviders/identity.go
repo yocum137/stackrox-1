@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
 	"github.com/stackrox/rox/pkg/auth/permissions/utils"
@@ -14,7 +13,7 @@ import (
 )
 
 // CreateRoleBasedIdentity builds v1.AuthStatus containing identity and its role information from auth response.
-func CreateRoleBasedIdentity(ctx context.Context, provider Provider, authResp *AuthResponse) (*v1.AuthStatus, error) {
+func CreateRoleBasedIdentity(ctx context.Context, provider Provider, authResp *AuthResponse) (*storage.AuthStatus, error) {
 	if authResp == nil || authResp.Claims == nil {
 		return nil, errors.New("authentication response is empty")
 	}
@@ -43,8 +42,8 @@ func CreateRoleBasedIdentity(ctx context.Context, provider Provider, authResp *A
 	if err != nil {
 		return nil, err
 	}
-	return &v1.AuthStatus{
-		Id: &v1.AuthStatus_UserId{
+	return &storage.AuthStatus{
+		Id: &storage.AuthStatus_UserId{
 			UserId: authResp.Claims.UserID,
 		},
 		AuthProvider:   authProvider,

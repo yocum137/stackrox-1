@@ -3,7 +3,6 @@ package effectiveaccessscope
 import (
 	"testing"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	labelUtils "github.com/stackrox/rox/pkg/labels"
 	"github.com/stretchr/testify/assert"
@@ -79,7 +78,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 		scope     *storage.SimpleAccessScope
 		expected  *ScopeTree
 		hasError  bool
-		detail    v1.ComputeEffectiveAccessScopeRequest_Detail
+		detail    storage.ComputeEffectiveAccessScopeRequest_Detail
 	}
 
 	testCases := []testCase{
@@ -117,7 +116,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -157,7 +156,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -203,7 +202,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -246,7 +245,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -271,7 +270,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					},
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_MINIMAL,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_MINIMAL,
 			hasError: false,
 		},
 		{
@@ -314,7 +313,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -362,7 +361,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -405,7 +404,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -448,7 +447,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -498,7 +497,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -549,7 +548,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -601,7 +600,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -651,7 +650,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					"Not Found": notFoundCluster,
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_HIGH,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_HIGH,
 			hasError: false,
 		},
 		{
@@ -686,7 +685,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					},
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_MINIMAL,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_MINIMAL,
 			hasError: false,
 		},
 		{
@@ -735,7 +734,7 @@ func TestComputeEffectiveAccessScope(t *testing.T) {
 					},
 				},
 			},
-			detail:   v1.ComputeEffectiveAccessScopeRequest_STANDARD,
+			detail:   storage.ComputeEffectiveAccessScopeRequest_STANDARD,
 			hasError: false,
 		},
 		{

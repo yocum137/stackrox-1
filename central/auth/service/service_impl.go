@@ -7,6 +7,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/user"
 	"github.com/stackrox/rox/pkg/grpc/authn"
 	"github.com/stackrox/rox/pkg/grpc/authz/allow"
@@ -32,7 +33,7 @@ func (s *serviceImpl) AuthFuncOverride(ctx context.Context, fullMethodName strin
 }
 
 // GetAuthStatus retrieves the auth status based on the credentials given to the server.
-func (s *serviceImpl) GetAuthStatus(ctx context.Context, request *v1.Empty) (*v1.AuthStatus, error) {
+func (s *serviceImpl) GetAuthStatus(ctx context.Context, request *v1.Empty) (*storage.AuthStatus, error) {
 	id, err := authn.IdentityFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -41,14 +42,14 @@ func (s *serviceImpl) GetAuthStatus(ctx context.Context, request *v1.Empty) (*v1
 	return authStatusForID(id)
 }
 
-func authStatusForID(id authn.Identity) (*v1.AuthStatus, error) {
+func authStatusForID(id authn.Identity) (*storage.AuthStatus, error) {
 	_, notValidAfter := id.ValidityPeriod()
 	exp, err := types.TimestampProto(notValidAfter)
 	if err != nil {
 		return nil, errors.Errorf("expiration time: %s", err)
 	}
 
-	result := &v1.AuthStatus{
+	result := &storage.AuthStatus{
 		Expires:        exp,
 		UserInfo:       id.User().Clone(),
 		UserAttributes: user.ConvertAttributes(id.Attributes()),
@@ -67,9 +68,9 @@ func authStatusForID(id authn.Identity) (*v1.AuthStatus, error) {
 		result.AuthProvider = authProvider
 	}
 	if svc := id.Service(); svc != nil {
-		result.Id = &v1.AuthStatus_ServiceId{ServiceId: svc}
+		result.Id = &storage.AuthStatus_ServiceId{ServiceId: svc}
 	} else {
-		result.Id = &v1.AuthStatus_UserId{UserId: id.UID()}
+		result.Id = &storage.AuthStatus_UserId{UserId: id.UID()}
 	}
 	return result, nil
 }

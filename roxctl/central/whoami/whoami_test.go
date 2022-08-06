@@ -37,9 +37,9 @@ type mockAuthServiceServer struct {
 	roles            []*storage.Role
 }
 
-func (m *mockAuthServiceServer) GetAuthStatus(ctx context.Context, req *v1.Empty) (*v1.AuthStatus, error) {
-	return &v1.AuthStatus{
-		Id: &v1.AuthStatus_UserId{
+func (m *mockAuthServiceServer) GetAuthStatus(ctx context.Context, req *v1.Empty) (*storage.AuthStatus, error) {
+	return &storage.AuthStatus{
+		Id: &storage.AuthStatus_UserId{
 			UserId: m.userInfo.Username,
 		},
 		UserInfo: m.userInfo,

@@ -13,7 +13,7 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/pkg/errors"
-	v1 "github.com/stackrox/rox/generated/api/v1"
+	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth"
 	"github.com/stackrox/rox/pkg/auth/authproviders/idputil"
 	"github.com/stackrox/rox/pkg/auth/tokens"
@@ -58,7 +58,7 @@ func (r *registryImpl) tokenURL(rawToken, typ, clientState string) *url.URL {
 	}
 }
 
-func (r *registryImpl) userMetadataURL(user *v1.AuthStatus, typ, clientState string, testMode bool) *url.URL {
+func (r *registryImpl) userMetadataURL(user *storage.AuthStatus, typ, clientState string, testMode bool) *url.URL {
 	var buf bytes.Buffer
 	if err := new(jsonpb.Marshaler).Marshal(&buf, user); err != nil {
 		return r.errorURL(err, typ, clientState, testMode)

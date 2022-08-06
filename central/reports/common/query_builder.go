@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/sac/effectiveaccessscope"
 	"github.com/stackrox/rox/pkg/search"
@@ -85,7 +84,7 @@ func (q *queryBuilder) buildCVEAttributesQuery() (string, error) {
 }
 
 func (q *queryBuilder) buildScopeQueries() ([]string, error) {
-	tree, err := effectiveaccessscope.ComputeEffectiveAccessScope(q.scope.GetRules(), q.clusters, q.namespaces, v1.ComputeEffectiveAccessScopeRequest_STANDARD)
+	tree, err := effectiveaccessscope.ComputeEffectiveAccessScope(q.scope.GetRules(), q.clusters, q.namespaces, storage.ComputeEffectiveAccessScopeRequest_STANDARD)
 	if err != nil {
 		return nil, err
 	}
