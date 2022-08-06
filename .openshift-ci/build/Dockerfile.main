@@ -39,15 +39,15 @@ ENV PATH="/stackrox:$PATH" \
 
 COPY signatures/RPM-GPG-KEY-CentOS-Official /
 COPY scripts /stackrox/
-COPY --from=extracted_bundle /bundle/assets/ /assets/
-COPY --from=extracted_bundle /bundle/stackrox/ /stackrox/
-COPY --from=extracted_bundle /bundle/THIRD_PARTY_NOTICES/ /THIRD_PARTY_NOTICES/
-COPY --from=extracted_bundle /bundle/ui/ /ui/
-COPY --from=extracted_bundle /bundle/usr/local/bin/ldb /usr/local/bin/
-COPY --from=extracted_bundle /bundle/snappy.rpm /tmp/
-COPY --from=extracted_bundle /bundle/postgres-libs.rpm /tmp/
-COPY --from=extracted_bundle /bundle/postgres.rpm /tmp/
-COPY --from=extracted_bundle /bundle/go/ /go/
+COPY --from=builder /bundle/assets/ /assets/
+COPY --from=builder /bundle/stackrox/ /stackrox/
+COPY --from=builder /bundle/THIRD_PARTY_NOTICES/ /THIRD_PARTY_NOTICES/
+COPY --from=builder /bundle/ui/ /ui/
+COPY --from=builder /bundle/usr/local/bin/ldb /usr/local/bin/
+COPY --from=builder /bundle/snappy.rpm /tmp/
+COPY --from=builder /bundle/postgres-libs.rpm /tmp/
+COPY --from=builder /bundle/postgres.rpm /tmp/
+COPY --from=builder /bundle/go/ /go/
 
 RUN ln -s entrypoint-wrapper.sh /stackrox/admission-control && \
     ln -s entrypoint-wrapper.sh /stackrox/compliance && \
