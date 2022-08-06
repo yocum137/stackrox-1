@@ -119,6 +119,8 @@ build_main_and_bundles() {
     git restore .
     git status
 
+    export OPENSHIFT_BUILD_NAME="build-main"
+
     openshift_ci_mods
 
     info "Make the main image Dockerfile"
