@@ -5,8 +5,8 @@ ENV ROX_PRODUCT_BRANDING=${ROX_PRODUCT_BRANDING}
 ARG RACE_CONDITION_DEBUG=false
 ENV RACE_CONDITION_DEBUG=${RACE_CONDITION_DEBUG}
 
-COPY . /go/src/github.com/stackrox/stackrox
 WORKDIR /go/src/github.com/stackrox/stackrox
+COPY . .
 
 RUN ./.openshift-ci/build/build-main-and-bundle.sh
 
@@ -32,8 +32,8 @@ ENV PATH="/stackrox:$PATH" \
     ROX_IMAGE_FLAVOR=${ROX_IMAGE_FLAVOR} \
     ROX_PRODUCT_BRANDING=${ROX_PRODUCT_BRANDING}
 
-COPY signatures/RPM-GPG-KEY-CentOS-Official /
-COPY scripts /stackrox/
+COPY --from=builder /go/src/github.com/stackrox/stackrox/signatures/RPM-GPG-KEY-CentOS-Official /
+COPY --from=builder /go/src/github.com/stackrox/stackrox/scripts /stackrox/
 COPY --from=builder /bundle/assets/ /assets/
 COPY --from=builder /bundle/stackrox/ /stackrox/
 COPY --from=builder /bundle/THIRD_PARTY_NOTICES/ /THIRD_PARTY_NOTICES/
