@@ -119,7 +119,7 @@ build_main_and_bundles() {
     git restore .
     git status
 
-    export OPENSHIFT_BUILD_NAME="build-main"
+    export OPENSHIFT_BUILD_NAME="build-main-and-bundle"
 
     openshift_ci_mods
 
