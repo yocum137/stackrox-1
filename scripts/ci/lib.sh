@@ -953,6 +953,11 @@ openshift_ci_mods() {
     info "Current Status:"
     "$ROOT/status.sh" || true
 
+    if [[ -z "${HOME:-}" || "${HOME:-}" == "/" ]]; then
+        mkdir -p /tmp/home
+        export HOME="/tmp/home"
+    fi
+
     # For ci_export(), override BASH_ENV from stackrox-test with something that is writable.
     BASH_ENV=$(mktemp)
     export BASH_ENV
