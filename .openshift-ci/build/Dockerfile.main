@@ -32,8 +32,8 @@ ENV PATH="/stackrox:$PATH" \
     ROX_IMAGE_FLAVOR=${ROX_IMAGE_FLAVOR} \
     ROX_PRODUCT_BRANDING=${ROX_PRODUCT_BRANDING}
 
-COPY --from=builder /go/src/github.com/stackrox/stackrox/signatures/RPM-GPG-KEY-CentOS-Official /
-COPY --from=builder /go/src/github.com/stackrox/stackrox/scripts /stackrox/
+COPY --from=builder /go/src/github.com/stackrox/stackrox/image/rhel/signatures/RPM-GPG-KEY-CentOS-Official /
+COPY --from=builder /go/src/github.com/stackrox/stackrox/image/rhel/scripts /stackrox/
 COPY --from=builder /bundle/assets/ /assets/
 COPY --from=builder /bundle/stackrox/ /stackrox/
 COPY --from=builder /bundle/THIRD_PARTY_NOTICES/ /THIRD_PARTY_NOTICES/
