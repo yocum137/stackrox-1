@@ -10,8 +10,8 @@ WORKDIR /go/src/github.com/stackrox/stackrox
 
 RUN ./.openshift-ci/build/build-main-and-bundle.sh
 
-WORKDIR /bundle
-RUN tar -zxf image/rhel/bundle.tar.gz
+RUN mkdir /bundle && \
+    tar -C /bundle -zxf image/rhel/bundle.tar.gz
 
 ARG BASE_REGISTRY=registry.access.redhat.com
 ARG BASE_IMAGE=ubi8-minimal
