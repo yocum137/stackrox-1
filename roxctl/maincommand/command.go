@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/roxctl/common/flags"
 	"github.com/stackrox/rox/roxctl/completion"
 	"github.com/stackrox/rox/roxctl/deployment"
+	"github.com/stackrox/rox/roxctl/doctor"
 	"github.com/stackrox/rox/roxctl/generate"
 	"github.com/stackrox/rox/roxctl/helm"
 	"github.com/stackrox/rox/roxctl/image"
@@ -67,6 +68,7 @@ func Command() *cobra.Command {
 		cluster.Command(cliEnvironment),
 		collector.Command(cliEnvironment),
 		deployment.Command(cliEnvironment),
+		doctor.Command(cliEnvironment),
 		logconvert.Command(cliEnvironment),
 		image.Command(cliEnvironment),
 		scanner.Command(cliEnvironment),
