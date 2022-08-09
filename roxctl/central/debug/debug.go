@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/pkg/logging"
+	"github.com/stackrox/rox/pkg/utils"
 	"github.com/stackrox/rox/roxctl/common/environment"
 	"github.com/stackrox/rox/roxctl/common/flags"
 	"github.com/stackrox/rox/roxctl/common/util"
@@ -69,11 +70,9 @@ func logLevelCommand(cliEnvironment environment.Environment) *cobra.Command {
 func (cmd *centralDebugLogLevelCommand) getLogLevel() error {
 	conn, err := cmd.env.GRPCConnection()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not establish gRPC connection to central")
 	}
-	defer func() {
-		_ = conn.Close()
-	}()
+	defer utils.IgnoreError(conn.Close)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cmd.timeout)
 	defer cancel()
