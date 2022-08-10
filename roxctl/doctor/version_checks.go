@@ -27,15 +27,15 @@ const (
 
 type scannerVersionCheck struct { }
 var _ diagBundleCheck = (*scannerVersionCheck)(nil)
-func (vc scannerVersionCheck) Name() string { return "Scanner Versions Match" }
+func (vc scannerVersionCheck) Name() string { return "scanner versions match" }
 
 type collectorVersionCheck struct { }
 var _ diagBundleCheck = (*collectorVersionCheck)(nil)
-func (vc collectorVersionCheck) Name() string { return "Collector Versions Match" }
+func (vc collectorVersionCheck) Name() string { return "collector versions match" }
 
 type centralVersionCheck struct { }
 var _ diagBundleCheck = (*centralVersionCheck)(nil)
-func (vc centralVersionCheck) Name() string { return "Central Versions Match" }
+func (vc centralVersionCheck) Name() string { return "central versions match" }
 
 func (vc scannerVersionCheck) Run(cliEnvironment environment.Environment, extractedBundlePath string) (CheckStatus, []string, error) {
 	s := OK

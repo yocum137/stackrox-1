@@ -21,6 +21,10 @@ var (
 		"HIGH":      {color.FgHiMagenta},
 		"CRITICAL":  {color.FgRed, color.Bold},
 		"IMPORTANT": {color.FgRed},
+		"OK":        {color.FgGreen},
+		"WARNING":   {color.FgYellow},
+		"PROBLEM":   {color.FgRed, color.Bold},
+		"ERROR":     {color.FgHiMagenta, color.Faint},
 	}
 )
 

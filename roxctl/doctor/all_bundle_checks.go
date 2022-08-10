@@ -19,42 +19,43 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 	for _, c := range registeredChecks {
 		s, msg, err := c.Run(cliEnvironment, extractedBundlePath)
 
-		var caption, details string
+		var caption string
 		switch {
 		case err != nil:
 			numError++
-			caption = "error running check => results unavailable"
-			details = fmt.Sprintf("\t> Error: %v\n", err) + joinCheckMessage(msg)
+			caption = "ERROR running check"
+			msg = append([]string{fmt.Sprintf("Error: %v\n", err)}, msg...)
 		case s == OK:
 			numOK++
 			caption = "OK"
-			details = joinCheckMessage(msg)
 		case s == Warning:
 			numWarn++
-			caption = "WARNING: depending on other factors, this might or might not be a problem"
-			details = joinCheckMessage(msg)
+			caption = "WARNING"
 		case s == Problem:
 			numProblem++
-			caption = "PROBLEM: this is likely to cause issues"
-			details = joinCheckMessage(msg)
+			caption = "PROBLEM"
 		default:
 			numError++
 			caption = "?"
 		}
 
-		cliEnvironment.Logger().PrintfLn("\n[%s] %s", c.Name(), caption)
-		if details != "" {
-			cliEnvironment.Logger().PrintfLn("%s", details)
+		_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "[%s] %s\n", c.Name(), caption)
+		for _, m := range msg {
+			_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "\t> %s\n", m)
 		}
-
 	}
 
-	cliEnvironment.Logger().PrintfLn("\n%d check(s) run out of %d, %d problem(s) and %d warning(s) found",
+	_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "\n%d check(s) run out of %d, %d problem(s) and %d warning(s) found\n",
 		len(registeredChecks) - numError,
 		len(registeredChecks),
 		numProblem,
 		numWarn,
 	)
+
+	_, _ = fmt.Fprint(cliEnvironment.ColorWriter(), "\nLegend:\n" +
+		"\tWARNING: depending on other factors, this might or might not be a problem\n" +
+		"\tPROBLEM: this is likely to cause issues\n" +
+		"\tERROR running check: the check could not run => no result\n")
 
 	if numProblem != 0 {
 		return errors.Errorf("%d problem(s) found", numProblem)
