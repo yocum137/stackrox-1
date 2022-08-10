@@ -4,22 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/pkg/utils"
 	"github.com/stackrox/rox/pkg/version"
 	"github.com/stackrox/rox/roxctl/common/environment"
 )
-
-type versionCheck struct { }
-
-var _ diagBundleCheck = (*versionCheck)(nil)
 
 const (
 	versionsFile = "versions.json"
@@ -31,28 +25,31 @@ const (
 	collectorVersionByGithub = "https://raw.githubusercontent.com/stackrox/stackrox/%s/COLLECTOR_VERSION"
 )
 
-func (vc versionCheck) Run(cliEnvironment environment.Environment, extractedBundlePath string) (CheckStatus, []string, error) {
-	s := Undefined
+type scannerVersionCheck struct { }
+var _ diagBundleCheck = (*scannerVersionCheck)(nil)
+func (vc scannerVersionCheck) Name() string { return "Scanner Versions Match" }
+
+type collectorVersionCheck struct { }
+var _ diagBundleCheck = (*collectorVersionCheck)(nil)
+func (vc collectorVersionCheck) Name() string { return "Collector Versions Match" }
+
+type centralVersionCheck struct { }
+var _ diagBundleCheck = (*centralVersionCheck)(nil)
+func (vc centralVersionCheck) Name() string { return "Central Versions Match" }
+
+func (vc scannerVersionCheck) Run(cliEnvironment environment.Environment, extractedBundlePath string) (CheckStatus, []string, error) {
+	s := OK
 	msgs := make([]string, 0)
 
-	v, err := os.ReadFile(filepath.Join(extractedBundlePath, versionsFile))
+	expectedVersions, err := parseVersionsFile(extractedBundlePath)
 	if err != nil {
-		return checkError(errors.Wrapf(err, "cannot read %q file", versionsFile))
+		return checkError(err)
 	}
-
-	var expectedVersions version.Versions
-	err = json.Unmarshal(v, &expectedVersions)
-	if err != nil {
-		return checkError(errors.Wrapf(err, "cannot parse %q into expected JSON", versionsFile))
-	}
-
-	// TODO(alexr): cache HTTP client.
-	httpClient := newHTTPClient()
 
 	// Check that scanner version correspond to the GitHub one for this commit.
 	scannerGithubURL := fmt.Sprintf(scannerVersionByGithub, expectedVersions.GitCommit)
 	cliEnvironment.Logger().InfofLn("Querying %q", scannerGithubURL)
-	scannerGithubVersion, err := getXVersionFromGithub(cliEnvironment, scannerGithubURL, httpClient)
+	scannerGithubVersion, err := getXVersionFromGithub(cliEnvironment, scannerGithubURL, cachedHttpClient)
 	if err != nil {
 		return checkError(err)
 	}
@@ -61,10 +58,22 @@ func (vc versionCheck) Run(cliEnvironment environment.Environment, extractedBund
 		msgs = append(msgs, fmt.Sprintf("Scanner version (GitHub): %s, Scanner version (%q): %s", scannerGithubVersion, versionsFile, expectedVersions.ScannerVersion))
 	}
 
+	return s, msgs, nil
+}
+
+func (vc collectorVersionCheck) Run(cliEnvironment environment.Environment, extractedBundlePath string) (CheckStatus, []string, error) {
+	s := OK
+	msgs := make([]string, 0)
+
+	expectedVersions, err := parseVersionsFile(extractedBundlePath)
+	if err != nil {
+		return checkError(err)
+	}
+
 	// Check that collector version correspond to the GitHub one for this commit.
 	collectorGithubURL := fmt.Sprintf(collectorVersionByGithub, expectedVersions.GitCommit)
 	cliEnvironment.Logger().InfofLn("Querying %q", collectorGithubURL)
-	collectorGithubVersion, err := getXVersionFromGithub(cliEnvironment, collectorGithubURL, httpClient)
+	collectorGithubVersion, err := getXVersionFromGithub(cliEnvironment, collectorGithubURL, cachedHttpClient)
 	if err != nil {
 		return checkError(err)
 	}
@@ -72,6 +81,19 @@ func (vc versionCheck) Run(cliEnvironment environment.Environment, extractedBund
 	if collectorGithubVersion != expectedVersions.CollectorVersion {
 		s.AtLeast(Warning)
 		msgs = append(msgs, fmt.Sprintf("Collector version (GitHub): %s, Collector version (%q): %s", collectorGithubVersion, versionsFile, expectedVersions.CollectorVersion))
+	}
+
+	return s, msgs, nil
+}
+
+
+func (vc centralVersionCheck) Run(cliEnvironment environment.Environment, extractedBundlePath string) (CheckStatus, []string, error) {
+	s := OK
+	msgs := make([]string, 0)
+
+	expectedVersions, err := parseVersionsFile(extractedBundlePath)
+	if err != nil {
+		return checkError(err)
 	}
 
 	// Extract Central's actual version.
@@ -88,23 +110,34 @@ func (vc versionCheck) Run(cliEnvironment environment.Environment, extractedBund
 			break
 		}
 	}
+
 	cliEnvironment.Logger().InfofLn("Extracted Central version: %q", centralActualVersion)
 	if centralActualVersion == "" {
 		return checkError(errors.Errorf("could not determine Central actual version: key %q not found in %q", yamlVersionKey, centralFile))
 	}
+
+	// Check that extracted version corresponds to the declared one.
 	if centralActualVersion != expectedVersions.MainVersion {
 		s.AtLeast(Warning)
 		msgs = append(msgs, fmt.Sprintf("Central actual version: %s, Central version (%q): %s", centralActualVersion, versionsFile, expectedVersions.MainVersion))
 	}
 
-
-
-
 	return s, msgs, nil
 }
 
-func (vc versionCheck) Name() string {
-	return "Image Versions Match"
+func parseVersionsFile(extractedBundlePath string) (vs version.Versions, err error) {
+	content, err := os.ReadFile(filepath.Join(extractedBundlePath, versionsFile))
+	if err != nil {
+		err = errors.Wrapf(err, "cannot read %q file", versionsFile)
+		return
+	}
+
+	err = json.Unmarshal(content, &vs)
+	if err != nil {
+		err = errors.Wrapf(err, "cannot parse %q into expected JSON", versionsFile)
+	}
+
+	return
 }
 
 func getXVersionFromGithub(cliEnvironment environment.Environment, url string, client *http.Client) (string, error) {
@@ -129,21 +162,4 @@ func getXVersionFromGithub(cliEnvironment environment.Environment, url string, c
 	}
 
 	return strings.TrimSpace(string(body)), nil
-}
-
-// newHTTPClient returns a new HTTP client.
-func newHTTPClient() *http.Client {
-	return &http.Client{
-		Transport: &http.Transport{
-			Proxy:           http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			MaxIdleConns:          100,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-		},
-	}
 }

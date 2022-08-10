@@ -10,7 +10,9 @@ import (
 
 func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath string) error {
 	registeredChecks := []diagBundleCheck{
-		versionCheck{},
+		collectorVersionCheck{},
+		scannerVersionCheck{},
+		centralVersionCheck{},
 	}
 
 	var numOK, numWarn, numProblem, numError int
@@ -35,6 +37,9 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 			numProblem++
 			caption = "PROBLEM: this is likely to cause issues"
 			details = joinCheckMessage(msg)
+		default:
+			numError++
+			caption = "?"
 		}
 
 		cliEnvironment.Logger().PrintfLn("\n[%s] %s", c.Name(), caption)
@@ -44,7 +49,7 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 
 	}
 
-	cliEnvironment.Logger().PrintfLn("\n%d checks run out of %d, %d problem(s) and %d warning(s) found",
+	cliEnvironment.Logger().PrintfLn("\n%d check(s) run out of %d, %d problem(s) and %d warning(s) found",
 		len(registeredChecks) - numError,
 		len(registeredChecks),
 		numProblem,
