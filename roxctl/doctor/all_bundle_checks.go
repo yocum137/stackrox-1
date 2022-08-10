@@ -13,6 +13,7 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 		collectorVersionCheck{},
 		scannerVersionCheck{},
 		centralVersionCheck{},
+		sensorVersionCheck{},
 	}
 
 	var numOK, numWarn, numProblem, numError int
