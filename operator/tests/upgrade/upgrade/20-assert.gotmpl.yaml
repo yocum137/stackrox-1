@@ -1,3 +1,4 @@
+# An assert for healthy Central+SecuredCluster including a check for deployed product version.
 apiVersion: platform.stackrox.io/v1alpha1
 kind: Central
 metadata:
@@ -14,7 +15,7 @@ status:
     type: ProxyConfigFailed
   - status: "False"
     type: ReleaseFailed
-  productVersion: ${PRODUCT_VERSION}
+  productVersion: {{ .Env.PRODUCT_VERSION }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -40,7 +41,7 @@ status:
     type: ProxyConfigFailed
   - status: "False"
     type: ReleaseFailed
-  productVersion: ${PRODUCT_VERSION}
+  productVersion: {{ .Env.PRODUCT_VERSION }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -55,5 +56,3 @@ metadata:
   name: admission-control
 status:
   availableReplicas: 3
-# Note: when adding/removing entries in this file, see the comment about timeout near the place
-# where `kuttl assert` is invoked on this file.
