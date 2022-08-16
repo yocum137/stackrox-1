@@ -717,7 +717,7 @@ func RunGetManyQueryForSchema(ctx context.Context, schema *walker.Schema, q *v1.
 		return nil, err
 	}
 	if query == nil {
-		return nil, emptyQueryErr
+		return nil, nil
 	}
 
 	queryStr := query.AsSQL()

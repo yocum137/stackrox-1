@@ -33,6 +33,7 @@ import (
 	"github.com/stackrox/rox/pkg/sac"
 	pkgSearch "github.com/stackrox/rox/pkg/search"
 	"github.com/stackrox/rox/pkg/search/scoped"
+	"github.com/stackrox/rox/pkg/testutils/envisolator"
 	"github.com/stackrox/rox/pkg/testutils/rocksdbtest"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,10 +50,14 @@ type ImageDataStoreTestSuite struct {
 	indexQ    queue.WaitableQueue
 	datastore DataStore
 
+	envIsolator *envisolator.EnvIsolator
+
 	mockRisk *mockRisks.MockDataStore
 }
 
 func (suite *ImageDataStoreTestSuite) SetupSuite() {
+	suite.envIsolator = envisolator.NewEnvIsolator(suite.T())
+	suite.envIsolator.Setenv(features.PostgresDatastore.EnvVar(), "false")
 	if features.PostgresDatastore.Enabled() {
 		suite.T().Skip("Skip dackbox tests if postgres is enabled")
 		suite.T().SkipNow()
@@ -82,6 +87,7 @@ func (suite *ImageDataStoreTestSuite) SetupSuite() {
 }
 
 func (suite *ImageDataStoreTestSuite) TearDownSuite() {
+	suite.envIsolator.RestoreAll()
 	rocksdbtest.TearDownRocksDB(suite.db)
 	suite.Require().NoError(suite.index.Close())
 }

@@ -67,12 +67,10 @@ func (ds *searcherImpl) SearchListAlerts(ctx context.Context, q *v1.Query) ([]*s
 		if err != nil {
 			return nil, err
 		}
-		var missingIndices []int
-		alerts, missingIndices, err = ds.storage.GetMany(ctx, search.ResultsToIDs(results))
+		alerts, _, err = ds.storage.GetMany(ctx, search.ResultsToIDs(results))
 		if err != nil {
 			return nil, err
 		}
-		results = search.RemoveMissingResults(results, missingIndices)
 	}
 	listAlerts := make([]*storage.ListAlert, 0, len(alerts))
 	for _, alert := range alerts {

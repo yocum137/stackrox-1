@@ -13,6 +13,7 @@ import (
 	secretSearch "github.com/stackrox/rox/central/secret/search"
 	v1 "github.com/stackrox/rox/generated/api/v1"
 	"github.com/stackrox/rox/generated/storage"
+	"github.com/stackrox/rox/pkg/features"
 	"github.com/stackrox/rox/pkg/fixtures"
 	"github.com/stackrox/rox/pkg/rocksdb"
 	"github.com/stackrox/rox/pkg/sac"
@@ -41,6 +42,12 @@ type SecretDataStoreTestSuite struct {
 }
 
 func (suite *SecretDataStoreTestSuite) SetupSuite() {
+
+	if features.PostgresDatastore.Enabled() {
+		suite.T().Skip("Skip secret datastore tests if postgres is enabled")
+		suite.T().SkipNow()
+	}
+
 	var err error
 	suite.bleveIndex, err = globalindex.TempInitializeIndices("")
 	suite.Require().NoError(err)
