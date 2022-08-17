@@ -12,4 +12,4 @@ make_bin() {
     
 }
 
-make_test_bin "$*"
+make_bin "$*"
