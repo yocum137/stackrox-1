@@ -25,7 +25,7 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 		case err != nil:
 			numError++
 			caption = "ERROR running check"
-			msg = append([]string{fmt.Sprintf("Error: %v\n", err)}, msg...)
+			msg = append([]string{fmt.Sprintf("Error: %v", err)}, msg...)
 		case s == OK:
 			numOK++
 			caption = "OK"
@@ -40,7 +40,7 @@ func runAllChecks(cliEnvironment environment.Environment, extractedBundlePath st
 			caption = "?"
 		}
 
-		_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "[%s] %s\n", c.Name(), caption)
+		_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "\n[%s] %s\n", c.Name(), caption)
 		for _, m := range msg {
 			_, _ = fmt.Fprintf(cliEnvironment.ColorWriter(), "\t> %s\n", m)
 		}
