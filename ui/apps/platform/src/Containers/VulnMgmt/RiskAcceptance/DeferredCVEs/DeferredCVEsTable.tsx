@@ -244,7 +244,7 @@ function DeferredCVEsTable({
                                         {row.vulnerabilityRequest ? (
                                             <RequestCommentsButton
                                                 comments={row.vulnerabilityRequest.comments}
-                                                cve={row.vulnerabilityRequest.cves.ids[0]}
+                                                cve={row.vulnerabilityRequest.cves.cves[0]}
                                             />
                                         ) : (
                                             'N/A'
