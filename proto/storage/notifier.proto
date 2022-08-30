@@ -68,7 +68,7 @@ message Jira {
 }
 
 message Email {
-    string server    = 1 [(gogoproto.moretags) = 'scrub:"dependent"'];
+    string server    = 1 [(gogoproto.moretags) = 'scrub:"dependent" validate:"nolocalendpoint"'];
     string sender    = 2;
     string username  = 3 [(gogoproto.moretags) = 'scrub:"dependent"'];
     // The password for the integration. The server will mask the value of this credential in responses and logs.
@@ -136,7 +136,7 @@ message Syslog {
     LocalFacility local_facility = 1;
 
     message TCPConfig {
-        string hostname                    = 1 [(gogoproto.moretags) = 'scrub:"dependent"'];
+        string hostname                    = 1 [(gogoproto.moretags) = 'scrub:"dependent" validate:"nolocalendpoint"'];
         int32  port                        = 2;
         bool   skip_tls_verify             = 3;
         bool   use_tls                     = 4;
