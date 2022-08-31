@@ -206,7 +206,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 				// with the current and thus no fallback.
 				if err != nil {
 					log.Errorf("Unable to create Temp database: %v", err)
-					return CurrentClone, false, nil
+					//return CurrentClone, false, nil
 				}
 			}
 			log.Info("GetCloneToMigrate -- 7")
