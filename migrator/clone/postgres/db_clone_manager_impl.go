@@ -149,6 +149,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 		log.Info("A previously used version of Rocks exists")
 		// Rocks has been used but Postgres is fresh.  So just return current.
 		if !currExists || currClone.GetMigVersion() == nil || !d.rollbackEnabled() {
+			log.Info("GetCloneToMigrate -- 1")
 			return CurrentClone, true, nil
 		}
 
@@ -158,6 +159,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 			// Create a temp clone for processing of current
 			// Seed it from an empty database because we need to run migrations from Rocks to Postgres.
 			if !d.databaseExists(TempClone) {
+				log.Info("GetCloneToMigrate -- 2")
 				err := pgadmin.CreateDB(d.sourceMap, d.adminConfig, pgadmin.EmptyDB, TempClone)
 
 				// If for some reason, we cannot create a temp clone we will need to continue to upgrade
@@ -166,6 +168,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 					log.Errorf("Unable to create Temp database: %v", err)
 				}
 			}
+			log.Info("GetCloneToMigrate -- 3")
 			d.cloneMap[TempClone] = metadata.NewPostgres(d.cloneMap[CurrentClone].GetMigVersion(), TempClone)
 			return TempClone, true, nil
 		}
@@ -177,10 +180,12 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 		// If previous clone has the same version as current version, the previous upgrade was not completed.
 		// Central could be in a loop of booting up the service. So we should continue to run with current.
 		if prevExists && currClone.GetVersion() == prevClone.GetVersion() {
+			log.Info("GetCloneToMigrate -- 4")
 			return CurrentClone, false, nil
 		}
 		if version.CompareVersions(currClone.GetVersion(), version.GetMainVersion()) > 0 || currClone.GetSeqNum() > migrations.CurrentDBVersionSeqNum() {
 			// Force rollback
+			log.Info("GetCloneToMigrate -- 5")
 			return PreviousClone, false, nil
 		}
 
@@ -189,6 +194,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 			// Create a temp clone for processing of current
 			// If such a clone already exists then we were previously in the middle of processing
 			if !d.databaseExists(TempClone) {
+				log.Info("GetCloneToMigrate -- 6")
 				err := pgadmin.CreateDB(d.sourceMap, d.adminConfig, CurrentClone, TempClone)
 
 				// If for some reason, we cannot create a temp clone we will need to continue to upgrade
@@ -197,20 +203,24 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 					log.Errorf("Unable to create Temp database: %v", err)
 				}
 			}
+			log.Info("GetCloneToMigrate -- 7")
 			d.cloneMap[TempClone] = metadata.NewPostgres(d.cloneMap[CurrentClone].GetMigVersion(), TempClone)
 			return TempClone, false, nil
 
 		}
 
+		log.Info("GetCloneToMigrate -- 8")
 		// If the space is not enough to make a clone, continue to upgrade with current.
 		return CurrentClone, false, nil
 	}
 
 	// Rollback from previous version.
 	if prevExists && prevClone.GetVersion() == version.GetMainVersion() {
+		log.Info("GetCloneToMigrate -- 9")
 		return PreviousClone, false, nil
 	}
 
+	log.Info("GetCloneToMigrate -- 10")
 	log.Info("Fell through all checks to return current, meaning probably empty OR rollback disabled.")
 	return CurrentClone, false, nil
 }
