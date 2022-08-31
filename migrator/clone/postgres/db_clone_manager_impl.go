@@ -165,7 +165,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 				// If for some reason, we cannot create a temp clone we will need to continue to upgrade
 				// with the current and thus no fallback.
 				if err != nil {
-					log.Errorf("Unable to create Temp database: %v", err)
+					return "", false, errors.Wrapf(err, "failed to copy current db %v", err)
 				}
 			}
 			log.Info("GetCloneToMigrate -- 3")
@@ -201,6 +201,7 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 				// with the current and thus no fallback.
 				if err != nil {
 					log.Errorf("Unable to create Temp database: %v", err)
+					return CurrentClone, false, nil
 				}
 			}
 			log.Info("GetCloneToMigrate -- 7")
@@ -273,6 +274,8 @@ func (d *dbCloneManagerImpl) doPersist(cloneName string, prev string) error {
 	}
 
 	// Flip current to prev
+	//log.Info("******* Get Connection ********")
+	//time.Sleep(2 * time.Minute)
 	err := pgadmin.RenameDB(connectPool, CurrentClone, moveCurrent)
 	if err != nil {
 		log.Errorf("Unable to switch to previous DB: %v", err)
@@ -280,6 +283,8 @@ func (d *dbCloneManagerImpl) doPersist(cloneName string, prev string) error {
 	}
 
 	// Now flip the clone to be the primary DB
+	//log.Infof("******* Get Connection to %q ********", cloneName)
+	//time.Sleep(2 * time.Minute)
 	err = pgadmin.RenameDB(connectPool, cloneName, CurrentClone)
 	if err != nil {
 		log.Errorf("Unable to switch to clone DB: %v", err)
