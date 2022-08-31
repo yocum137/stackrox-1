@@ -55,6 +55,8 @@ func (d *dbCloneManagerImpl) Scan() error {
 			d.cloneMap[name] = metadata.NewPostgres(ver, name)
 			log.Debugf("Closing the pool from scan %q", name)
 			pool.Close()
+		case name == TempClone:
+			clonesToRemove.Add(name)
 		}
 	}
 
@@ -143,6 +145,13 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 	}
 
 	currClone, currExists := d.cloneMap[CurrentClone]
+	prevClone, prevExists := d.cloneMap[PreviousClone]
+	// If we have a previous but not a current that means a previous migration failed.  We need to process the
+	// previous
+	if prevExists && !currExists {
+		log.Info("GetCloneToMigrate -- 0")
+		return PreviousClone, false, nil
+	}
 
 	// If the current Postgres version is less than Rocks version then we need to migrate rocks to postgres
 	// If the versions are the same, but rocks has a more recent update then we need to migrate rocks to postgres
@@ -163,11 +172,8 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 			if !d.databaseExists(TempClone) {
 				log.Info("GetCloneToMigrate -- 2")
 				err := pgadmin.CreateDB(d.sourceMap, d.adminConfig, pgadmin.EmptyDB, TempClone)
-
-				// If for some reason, we cannot create a temp clone we will need to continue to upgrade
-				// with the current and thus no fallback.
 				if err != nil {
-					return "", false, errors.Wrapf(err, "failed to copy current db %v", err)
+					return "", false, errors.Wrapf(err, "failed to create temp database %v", err)
 				}
 			}
 			log.Info("GetCloneToMigrate -- 3")
@@ -177,7 +183,6 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 		log.Info("Postgres is the more recent version so we will process that.")
 	}
 
-	prevClone, prevExists := d.cloneMap[PreviousClone]
 	if d.rollbackEnabled() && currClone.GetVersion() != version.GetMainVersion() {
 		// If previous clone has the same version as current version, the previous upgrade was not completed.
 		// Central could be in a loop of booting up the service. So we should continue to run with current.
