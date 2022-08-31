@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/migrator/clone/metadata"
@@ -283,8 +285,8 @@ func (d *dbCloneManagerImpl) doPersist(cloneName string, prev string) error {
 	}
 
 	// Now flip the clone to be the primary DB
-	//log.Infof("******* Get Connection to %q ********", cloneName)
-	//time.Sleep(2 * time.Minute)
+	log.Infof("******* Get Connection to %q ********", cloneName)
+	time.Sleep(2 * time.Minute)
 	err = pgadmin.RenameDB(connectPool, cloneName, CurrentClone)
 	if err != nil {
 		log.Errorf("Unable to switch to clone DB: %v", err)
