@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"time"
-
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/migrator/clone/metadata"
@@ -55,8 +53,8 @@ func (d *dbCloneManagerImpl) Scan() error {
 			d.cloneMap[name] = metadata.NewPostgres(ver, name)
 			log.Debugf("Closing the pool from scan %q", name)
 			pool.Close()
-		case name == TempClone:
-			clonesToRemove.Add(name)
+			//case name == TempClone:
+			//	clonesToRemove.Add(name)
 		}
 	}
 
@@ -148,10 +146,10 @@ func (d *dbCloneManagerImpl) GetCloneToMigrate(rocksVersion *migrations.Migratio
 	prevClone, prevExists := d.cloneMap[PreviousClone]
 	// If we have a previous but not a current that means a previous migration failed.  We need to process the
 	// previous
-	if prevExists && !currExists {
-		log.Info("GetCloneToMigrate -- 0")
-		return PreviousClone, false, nil
-	}
+	//if prevExists && !currExists {
+	//	log.Info("GetCloneToMigrate -- 0")
+	//	return PreviousClone, false, nil
+	//}
 
 	// If the current Postgres version is less than Rocks version then we need to migrate rocks to postgres
 	// If the versions are the same, but rocks has a more recent update then we need to migrate rocks to postgres
@@ -290,8 +288,8 @@ func (d *dbCloneManagerImpl) doPersist(cloneName string, prev string) error {
 	}
 
 	// Now flip the clone to be the primary DB
-	log.Infof("******* Get Connection to %q ********", cloneName)
-	time.Sleep(2 * time.Minute)
+	//log.Infof("******* Get Connection to %q ********", cloneName)
+	//time.Sleep(2 * time.Minute)
 	err = pgadmin.RenameDB(connectPool, cloneName, CurrentClone)
 	if err != nil {
 		log.Errorf("Unable to switch to clone DB: %v", err)

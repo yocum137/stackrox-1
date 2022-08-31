@@ -160,6 +160,8 @@ func upgrade(conf *config.Config, dbClone string, processBoth bool) error {
 			return errors.Wrap(err, "failed to get version from the database")
 		}
 
+		log.WriteToStderrf("version for %q is %v", dbClone, ver)
+
 		// If Postgres has no version and we have no bolt then we have no populated databases at all and thus don't
 		// need to migrate
 		if ver.SeqNum == 0 && ver.MainVersion == "0" && (!processBoth || boltDB == nil) {
@@ -167,8 +169,6 @@ func upgrade(conf *config.Config, dbClone string, processBoth bool) error {
 			pkgSchema.ApplyAllSchemas(context.Background(), gormDB)
 			return nil
 		}
-
-		log.WriteToStderrf("version for %q is %v", dbClone, ver)
 	}
 
 	if boltDB == nil && !features.PostgresDatastore.Enabled() {
