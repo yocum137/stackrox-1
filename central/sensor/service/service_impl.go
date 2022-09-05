@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/clusters"
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	"github.com/stackrox/rox/central/sensor/service/pipeline"
+	sensorRecorder "github.com/stackrox/rox/central/sensor/service/recorder"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/centralsensor"
@@ -37,14 +38,16 @@ type serviceImpl struct {
 	manager  connection.Manager
 	pf       pipeline.Factory
 	clusters clusterDataStore.DataStore
+	recorder sensorRecorder.EventRecorder
 }
 
 // New creates a new Service using the given manager.
-func New(manager connection.Manager, pf pipeline.Factory, clusters clusterDataStore.DataStore) Service {
+func New(manager connection.Manager, pf pipeline.Factory, clusters clusterDataStore.DataStore, recorder sensorRecorder.EventRecorder) Service {
 	return &serviceImpl{
 		manager:  manager,
 		pf:       pf,
 		clusters: clusters,
+		recorder: recorder,
 	}
 }
 
@@ -124,7 +127,8 @@ func (s *serviceImpl) Communicate(server central.SensorService_CommunicateServer
 
 	log.Infof("Cluster %s (%s) has successfully connected to Central", cluster.GetName(), cluster.GetId())
 
-	return s.manager.HandleConnection(server.Context(), sensorHello, cluster, eventPipeline, server)
+	// TODO: Maybe pass recorder here using connection data
+	return s.manager.HandleConnection(server.Context(), sensorHello, cluster, eventPipeline, server, s.recorder)
 }
 
 func getCertExpiryStatus(identity authn.Identity) (*storage.ClusterCertExpiryStatus, error) {

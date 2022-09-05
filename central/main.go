@@ -117,6 +117,7 @@ import (
 	searchService "github.com/stackrox/rox/central/search/service"
 	secretService "github.com/stackrox/rox/central/secret/service"
 	sensorService "github.com/stackrox/rox/central/sensor/service"
+	sensorRecorder "github.com/stackrox/rox/central/sensor/service/recorder"
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	"github.com/stackrox/rox/central/sensor/service/pipeline/all"
 	sensorUpgradeControlService "github.com/stackrox/rox/central/sensorupgrade/controlservice"
@@ -363,7 +364,7 @@ func servicesToRegister(registry authproviders.Registry, authzTraceSink observe.
 		roleService.Singleton(),
 		searchService.Singleton(),
 		secretService.Singleton(),
-		sensorService.New(connection.ManagerSingleton(), all.Singleton(), clusterDataStore.Singleton()),
+		sensorService.New(connection.ManagerSingleton(), all.Singleton(), clusterDataStore.Singleton(), sensorRecorder.Singleton()),
 		sensorUpgradeControlService.Singleton(),
 		sensorUpgradeService.Singleton(),
 		serviceAccountService.Singleton(),

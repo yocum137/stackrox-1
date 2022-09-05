@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackrox/rox/central/sensor/service/common"
 	"github.com/stackrox/rox/central/sensor/service/pipeline"
+	"github.com/stackrox/rox/central/sensor/service/recorder"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/concurrency"
@@ -22,7 +23,7 @@ type Manager interface {
 		autoTriggerUpgrades *concurrency.Flag) error
 
 	// Connection-related methods.
-	HandleConnection(ctx context.Context, sensorHello *central.SensorHello, cluster *storage.Cluster, eventPipeline pipeline.ClusterPipeline, server central.SensorService_CommunicateServer) error
+	HandleConnection(ctx context.Context, sensorHello *central.SensorHello, cluster *storage.Cluster, eventPipeline pipeline.ClusterPipeline, server central.SensorService_CommunicateServer, recorder recorder.EventRecorder) error
 	GetConnection(clusterID string) SensorConnection
 	GetActiveConnections() []SensorConnection
 	PreparePoliciesAndBroadcast(policies []*storage.Policy)

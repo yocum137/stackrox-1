@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/sensor/networkpolicies"
 	"github.com/stackrox/rox/central/sensor/service/common"
 	"github.com/stackrox/rox/central/sensor/service/pipeline"
+	"github.com/stackrox/rox/central/sensor/service/recorder"
 	"github.com/stackrox/rox/central/sensor/telemetry"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
@@ -55,6 +56,8 @@ type sensorConnection struct {
 
 	sensorHello  *central.SensorHello
 	capabilities centralsensor.SensorCapabilitySet
+
+	sensorRecorder recorder.EventRecorder
 }
 
 func newConnection(sensorHello *central.SensorHello,
@@ -65,6 +68,7 @@ func newConnection(sensorHello *central.SensorHello,
 	policyMgr common.PolicyManager,
 	baselineMgr common.ProcessBaselineManager,
 	networkBaselineMgr common.NetworkBaselineManager,
+	sensorRecorder recorder.EventRecorder,
 ) *sensorConnection {
 
 	conn := &sensorConnection{
@@ -83,6 +87,8 @@ func newConnection(sensorHello *central.SensorHello,
 
 		sensorHello:  sensorHello,
 		capabilities: centralsensor.CapSetFromStringSlice(sensorHello.GetCapabilities()...),
+
+		sensorRecorder: sensorRecorder,
 	}
 
 	// Need a reference to conn for injector
@@ -146,6 +152,9 @@ func (c *sensorConnection) runRecv(ctx context.Context, grpcServer central.Senso
 			c.stopSig.SignalWithError(errors.Wrap(err, "recv error"))
 			return
 		}
+
+		// TODO: If recording events add to recording buffer
+		c.sensorRecorder.Record(c.clusterID, msg)
 
 		c.multiplexedPush(ctx, msg, queues)
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/central/sensor/service/common"
 	"github.com/stackrox/rox/central/sensor/service/connection/upgradecontroller"
 	"github.com/stackrox/rox/central/sensor/service/pipeline"
+	"github.com/stackrox/rox/central/sensor/service/recorder"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/centralsensor"
@@ -213,7 +214,7 @@ func (m *manager) replaceConnection(ctx context.Context, cluster *storage.Cluste
 	return oldConnection, nil
 }
 
-func (m *manager) HandleConnection(ctx context.Context, sensorHello *central.SensorHello, cluster *storage.Cluster, eventPipeline pipeline.ClusterPipeline, server central.SensorService_CommunicateServer) error {
+func (m *manager) HandleConnection(ctx context.Context, sensorHello *central.SensorHello, cluster *storage.Cluster, eventPipeline pipeline.ClusterPipeline, server central.SensorService_CommunicateServer, recorder recorder.EventRecorder) error {
 	conn :=
 		newConnection(
 			sensorHello,
@@ -223,7 +224,8 @@ func (m *manager) HandleConnection(ctx context.Context, sensorHello *central.Sen
 			m.networkEntities,
 			m.policies,
 			m.baselines,
-			m.networkBaselines)
+			m.networkBaselines,
+			recorder)
 	ctx = withConnection(ctx, conn)
 
 	clusterID := cluster.GetId()
