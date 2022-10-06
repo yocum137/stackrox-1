@@ -23,6 +23,8 @@ message Metadata {
 
     // Do not use this field. It will always contain "VALID"
     LicenseStatus license_status = 4 [deprecated = true];
+
+    bool managed_central = 5;
 }
 
 message TrustInfo {

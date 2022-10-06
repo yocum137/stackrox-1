@@ -13,6 +13,7 @@ import (
 	"github.com/stackrox/rox/pkg/buildinfo"
 	"github.com/stackrox/rox/pkg/centralsensor"
 	"github.com/stackrox/rox/pkg/cryptoutils"
+	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/errox"
 	"github.com/stackrox/rox/pkg/grpc/authn"
 	"github.com/stackrox/rox/pkg/grpc/authz/allow"
@@ -42,10 +43,12 @@ func (s *serviceImpl) AuthFuncOverride(ctx context.Context, fullMethodName strin
 
 // GetMetadata returns the metadata for Rox.
 func (s *serviceImpl) GetMetadata(ctx context.Context, _ *v1.Empty) (*v1.Metadata, error) {
+	managedCentral := env.ManagedCentral.BooleanSetting()
 	metadata := &v1.Metadata{
 		BuildFlavor:   buildinfo.BuildFlavor,
 		ReleaseBuild:  buildinfo.ReleaseBuild,
 		LicenseStatus: v1.Metadata_VALID,
+		ManagedCentral: managedCentral,
 	}
 	// Only return the version to logged in users, not anonymous users.
 	if authn.IdentityFromContextOrNil(ctx) != nil {
