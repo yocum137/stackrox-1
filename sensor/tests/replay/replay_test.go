@@ -28,9 +28,9 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-func TestReplayEvents(t *testing.T) {
-	suite.Run(t, new(ReplayEventsSuite))
-}
+//func TestReplayEvents(t *testing.T) {
+//	suite.Run(t, new(ReplayEventsSuite))
+//}
 
 type ReplayEventsSuite struct {
 	suite.Suite
@@ -136,21 +136,16 @@ func (tw *TraceWriterWithChannel) Write(b []byte) (nb int, retErr error) {
 	return 0, nil
 }
 
-func (suite *ReplayEventsSuite) Test_ReplayEvents() {
-	conn, spyCentral, _ := createConnectionAndStartServer(suite.fakeCentral)
+func setupSensor(fakeCentral *centralDebug.FakeService, fakeClient *k8s.ClientSet, resyncTime time.Duration, ackChannel chan *central.SensorEvent) *TraceWriterWithChannel {
+	conn, spyCentral, _ := createConnectionAndStartServer(fakeCentral)
 	fakeConnectionFactory := centralDebug.MakeFakeConnectionFactory(conn)
-
-	ackChannel := make(chan *central.SensorEvent)
 	writer := &TraceWriterWithChannel{
 		destinationChannel: ackChannel,
 		enabled:            true,
 	}
-	// Depending on the size of the file the re-sync time may need to be increased.
-	// This is because we need to wait for the event outputs of each kubernetes event before sending the next.
-	// If we receive re-sync events before we finish processing all the events, we might run into unknown behaviour
-	resyncTime := 1 * time.Second
+
 	s, err := sensor.CreateSensor(sensor.ConfigWithDefaults().
-		WithK8sClient(suite.fakeClient).
+		WithK8sClient(fakeClient).
 		WithLocalSensor(true).
 		WithResyncPeriod(resyncTime).
 		WithCentralConnectionFactory(fakeConnectionFactory).
@@ -161,9 +156,21 @@ func (suite *ReplayEventsSuite) Test_ReplayEvents() {
 	}
 
 	go s.Start()
-	defer writer.close()
 
 	spyCentral.ConnectionStarted.Wait()
+
+	return writer
+}
+
+func (suite *ReplayEventsSuite) Test_ReplayEvents() {
+	// Depending on the size of the file the re-sync time may need to be increased.
+	// This is because we need to wait for the event outputs of each kubernetes event before sending the next.
+	// If we receive re-sync events before we finish processing all the events, we might run into unknown behaviour
+	resyncTime := 1 * time.Second
+	ackChannel := make(chan *central.SensorEvent)
+
+	writer := setupSensor(suite.fakeCentral, suite.fakeClient, resyncTime, ackChannel)
+	defer writer.close()
 
 	cases := map[string]struct {
 		k8sEventsFile    string
@@ -181,97 +188,121 @@ func (suite *ReplayEventsSuite) Test_ReplayEvents() {
 	for name, c := range cases {
 		suite.T().Run(name, func(t *testing.T) {
 			suite.fakeCentral.ClearReceivedBuffer()
-			eventsReader := &k8s.TraceReader{
-				Source: c.k8sEventsFile,
-			}
-			err = eventsReader.Init()
-			if err != nil {
-				panic(err)
-			}
-			fm := k8s.FakeEventsManager{
-				AckChannel: ackChannel,
-				Mode:       k8s.ChannelAck,
-				Client:     suite.fakeClient,
-				Reader:     eventsReader,
-			}
-			writer.enable()
-			_, errCh := fm.CreateEvents(context.Background())
-			// Wait for all the events to be processed
-			err = <-errCh
-			if err != nil {
-				panic(err)
-			}
-			// We continue to read the ackChannel to avoid blocking
-			ctx, cancelFunc := context.WithCancel(context.Background())
-			go func() {
-				for {
-					select {
-					case <-ackChannel:
-					case <-ctx.Done():
-						return
-					}
-				}
-			}()
-			writer.disable()
-			// Wait for the re-sync to happen
-			time.Sleep(5 * resyncTime)
-			allEvents := suite.fakeCentral.GetAllMessages()
-			// Read the sensorOutputFile containing the expected sensor's output
-			expectedEvents, err := readSensorOutputFile(c.sensorOutputFile)
-			if err != nil {
-				panic(err)
-			}
-			expectedAlerts := getAlerts(expectedEvents)
-			receivedAlerts := getAlerts(allEvents)
-			assert.Equal(t, len(expectedAlerts), len(receivedAlerts))
-			for id, expectedAlertEvent := range expectedAlerts {
-				if receivedAlertEvent, ok := receivedAlerts[id]; !ok {
-					t.Error("Deployment Alert Event not found")
-				} else {
-					assert.Equal(t, len(expectedAlertEvent), len(receivedAlertEvent))
-					for alertID, exp := range expectedAlertEvent {
-						if a, ok := receivedAlertEvent[alertID]; !ok {
-							t.Error("Alert not found")
-						} else {
-							assert.Equal(t, exp.GetState(), a.GetState())
-						}
-					}
-				}
-			}
-			expectedDeployments := getLastStateFromDeployments(expectedEvents)
-			receivedDeployments := getLastStateFromDeployments(allEvents)
-			assert.Equal(t, len(expectedDeployments), len(receivedDeployments))
-			for id, exp := range expectedDeployments {
-				if e, ok := receivedDeployments[id]; !ok {
-					t.Error("Deployment not found")
-				} else {
-					assert.Equal(t, exp.GetDeployment().GetServiceAccountPermissionLevel(), e.GetDeployment().GetServiceAccountPermissionLevel())
-					assert.Equal(t, exp.GetDeployment().GetPorts(), e.GetDeployment().GetPorts())
-					assert.Equal(t, exp.GetDeployment().GetName(), e.GetDeployment().GetName())
-					assert.Equal(t, exp.GetDeployment().GetNamespace(), e.GetDeployment().GetNamespace())
-					assert.Equal(t, exp.GetDeployment().GetLabels(), e.GetDeployment().GetLabels())
-					assert.Equal(t, exp.GetDeployment().GetPodLabels(), e.GetDeployment().GetPodLabels())
-					assert.Equal(t, exp.GetDeployment().GetImagePullSecrets(), e.GetDeployment().GetImagePullSecrets())
-				}
-			}
-			expectedPods := getLastStateFromPods(expectedEvents)
-			receivedPods := getLastStateFromPods(allEvents)
-			assert.Equal(t, len(expectedPods), len(receivedPods))
-			for id, exp := range expectedPods {
-				if e, ok := receivedPods[id]; !ok {
-					t.Error("Pod not found")
-				} else {
-					assert.Equal(t, exp.GetPod().GetDeploymentId(), e.GetPod().GetDeploymentId())
-					assert.Equal(t, exp.GetPod().GetName(), e.GetPod().GetName())
-					assert.Equal(t, exp.GetPod().GetNamespace(), e.GetPod().GetNamespace())
-				}
-			}
-			cancelFunc()
-			if err := fm.DeleteAllResources(); err != nil {
-				panic(err)
-			}
+			runTestCase(t, replayTestCase{
+				k8sEventsFile:    c.k8sEventsFile,
+				sensorOutputFile: c.sensorOutputFile,
+				ackChannel:       ackChannel,
+				resyncTime:       resyncTime,
+				fakeCentral:      suite.fakeCentral,
+				fakeClient:       suite.fakeClient,
+				writer:           writer,
+			})
 			time.Sleep(5 * resyncTime)
 		})
+	}
+}
+
+type replayTestCase struct {
+	k8sEventsFile    string
+	sensorOutputFile string
+	ackChannel       chan *central.SensorEvent
+	resyncTime       time.Duration
+
+	fakeCentral *centralDebug.FakeService
+	fakeClient  *k8s.ClientSet
+
+	writer *TraceWriterWithChannel
+}
+
+func runTestCase[K testing.TB](t K, testCase replayTestCase) {
+	eventsReader := &k8s.TraceReader{
+		Source: testCase.k8sEventsFile,
+	}
+	err := eventsReader.Init()
+	if err != nil {
+		panic(err)
+	}
+	fm := k8s.FakeEventsManager{
+		AckChannel: testCase.ackChannel,
+		Mode:       k8s.ChannelAck,
+		Client:     testCase.fakeClient,
+		Reader:     eventsReader,
+	}
+	testCase.writer.enable()
+	_, errCh := fm.CreateEvents(context.Background())
+	// Wait for all the events to be processed
+	err = <-errCh
+	if err != nil {
+		panic(err)
+	}
+	// We continue to read the ackChannel to avoid blocking
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	go func() {
+		for {
+			select {
+			case <-testCase.ackChannel:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	testCase.writer.disable()
+	// Wait for the re-sync to happen
+	time.Sleep(5 * testCase.resyncTime)
+	allEvents := testCase.fakeCentral.GetAllMessages()
+	// Read the sensorOutputFile containing the expected sensor's output
+	expectedEvents, err := readSensorOutputFile(testCase.sensorOutputFile)
+	if err != nil {
+		panic(err)
+	}
+	expectedAlerts := getAlerts(expectedEvents)
+	receivedAlerts := getAlerts(allEvents)
+	assert.Equal(t, len(expectedAlerts), len(receivedAlerts))
+	for id, expectedAlertEvent := range expectedAlerts {
+		if receivedAlertEvent, ok := receivedAlerts[id]; !ok {
+			t.Error("Deployment Alert Event not found")
+		} else {
+			assert.Equal(t, len(expectedAlertEvent), len(receivedAlertEvent))
+			for alertID, exp := range expectedAlertEvent {
+				if a, ok := receivedAlertEvent[alertID]; !ok {
+					t.Error("Alert not found")
+				} else {
+					assert.Equal(t, exp.GetState(), a.GetState())
+				}
+			}
+		}
+	}
+	expectedDeployments := getLastStateFromDeployments(expectedEvents)
+	receivedDeployments := getLastStateFromDeployments(allEvents)
+	assert.Equal(t, len(expectedDeployments), len(receivedDeployments))
+	for id, exp := range expectedDeployments {
+		if e, ok := receivedDeployments[id]; !ok {
+			t.Error("Deployment not found")
+		} else {
+			assert.Equal(t, exp.GetDeployment().GetServiceAccountPermissionLevel(), e.GetDeployment().GetServiceAccountPermissionLevel())
+			assert.Equal(t, exp.GetDeployment().GetPorts(), e.GetDeployment().GetPorts())
+			assert.Equal(t, exp.GetDeployment().GetName(), e.GetDeployment().GetName())
+			assert.Equal(t, exp.GetDeployment().GetNamespace(), e.GetDeployment().GetNamespace())
+			assert.Equal(t, exp.GetDeployment().GetLabels(), e.GetDeployment().GetLabels())
+			assert.Equal(t, exp.GetDeployment().GetPodLabels(), e.GetDeployment().GetPodLabels())
+			assert.Equal(t, exp.GetDeployment().GetImagePullSecrets(), e.GetDeployment().GetImagePullSecrets())
+		}
+	}
+	expectedPods := getLastStateFromPods(expectedEvents)
+	receivedPods := getLastStateFromPods(allEvents)
+	assert.Equal(t, len(expectedPods), len(receivedPods))
+	for id, exp := range expectedPods {
+		if e, ok := receivedPods[id]; !ok {
+			t.Error("Pod not found")
+		} else {
+			assert.Equal(t, exp.GetPod().GetDeploymentId(), e.GetPod().GetDeploymentId())
+			assert.Equal(t, exp.GetPod().GetName(), e.GetPod().GetName())
+			assert.Equal(t, exp.GetPod().GetNamespace(), e.GetPod().GetNamespace())
+		}
+	}
+	cancelFunc()
+	if err := fm.DeleteAllResources(); err != nil {
+		panic(err)
 	}
 }
 
