@@ -69,4 +69,5 @@ func (w *workerQueue) run(ctx context.Context, stopSig *concurrency.ErrorSignal,
 	}
 
 	w.waitGroup.Wait()
+	log.Infof("Complete waiting queue for type %s", w.queues[0].typ)
 }

@@ -76,6 +76,7 @@ func (s *sensorEventHandler) addMultiplexed(ctx context.Context, msg *central.Ms
 	queue := s.typeToQueue[typ]
 	// Lazily create the queue for a type if necessary
 	if queue == nil {
+		log.Infof("Creating worker queue for %s", stripTypePrefix(typ))
 		queue = newWorkerQueue(workerQueueSize, stripTypePrefix(typ))
 		s.typeToQueue[typ] = queue
 		go queue.run(ctx, s.stopSig, s.handleMessages)
