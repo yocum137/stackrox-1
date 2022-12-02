@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -230,6 +231,7 @@ func runSafeMode() {
 }
 
 func main() {
+	runtime.MemProfileRate = 1
 	premain.StartMain()
 
 	conf := config.GetConfig()
