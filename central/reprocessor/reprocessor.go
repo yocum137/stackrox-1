@@ -22,6 +22,7 @@ import (
 	"github.com/stackrox/rox/pkg/env"
 	imageEnricher "github.com/stackrox/rox/pkg/images/enricher"
 	"github.com/stackrox/rox/pkg/images/utils"
+	"github.com/stackrox/rox/pkg/leak"
 	"github.com/stackrox/rox/pkg/logging"
 	nodeEnricher "github.com/stackrox/rox/pkg/nodes/enricher"
 	"github.com/stackrox/rox/pkg/sac"
@@ -580,6 +581,7 @@ func (l *loopImpl) activeComponentLoop() {
 		case <-l.stopSig.Done():
 			return
 		case <-l.activeComponentTicker.C:
+			leak.PrintMemUsage()
 			l.acUpdater.Update()
 		}
 	}
