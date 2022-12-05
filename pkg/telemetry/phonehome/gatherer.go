@@ -5,13 +5,10 @@ import (
 	"time"
 
 	"github.com/stackrox/rox/pkg/concurrency"
-	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/sync"
-	pkgPH "github.com/stackrox/rox/pkg/telemetry/phonehome"
 )
 
 var (
-	log              = logging.LoggerForModule()
 	gathererInstance *gatherer
 	onceGatherer     sync.Once
 )
@@ -20,19 +17,19 @@ var (
 const period = 5 * time.Minute
 
 type gatherer struct {
-	telemeter   pkgPH.Telemeter
+	telemeter   Telemeter
 	period      time.Duration
 	stopSig     concurrency.Signal
 	ctx         context.Context
 	mu          sync.Mutex
-	gatherFuncs []pkgPH.GatherFunc
+	gatherFuncs []GatherFunc
 }
 
 // Gatherer interface for interacting with telemetry gatherer.
 type Gatherer interface {
 	Start()
 	Stop()
-	AddGatherer(pkgPH.GatherFunc)
+	AddGatherer(GatherFunc)
 }
 
 func (g *gatherer) reset() {
@@ -40,7 +37,7 @@ func (g *gatherer) reset() {
 	g.ctx, _ = concurrency.DependentContext(context.Background(), &g.stopSig)
 }
 
-func newGatherer(t pkgPH.Telemeter, p time.Duration) *gatherer {
+func newGatherer(t Telemeter, p time.Duration) *gatherer {
 	return &gatherer{
 		telemeter: t,
 		period:    p,
@@ -48,24 +45,24 @@ func newGatherer(t pkgPH.Telemeter, p time.Duration) *gatherer {
 }
 
 // GathererSingleton returns the telemetry gatherer instance.
-func GathererSingleton() Gatherer {
-	if pkgPH.Enabled() {
+func (cfg *Config) GathererSingleton() Gatherer {
+	if Enabled() {
 		onceGatherer.Do(func() {
-			gathererInstance = newGatherer(pkgPH.TelemeterSingleton(), period)
+			gathererInstance = newGatherer(cfg.TelemeterSingleton(), period)
 		})
 	}
 	return gathererInstance
 }
 
-func (g *gatherer) collect() pkgPH.Properties {
-	var result pkgPH.Properties
+func (g *gatherer) collect() map[string]any {
+	var result map[string]any
 	for i, f := range g.gatherFuncs {
 		props, err := f(g.ctx)
 		if err != nil {
 			log.Errorf("gatherer %d failure: %v", i, err)
 		}
 		if props != nil && result == nil {
-			result = make(pkgPH.Properties, len(props))
+			result = make(map[string]any, len(props))
 		}
 		for k, v := range props {
 			result[k] = v
@@ -110,7 +107,7 @@ func (g *gatherer) Stop() {
 	g.stopSig.Signal()
 }
 
-func (g *gatherer) AddGatherer(f pkgPH.GatherFunc) {
+func (g *gatherer) AddGatherer(f GatherFunc) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.gatherFuncs = append(g.gatherFuncs, f)

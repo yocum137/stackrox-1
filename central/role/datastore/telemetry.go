@@ -9,12 +9,12 @@ import (
 )
 
 // Gather a few properties for phone home telemetry.
-func Gather(ctx context.Context) (phonehome.Properties, error) {
+var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, error) {
 	// WithAllAccess is required only to fetch and calculate the number of
 	// permission sets, roles and access scopes. It is not propagated anywhere
 	// else.
 	ctx = sac.WithAllAccess(ctx)
-	totals := make(phonehome.Properties)
+	totals := make(map[string]any)
 	rs := Singleton()
 
 	gatherErrs := errorhelpers.NewErrorList("cannot gather from role store")

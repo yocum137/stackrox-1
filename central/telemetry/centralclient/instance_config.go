@@ -1,4 +1,4 @@
-package phonehome
+package centralclient
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/sync"
+	"github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"github.com/stackrox/rox/pkg/version"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -18,19 +19,18 @@ import (
 
 const (
 	apiPathsAnnotation = "rhacs.redhat.com/telemetry-apipaths"
-	tenantIDAnnotation = "rhacs.redhat.com/tenant"
+	tenantIDLabel      = "rhacs.redhat.com/tenant"
+	APICallEvent       = "API Call"
 )
 
 var (
-	config = &Config{
-		CentralID: "11102e5e-ca16-4f2b-8d2e-e9e04e8dc531",
-		APIPaths:  set.NewFrozenSet[string](),
-	}
-	once sync.Once
-	log  = logging.LoggerForModule()
+	config       *phonehome.Config
+	once         sync.Once
+	log          = logging.LoggerForModule()
+	ignoredPaths = []string{"/v1/ping", "/v1/metadata", "/static/"}
 )
 
-func getInstanceConfig() (*Config, error) {
+func getInstanceConfig() (*phonehome.Config, error) {
 	rc, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -50,8 +50,7 @@ func getInstanceConfig() (*Config, error) {
 		return nil, errors.Wrap(err, "cannot get central deployment")
 	}
 
-	centralAnnotations := central.GetAnnotations()
-	paths, ok := centralAnnotations[apiPathsAnnotation]
+	paths, ok := central.GetAnnotations()[apiPathsAnnotation]
 	if !ok {
 		paths = "*"
 	}
@@ -62,29 +61,29 @@ func getInstanceConfig() (*Config, error) {
 	}
 
 	centralID := string(central.GetUID())
-	tenantID := centralAnnotations[tenantIDAnnotation]
+	tenantID := central.GetAnnotations()[tenantIDLabel]
 	// Consider on-prem central a tenant of itself:
 	if tenantID == "" {
 		tenantID = centralID
 	}
 
-	return &Config{
-		CentralID: centralID,
-		TenantID:  tenantID,
-		APIPaths:  set.NewFrozenSet(strings.Split(paths, ",")...),
+	return &phonehome.Config{
+		ClientID: centralID,
+		GroupID:  tenantID,
 		Properties: map[string]any{
 			"Central version":    version.GetMainVersion(),
 			"Chart version":      version.GetChartVersion(),
 			"Orchestrator":       orchestrator,
 			"Kubernetes version": v.GitVersion,
 		},
+		Config: map[string]any{"APIPaths": set.NewFrozenSet(strings.Split(paths, ",")...)},
 	}, nil
 }
 
 // InstanceConfig collects the central instance telemetry configuration from
 // central Deployment annotations and orchestrator properties. The collected
 // data is used for instance identification.
-func InstanceConfig() *Config {
+func InstanceConfig() *phonehome.Config {
 	once.Do(func() {
 		cfg, err := getInstanceConfig()
 		if err != nil {
@@ -92,17 +91,20 @@ func InstanceConfig() *Config {
 			return
 		}
 		config = cfg
-		log.Info("Central ID:", config.CentralID)
-		log.Info("Tenant ID:", config.TenantID)
-		log.Info("API path telemetry enabled for: ", config.APIPaths)
+		log.Info("Central ID:", config.ClientID)
+		log.Info("Tenant ID:", config.GroupID)
+		log.Info("API path telemetry enabled for: ", config.Config["APIPaths"])
+
+		config.AddInterceptorFunc(APICallEvent, func(rp *phonehome.RequestParams, props map[string]any) bool {
+			for _, ip := range ignoredPaths {
+				if strings.HasPrefix(rp.Path, ip) {
+					return false
+				}
+			}
+			apipaths := cfg.Config["APIPaths"].(set.FrozenSet[string])
+			return apipaths.Contains("*") || apipaths.Contains(rp.Path)
+		})
+
 	})
 	return config
-}
-
-// GetGroupID returns central group ID: either tenant or central deployment ID.
-func (cfg *Config) GetGroupID() string {
-	if cfg.TenantID == "" {
-		return cfg.CentralID
-	}
-	return cfg.TenantID
 }

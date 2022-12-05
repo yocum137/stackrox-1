@@ -10,18 +10,16 @@ import (
 )
 
 // Gather auth provider names and number of groups per auth provider.
-func Gather(ctx context.Context) (phonehome.Properties, error) {
-	// WithAllAccess is required only to fetch and calculate the number of auth
-	// providers and groups. It is not propagated anywhere else.
+var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, error) {
 	ctx = sac.WithAllAccess(ctx)
-	props := make(phonehome.Properties)
+	props := make(map[string]any)
 
 	providers, err := Singleton().GetAllAuthProviders(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get AuthProviders")
 	}
 
-	providerIDNames := make(map[string]string, len(providers)
+	providerIDNames := make(map[string]string, len(providers))
 	providerNames := make([]string, 0, len(providers))
 	for _, provider := range providers {
 		providerIDNames[provider.GetId()] = provider.GetName()

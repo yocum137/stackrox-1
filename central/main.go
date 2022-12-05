@@ -128,8 +128,8 @@ import (
 	signatureIntegrationService "github.com/stackrox/rox/central/signatureintegration/service"
 	"github.com/stackrox/rox/central/splunk"
 	summaryService "github.com/stackrox/rox/central/summary/service"
+	"github.com/stackrox/rox/central/telemetry/centralclient"
 	"github.com/stackrox/rox/central/telemetry/gatherers"
-	"github.com/stackrox/rox/central/telemetry/phonehome"
 	telemetryService "github.com/stackrox/rox/central/telemetry/service"
 	"github.com/stackrox/rox/central/tlsconfig"
 	"github.com/stackrox/rox/central/ui"
@@ -179,7 +179,7 @@ import (
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/sac/observe"
 	"github.com/stackrox/rox/pkg/sync"
-	pkgPH "github.com/stackrox/rox/pkg/telemetry/phonehome"
+	"github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"github.com/stackrox/rox/pkg/utils"
 	pkgVersion "github.com/stackrox/rox/pkg/version"
 )
@@ -315,7 +315,7 @@ func startServices() {
 	pruning.Singleton().Start()
 	gatherer.Singleton().Start()
 	vulnRequestManager.Singleton().Start()
-	phonehome.GathererSingleton().Start()
+	centralclient.InstanceConfig().GathererSingleton().Start()
 
 	go registerDelayedIntegrations(iiStore.DelayedIntegrations)
 }
@@ -426,10 +426,11 @@ func servicesToRegister(registry authproviders.Registry, authzTraceSink observe.
 		servicesToRegister = append(servicesToRegister, developmentService.Singleton())
 	}
 
-	if pkgPH.Enabled() {
-		phonehome.GathererSingleton().AddGatherer(authProviderDS.Gather)
-		phonehome.GathererSingleton().AddGatherer(signatureIntegrationDS.Gather)
-		phonehome.GathererSingleton().AddGatherer(roleDataStore.Gather)
+	if phonehome.Enabled() {
+		gs := centralclient.InstanceConfig().GathererSingleton()
+		gs.AddGatherer(authProviderDS.Gather)
+		gs.AddGatherer(signatureIntegrationDS.Gather)
+		gs.AddGatherer(roleDataStore.Gather)
 	}
 	return servicesToRegister
 }
@@ -535,8 +536,8 @@ func startGRPCServer() {
 	)
 	config.HTTPInterceptors = append(config.HTTPInterceptors, observe.AuthzTraceHTTPInterceptor(authzTraceSink))
 
-	if pkgPH.Enabled() {
-		grpcInterceptor, httpInterceptor := phonehome.MakeInterceptors()
+	if phonehome.Enabled() {
+		grpcInterceptor, httpInterceptor := centralclient.InstanceConfig().MakeInterceptors()
 		config.HTTPInterceptors = append(config.HTTPInterceptors, httpInterceptor)
 		config.UnaryInterceptors = append(config.UnaryInterceptors, grpcInterceptor)
 	}
@@ -829,8 +830,8 @@ func waitForTerminationSignal() {
 		{gatherer.Singleton(), "network graph default external sources gatherer"},
 		{vulnReportScheduleManager.Singleton(), "vuln reports schedule manager"},
 		{vulnRequestManager.Singleton(), "vuln deferral requests expiry loop"},
-		{phonehome.GathererSingleton(), "telemetry gatherer"},
-		{pkgPH.TelemeterSingleton(), "telemetry client"},
+		{centralclient.InstanceConfig().GathererSingleton(), "telemetry gatherer"},
+		{centralclient.InstanceConfig().TelemeterSingleton(), "telemetry client"},
 	}
 
 	var wg sync.WaitGroup

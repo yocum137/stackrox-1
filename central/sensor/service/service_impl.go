@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/central/clusters"
 	"github.com/stackrox/rox/central/sensor/service/connection"
 	"github.com/stackrox/rox/central/sensor/service/pipeline"
+	"github.com/stackrox/rox/central/telemetry/centralclient"
 	"github.com/stackrox/rox/generated/internalapi/central"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/centralsensor"
@@ -127,9 +128,10 @@ func (s *serviceImpl) Communicate(server central.SensorService_CommunicateServer
 
 	log.Infof("Cluster %s (%s) has successfully connected to Central", cluster.GetName(), cluster.GetId())
 	if phonehome.Enabled() {
-		idhash := phonehome.HashUserID(identity)
-		phonehome.TelemeterSingleton().Track("Cluster Connected", idhash, nil)
-		phonehome.TelemeterSingleton().Group(phonehome.InstanceConfig().GetGroupID(), idhash, nil)
+		cfg := centralclient.InstanceConfig()
+		idhash := cfg.HashUserID(identity)
+		cfg.TelemeterSingleton().Track("Cluster Connected", idhash, nil)
+		cfg.TelemeterSingleton().Group(cfg.GroupID, idhash, nil)
 	}
 	return s.manager.HandleConnection(server.Context(), sensorHello, cluster, eventPipeline, server)
 }

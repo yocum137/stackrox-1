@@ -9,11 +9,11 @@ import (
 )
 
 // Gather number of signature integrations.
-func Gather(ctx context.Context) (phonehome.Properties, error) {
+var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, error) {
 	// WithAllAccess is required only to fetch and calculate the number of
 	// signature integrations. It is not propagated anywhere else.
 	ctx = sac.WithAllAccess(ctx)
-	totals := make(phonehome.Properties)
+	totals := make(map[string]any)
 	ps, err := Singleton().GetAllSignatureIntegrations(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get signature integrations")

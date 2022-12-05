@@ -9,7 +9,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
 	"github.com/stackrox/rox/pkg/set"
-	pkgPH "github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome/mocks"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -47,9 +46,12 @@ func (s *interceptorTestSuite) TestAddGrpcInterceptor() {
 			value: "test value",
 		},
 	}
-	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+	cfg := &Config{
+		ClientID: "test",
+		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
+	}
 
-	AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
+	cfg.AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
 		if rp.Path == testRP.Path {
 			if tr, ok := rp.GrpcReq.(*testRequest); ok {
 				props["Property"] = tr.value
@@ -65,7 +67,7 @@ func (s *interceptorTestSuite) TestAddGrpcInterceptor() {
 		"Property":   "test value",
 	}).Times(1)
 
-	track(testRP, s.mockTelemeter)
+	cfg.track(testRP, s.mockTelemeter)
 }
 
 func (s *interceptorTestSuite) TestAddHttpInterceptor() {
@@ -78,9 +80,12 @@ func (s *interceptorTestSuite) TestAddHttpInterceptor() {
 	req, err := http.NewRequest(http.MethodPost, "https://test"+testRP.Path+"?test_key=test_value", nil)
 	s.NoError(err)
 	testRP.HttpReq = req
-	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+	cfg := &Config{
+		ClientID: "test",
+		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
+	}
 
-	AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
+	cfg.AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
 		if rp.Path == testRP.Path {
 			props["Property"] = rp.HttpReq.FormValue("test_key")
 		}
@@ -94,7 +99,7 @@ func (s *interceptorTestSuite) TestAddHttpInterceptor() {
 		"Property":   "test_value",
 	}).Times(1)
 
-	track(testRP, s.mockTelemeter)
+	cfg.track(testRP, s.mockTelemeter)
 }
 
 func (s *interceptorTestSuite) TestGrpcRequestInfo() {
@@ -104,7 +109,10 @@ func (s *interceptorTestSuite) TestGrpcRequestInfo() {
 		UserAgent: "test",
 		Path:      "/v1.Test",
 	}
-	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+	cfg := &Config{
+		ClientID: "test",
+		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
+	}
 
 	md := metadata.New(nil)
 	md.Set("User-Agent", testRP.UserAgent)
@@ -114,7 +122,7 @@ func (s *interceptorTestSuite) TestGrpcRequestInfo() {
 	ctx, err := rih.UpdateContextForGRPC(metadata.NewIncomingContext(ctx, md))
 	s.NoError(err)
 
-	rp := getGrpcRequestDetails(ctx, err, &grpc.UnaryServerInfo{
+	rp := cfg.getGrpcRequestDetails(ctx, err, &grpc.UnaryServerInfo{
 		FullMethod: testRP.Path,
 	}, "request")
 	s.Equal(testRP.Path, rp.Path)
@@ -131,14 +139,17 @@ func (s *interceptorTestSuite) TestHttpRequestInfo() {
 		UserAgent: "test",
 		Path:      "/v1/test",
 	}
-	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+	cfg := &Config{
+		ClientID: "test",
+		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
+	}
 
 	req, err := http.NewRequest(http.MethodPost, "https://test"+testRP.Path+"?test_key=test_value", nil)
 	s.NoError(err)
 	req.Header.Add("User-Agent", testRP.UserAgent)
 
 	ctx := context.Background()
-	rp := getHttpRequestDetails(ctx, req, err)
+	rp := cfg.getHttpRequestDetails(ctx, req, err)
 	s.Equal(testRP.Path, rp.Path)
 	s.Equal(testRP.Code, rp.Code)
 	s.Equal(testRP.UserAgent, rp.UserAgent)

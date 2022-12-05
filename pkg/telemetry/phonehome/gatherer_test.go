@@ -15,13 +15,6 @@ import (
 
 type gathererTestSuite struct {
 	suite.Suite
-	mockCtrl *gomock.Controller
-}
-
-var _ suite.SetupTestSuite = (*gathererTestSuite)(nil)
-
-func (s *gathererTestSuite) SetupTest() {
-	s.mockCtrl = gomock.NewController(s.T())
 }
 
 func TestConfig(t *testing.T) {
@@ -30,7 +23,8 @@ func TestConfig(t *testing.T) {
 
 func (s *gathererTestSuite) TestNilGatherer() {
 	s.T().Setenv(env.TelemetryStorageKey.EnvVar(), "")
-	nilgatherer := GathererSingleton()
+	cfg := &Config{}
+	nilgatherer := cfg.GathererSingleton()
 	s.Nil(nilgatherer)
 	nilgatherer.Start() // noop
 	nilgatherer.Stop()  // noop
@@ -38,7 +32,7 @@ func (s *gathererTestSuite) TestNilGatherer() {
 
 func (s *gathererTestSuite) TestGatherer() {
 	s.T().Setenv(env.TelemetryStorageKey.EnvVar(), "testkey")
-	t := mocks.NewMockTelemeter(s.mockCtrl)
+	t := mocks.NewMockTelemeter(gomock.NewController(s.T()))
 	t.EXPECT().Identify(nil).Times(3)
 
 	var i int64

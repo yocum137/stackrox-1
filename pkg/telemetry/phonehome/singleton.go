@@ -16,15 +16,14 @@ func Enabled() bool {
 }
 
 // TelemeterSingleton returns the instance of the telemeter.
-func TelemeterSingleton() Telemeter {
+func (cfg *Config) TelemeterSingleton() Telemeter {
 	onceTelemeter.Do(func() {
-		cfg := InstanceConfig()
-		telemeter = segment.NewTelemeter(cfg.CentralID, cfg.Properties)
+		telemeter = segment.NewTelemeter(cfg.ClientID, cfg.Properties)
 		// Central adds itself to the tenant group, adding its properties to the
 		// group properties:
-		telemeter.Group(cfg.GetGroupID(), cfg.CentralID, cfg.Properties)
+		telemeter.Group(cfg.GroupID, cfg.ClientID, cfg.Properties)
 		// Add the local admin user as well:
-		telemeter.Group(cfg.GetGroupID(), "local:"+cfg.CentralID+":admin", cfg.Properties)
+		telemeter.Group(cfg.GroupID, "local:"+cfg.ClientID+":admin", cfg.Properties)
 	})
 	return telemeter
 }

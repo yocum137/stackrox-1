@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	groupDataStore "github.com/stackrox/rox/central/group/datastore"
 	roleDataStore "github.com/stackrox/rox/central/role/datastore"
+	"github.com/stackrox/rox/central/telemetry/centralclient"
 	userDataStore "github.com/stackrox/rox/central/user/datastore"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/auth/permissions"
@@ -39,11 +40,10 @@ func (rm *storeBasedMapperImpl) recordUser(ctx context.Context, descriptor *perm
 		log.Errorf("unable to log user: %s: %v", proto.MarshalTextString(user), err)
 	}
 	if phonehome.Enabled() {
-		// Add the user to the tenant group.
-		cfg := phonehome.InstanceConfig()
+		cfg := centralclient.InstanceConfig()
 		if id, err := authn.IdentityFromContext(ctx); err == nil {
 			// Add the user to the tenant group.
-			phonehome.TelemeterSingleton().Group(cfg.GetGroupID(), phonehome.HashUserID(id), nil)
+			cfg.TelemeterSingleton().Group(cfg.GroupID, cfg.HashUserID(id), nil)
 		} else {
 			log.Errorf("unable to get user identity: %s: %v", proto.MarshalTextString(user), err)
 		}
