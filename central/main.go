@@ -536,8 +536,9 @@ func startGRPCServer() {
 	config.HTTPInterceptors = append(config.HTTPInterceptors, observe.AuthzTraceHTTPInterceptor(authzTraceSink))
 
 	if pkgPH.Enabled() {
-		config.HTTPInterceptors = append(config.HTTPInterceptors, phonehome.GetHTTPInterceptor(pkgPH.TelemeterSingleton()))
-		config.UnaryInterceptors = append(config.UnaryInterceptors, phonehome.GetGRPCInterceptor(pkgPH.TelemeterSingleton()))
+		grpcInterceptor, httpInterceptor := phonehome.MakeInterceptors()
+		config.HTTPInterceptors = append(config.HTTPInterceptors, httpInterceptor)
+		config.UnaryInterceptors = append(config.UnaryInterceptors, grpcInterceptor)
 	}
 
 	// Before authorization is checked, we want to inject the sac client into the context.

@@ -11,66 +11,95 @@ import (
 	grpcError "github.com/stackrox/rox/pkg/grpc/errors"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
 	"github.com/stackrox/rox/pkg/httputil"
-	"github.com/stackrox/rox/pkg/set"
 	pkgPH "github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"google.golang.org/grpc"
 )
 
+const APICallEvent = "API Call"
+
+// RequestParams holds intercepted call parameters.
+type RequestParams struct {
+	UserAgent string
+	UserID    string
+	Path      string
+	Code      int
+	GrpcReq   any
+	HttpReq   *http.Request
+}
+
+// interceptor is a function which will be called on every API call if none of
+// the previous interceptors in the chain returned false.
+// An interceptor function may add custom properties to the props map so that
+// they appear in the event.
+type interceptor func(rp *RequestParams, props map[string]any) bool
+
 var (
 	ignoredPaths = []string{"/v1/ping", "/v1/metadata", "/static/"}
+	interceptors = map[string][]interceptor{}
 )
 
-func track(ctx context.Context, t pkgPH.Telemeter, err error, info *grpc.UnaryServerInfo, trackedPaths set.FrozenSet[string]) {
-	userAgent, userID, path, code := getRequestDetails(ctx, err, info)
+// AddInterceptorFunc appends the custom list of telemetry interceptors with the
+// provided function.
+func AddInterceptorFunc(event string, f interceptor) {
+	interceptors[event] = append(interceptors[event], f)
+}
 
-	// Track the API path and error code of some requests:
-
-	for _, ip := range ignoredPaths {
-		if strings.HasPrefix(path, ip) {
-			return
+func track(rp *RequestParams, t pkgPH.Telemeter) {
+	for event, is := range interceptors {
+		props := map[string]any{
+			"Path":       rp.Path,
+			"Code":       rp.Code,
+			"User-Agent": rp.UserAgent,
 		}
-	}
-
-	if trackedPaths.Contains("*") || trackedPaths.Contains(path) {
-		t.Track("API Call", userID, map[string]any{
-			"Path":       path,
-			"Code":       code,
-			"User-Agent": userAgent,
-		})
+		ok := true
+		for _, interceptor := range is {
+			if ok = interceptor(rp, props); !ok {
+				break
+			}
+		}
+		if ok {
+			t.Track(event, rp.UserID, props)
+		}
 	}
 }
 
-func getRequestDetails(ctx context.Context, err error, info *grpc.UnaryServerInfo) (userAgent string, userID string, method string, code int) {
-	ri := requestinfo.FromContext(ctx)
-	userAgent = strings.Join(ri.Metadata.Get("User-Agent"), ", ")
-
+func getGrpcRequestDetails(ctx context.Context, err error, info *grpc.UnaryServerInfo, req any) *RequestParams {
 	id, iderr := authn.IdentityFromContext(ctx)
 	if iderr != nil {
 		log.Debug("Cannot identify user from context: ", iderr)
 	}
-	userID = pkgPH.HashUserID(id)
 
-	if ri.HTTPRequest != nil && ri.HTTPRequest.URL != nil {
-		method = ri.HTTPRequest.URL.Path
-		code = grpcError.ErrToHTTPStatus(err)
-	} else if info != nil {
-		method = info.FullMethod
-		code = int(erroxGRPC.RoxErrorToGRPCCode(err))
-	} else {
-		// Something not expected:
-		method = "unknown"
-		code = -1
+	ri := requestinfo.FromContext(ctx)
+	return &RequestParams{
+		UserAgent: strings.Join(ri.Metadata.Get("User-Agent"), ", "),
+		UserID:    pkgPH.HashUserID(id),
+		Path:      info.FullMethod,
+		Code:      int(erroxGRPC.RoxErrorToGRPCCode(err)),
+		GrpcReq:   req,
 	}
-	return
 }
 
-// GetGRPCInterceptor returns an API interceptor function for GRPC requests.
-func GetGRPCInterceptor(t pkgPH.Telemeter) grpc.UnaryServerInterceptor {
-	trackedPaths := pkgPH.InstanceConfig().APIPaths
+func getHttpRequestDetails(ctx context.Context, r *http.Request, err error) *RequestParams {
+	id, iderr := authn.IdentityFromContext(ctx)
+	if iderr != nil {
+		log.Debug("Cannot identify user from context: ", iderr)
+	}
 
+	return &RequestParams{
+		UserAgent: strings.Join(r.Header.Values("User-Agent"), ", "),
+		UserID:    pkgPH.HashUserID(id),
+		Path:      r.URL.Path,
+		Code:      grpcError.ErrToHTTPStatus(err),
+		HttpReq:   r,
+	}
+}
+
+// getGRPCInterceptor returns an API interceptor function for GRPC requests.
+func getGRPCInterceptor(t pkgPH.Telemeter) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
-		go track(ctx, t, err, info, trackedPaths)
+		rp := getGrpcRequestDetails(ctx, err, info, req)
+		go track(rp, t)
 		return resp, err
 	}
 }
@@ -82,15 +111,35 @@ func statusCodeToError(code *int) error {
 	return errors.Errorf("%d %s", *code, http.StatusText(*code))
 }
 
-// GetHTTPInterceptor returns an API interceptor function for HTTP requests.
-func GetHTTPInterceptor(t pkgPH.Telemeter) httputil.HTTPInterceptor {
-	trackedPaths := pkgPH.InstanceConfig().APIPaths
-
+// getHTTPInterceptor returns an API interceptor function for HTTP requests.
+func getHTTPInterceptor(t pkgPH.Telemeter) httputil.HTTPInterceptor {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			statusTrackingWriter := httputil.NewStatusTrackingWriter(w)
 			handler.ServeHTTP(statusTrackingWriter, r)
-			go track(r.Context(), t, statusCodeToError(statusTrackingWriter.GetStatusCode()), nil, trackedPaths)
+			rp := getHttpRequestDetails(r.Context(), r, statusCodeToError(statusTrackingWriter.GetStatusCode()))
+			go track(rp, t)
 		})
 	}
+}
+
+// MakeInterceptorsWithConfig returns a couple of interceptors initialized with
+// the provided configuration.
+func MakeInterceptorsWithConfig(cfg *pkgPH.Config, t pkgPH.Telemeter) (grpc.UnaryServerInterceptor, httputil.HTTPInterceptor) {
+	AddInterceptorFunc(APICallEvent, func(rp *RequestParams, props map[string]any) bool {
+		for _, ip := range ignoredPaths {
+			if strings.HasPrefix(rp.Path, ip) {
+				return false
+			}
+		}
+		return cfg.APIPaths.Contains("*") || cfg.APIPaths.Contains(rp.Path)
+	})
+
+	return getGRPCInterceptor(t), getHTTPInterceptor(t)
+}
+
+// MakeInterceptors returns a couple of interceptors initialized with
+// configuration and telemeter singletons.
+func MakeInterceptors() (grpc.UnaryServerInterceptor, httputil.HTTPInterceptor) {
+	return MakeInterceptorsWithConfig(pkgPH.InstanceConfig(), pkgPH.TelemeterSingleton())
 }

@@ -4,13 +4,12 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
 	"github.com/stackrox/rox/pkg/set"
+	pkgPH "github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome/mocks"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -34,55 +33,114 @@ func (s *interceptorTestSuite) SetupTest() {
 	s.mockTelemeter = mocks.NewMockTelemeter(gomock.NewController(s.T()))
 }
 
-func (s *interceptorTestSuite) expect(path string, code int) {
-	s.mockTelemeter.EXPECT().Track("API Call", "local:11102e5e-ca16-4f2b-8d2e-e9e04e8dc531:unauthenticated", map[string]any{
-		"Path":       path,
-		"Code":       code,
-		"User-Agent": "test",
+type testRequest struct {
+	value string
+}
+
+func (s *interceptorTestSuite) TestAddGrpcInterceptor() {
+	testRP := &RequestParams{
+		Path:      "/v1.Abc",
+		Code:      0,
+		UserAgent: "test",
+		UserID:    "local:test:unauthenticated",
+		GrpcReq: &testRequest{
+			value: "test value",
+		},
+	}
+	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+
+	AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
+		if rp.Path == testRP.Path {
+			if tr, ok := rp.GrpcReq.(*testRequest); ok {
+				props["Property"] = tr.value
+			}
+		}
+		return true
 	})
+
+	s.mockTelemeter.EXPECT().Track("TestEvent", testRP.UserID, map[string]any{
+		"Path":       testRP.Path,
+		"Code":       testRP.Code,
+		"User-Agent": testRP.UserAgent,
+		"Property":   "test value",
+	}).Times(1)
+
+	track(testRP, s.mockTelemeter)
 }
 
-func (s *interceptorTestSuite) testSpecific(path, allowed string) {
-	rih := requestinfo.NewRequestInfoHandler()
-	u, err := url.Parse("https://central" + path)
+func (s *interceptorTestSuite) TestAddHttpInterceptor() {
+	testRP := &RequestParams{
+		Path:      "/v1/abc",
+		Code:      200,
+		UserAgent: "test",
+		UserID:    "local:test:unauthenticated",
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://test"+testRP.Path+"?test_key=test_value", nil)
 	s.NoError(err)
+	testRP.HttpReq = req
+	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
 
-	md := rih.AnnotateMD(context.TODO(), &http.Request{URL: u})
-	md.Set("User-Agent", "test")
-	ctx := peer.NewContext(context.Background(), &peer.Peer{Addr: &net.UnixAddr{Net: "pipe"}})
-	ctx, err = rih.UpdateContextForGRPC(metadata.NewIncomingContext(ctx, md))
-	s.NoError(err)
+	AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
+		if rp.Path == testRP.Path {
+			props["Property"] = rp.HttpReq.FormValue("test_key")
+		}
+		return true
+	})
 
-	track(ctx, s.mockTelemeter, nil, nil, set.NewFrozenSet(strings.Split(allowed, ",")...))
+	s.mockTelemeter.EXPECT().Track("TestEvent", testRP.UserID, map[string]any{
+		"Path":       testRP.Path,
+		"Code":       testRP.Code,
+		"User-Agent": testRP.UserAgent,
+		"Property":   "test_value",
+	}).Times(1)
+
+	track(testRP, s.mockTelemeter)
 }
 
-func (s *interceptorTestSuite) TestInterceptorHttp() {
-	s.testSpecific("/v1/one", "/v1/two")
-	s.testSpecific("/v1/one", "/v1/two,/v1/three")
-
-	s.expect("/v1/abc", 200)
-	s.testSpecific("/v1/abc", "*")
-	s.testSpecific("/v1/ping", "*")
-
-	s.expect("/v1/pong", 200)
-	s.testSpecific("/v1/pong", "/v1/pong")
-
-	s.expect("/v1/four", 200)
-	s.testSpecific("/v1/four", "/v1/two,/v1/three,/v1/four")
-}
-
-func (s *interceptorTestSuite) TestInterceptorGrpc() {
-	s.expect("/v1.Abc", 0)
+func (s *interceptorTestSuite) TestGrpcRequestInfo() {
+	testRP := &RequestParams{
+		UserID:    "local:test:unauthenticated",
+		Code:      0,
+		UserAgent: "test",
+		Path:      "/v1.Test",
+	}
+	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
 
 	md := metadata.New(nil)
-	md.Set("User-Agent", "test")
+	md.Set("User-Agent", testRP.UserAgent)
 	ctx := peer.NewContext(context.Background(), &peer.Peer{Addr: &net.UnixAddr{Net: "pipe"}})
 
 	rih := requestinfo.NewRequestInfoHandler()
 	ctx, err := rih.UpdateContextForGRPC(metadata.NewIncomingContext(ctx, md))
 	s.NoError(err)
 
-	track(ctx, s.mockTelemeter, nil, &grpc.UnaryServerInfo{
-		FullMethod: "/v1.Abc",
-	}, set.NewFrozenSet("*"))
+	rp := getGrpcRequestDetails(ctx, err, &grpc.UnaryServerInfo{
+		FullMethod: testRP.Path,
+	}, "request")
+	s.Equal(testRP.Path, rp.Path)
+	s.Equal(testRP.Code, rp.Code)
+	s.Equal(testRP.UserAgent, rp.UserAgent)
+	s.Equal(testRP.UserID, rp.UserID)
+	s.Equal("request", rp.GrpcReq)
+}
+
+func (s *interceptorTestSuite) TestHttpRequestInfo() {
+	testRP := &RequestParams{
+		UserID:    "local:test:unauthenticated",
+		Code:      200,
+		UserAgent: "test",
+		Path:      "/v1/test",
+	}
+	pkgPH.InstanceConfig().APIPaths = set.NewFrozenSet(testRP.Path)
+
+	req, err := http.NewRequest(http.MethodPost, "https://test"+testRP.Path+"?test_key=test_value", nil)
+	s.NoError(err)
+	req.Header.Add("User-Agent", testRP.UserAgent)
+
+	ctx := context.Background()
+	rp := getHttpRequestDetails(ctx, req, err)
+	s.Equal(testRP.Path, rp.Path)
+	s.Equal(testRP.Code, rp.Code)
+	s.Equal(testRP.UserAgent, rp.UserAgent)
+	s.Equal(testRP.UserID, rp.UserID)
 }
