@@ -65,7 +65,7 @@ func (g *gatherer) collect() pkgPH.Properties {
 			log.Errorf("gatherer %d failure: %v", i, err)
 		}
 		if props != nil && result == nil {
-			result = make(map[string]any, len(props))
+			result = make(pkgPH.Properties, len(props))
 		}
 		for k, v := range props {
 			result[k] = v
