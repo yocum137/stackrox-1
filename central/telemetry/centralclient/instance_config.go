@@ -24,6 +24,8 @@ const (
 	apiPathsAnnotation = "rhacs.redhat.com/telemetry-apipaths"
 	tenantIDLabel      = "rhacs.redhat.com/tenant"
 	EventAPICall       = "API Call"
+	EventPostCluster   = "Post Cluster"
+	EventRoxctl        = "roxctl"
 )
 
 var (
@@ -56,10 +58,7 @@ func getInstanceConfig() (*phonehome.Config, error) {
 		return nil, errors.Wrap(err, "cannot get central deployment")
 	}
 
-	paths, ok := central.GetAnnotations()[apiPathsAnnotation]
-	if !ok {
-		paths = "*"
-	}
+	paths := central.GetAnnotations()[apiPathsAnnotation]
 	trackedPaths = set.NewFrozenSet(strings.Split(paths, ",")...)
 
 	orchestrator := storage.ClusterType_KUBERNETES_CLUSTER.String()
@@ -91,15 +90,6 @@ func getInstanceConfig() (*phonehome.Config, error) {
 	}, nil
 }
 
-func apiCall(rp *phonehome.RequestParams, props map[string]any) bool {
-	for _, ip := range ignoredPaths {
-		if strings.HasPrefix(rp.Path, ip) {
-			return false
-		}
-	}
-	return trackedPaths.Contains("*") || trackedPaths.Contains(rp.Path)
-}
-
 // InstanceConfig collects the central instance telemetry configuration from
 // central Deployment annotations and orchestrator properties. The collected
 // data is used for instance identification.
@@ -116,6 +106,8 @@ func InstanceConfig() *phonehome.Config {
 		log.Info("API path telemetry enabled for: ", trackedPaths)
 
 		config.AddInterceptorFunc(EventAPICall, apiCall)
+		config.AddInterceptorFunc(EventPostCluster, postCluster)
+		config.AddInterceptorFunc(EventRoxctl, roxctl)
 	})
 	return config
 }

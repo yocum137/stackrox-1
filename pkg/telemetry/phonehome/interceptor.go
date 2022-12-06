@@ -44,11 +44,7 @@ func (cfg *Config) AddInterceptorFunc(event string, f interceptor) {
 
 func (cfg *Config) track(rp *RequestParams, t Telemeter) {
 	for event, is := range cfg.interceptors {
-		props := map[string]any{
-			"Path":       rp.Path,
-			"Code":       rp.Code,
-			"User-Agent": rp.UserAgent,
-		}
+		props := map[string]any{}
 		ok := true
 		for _, interceptor := range is {
 			if ok = interceptor(rp, props); !ok {
