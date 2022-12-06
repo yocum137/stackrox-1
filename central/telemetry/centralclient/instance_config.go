@@ -5,9 +5,11 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/stackrox/rox/central/installation/store"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/logging"
+	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome"
@@ -63,7 +65,12 @@ func getInstanceConfig() (*phonehome.Config, error) {
 		orchestrator = storage.ClusterType_OPENSHIFT_CLUSTER.String()
 	}
 
-	centralID := string(central.GetUID())
+	ii, _, err := store.Singleton().Get(sac.WithAllAccess(context.Background()))
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get installation information")
+	}
+
+	centralID := ii.Id
 	tenantID := central.GetAnnotations()[tenantIDLabel]
 	// Consider on-prem central a tenant of itself:
 	if tenantID == "" {
