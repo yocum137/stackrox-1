@@ -16,8 +16,6 @@ type Config struct {
 	GroupID string
 	// Client static properties reported as client identity.
 	Properties map[string]any
-	// Random client configuration properties.
-	Config map[string]any
 
 	// Map of event name to the list of interceptors, that gather properties for
 	// the event.

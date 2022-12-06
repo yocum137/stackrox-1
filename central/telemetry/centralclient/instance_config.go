@@ -23,7 +23,7 @@ import (
 const (
 	apiPathsAnnotation = "rhacs.redhat.com/telemetry-apipaths"
 	tenantIDLabel      = "rhacs.redhat.com/tenant"
-	APICallEvent       = "API Call"
+	EventAPICall       = "API Call"
 )
 
 var (
@@ -32,6 +32,7 @@ var (
 	}
 	once         sync.Once
 	log          = logging.LoggerForModule()
+	trackedPaths set.FrozenSet[string]
 	ignoredPaths = []string{"/v1/ping", "/v1/metadata", "/static/"}
 )
 
@@ -59,6 +60,7 @@ func getInstanceConfig() (*phonehome.Config, error) {
 	if !ok {
 		paths = "*"
 	}
+	trackedPaths = set.NewFrozenSet(strings.Split(paths, ",")...)
 
 	orchestrator := storage.ClusterType_KUBERNETES_CLUSTER.String()
 	if env.OpenshiftAPI.BooleanSetting() {
@@ -66,12 +68,12 @@ func getInstanceConfig() (*phonehome.Config, error) {
 	}
 
 	ii, _, err := store.Singleton().Get(sac.WithAllAccess(context.Background()))
-	if err != nil {
+	if err != nil || ii == nil {
 		return nil, errors.Wrap(err, "cannot get installation information")
 	}
-
 	centralID := ii.Id
-	tenantID := central.GetAnnotations()[tenantIDLabel]
+
+	tenantID := central.GetLabels()[tenantIDLabel]
 	// Consider on-prem central a tenant of itself:
 	if tenantID == "" {
 		tenantID = centralID
@@ -86,8 +88,16 @@ func getInstanceConfig() (*phonehome.Config, error) {
 			"Orchestrator":       orchestrator,
 			"Kubernetes version": v.GitVersion,
 		},
-		Config: map[string]any{"APIPaths": set.NewFrozenSet(strings.Split(paths, ",")...)},
 	}, nil
+}
+
+func apiCall(rp *phonehome.RequestParams, props map[string]any) bool {
+	for _, ip := range ignoredPaths {
+		if strings.HasPrefix(rp.Path, ip) {
+			return false
+		}
+	}
+	return trackedPaths.Contains("*") || trackedPaths.Contains(rp.Path)
 }
 
 // InstanceConfig collects the central instance telemetry configuration from
@@ -101,20 +111,11 @@ func InstanceConfig() *phonehome.Config {
 			return
 		}
 		config = cfg
-		log.Info("Central ID:", config.ClientID)
-		log.Info("Tenant ID:", config.GroupID)
-		log.Info("API path telemetry enabled for: ", config.Config["APIPaths"])
+		log.Info("Central ID: ", config.ClientID)
+		log.Info("Tenant ID: ", config.GroupID)
+		log.Info("API path telemetry enabled for: ", trackedPaths)
 
-		config.AddInterceptorFunc(APICallEvent, func(rp *phonehome.RequestParams, props map[string]any) bool {
-			for _, ip := range ignoredPaths {
-				if strings.HasPrefix(rp.Path, ip) {
-					return false
-				}
-			}
-			apipaths := cfg.Config["APIPaths"].(set.FrozenSet[string])
-			return apipaths.Contains("*") || apipaths.Contains(rp.Path)
-		})
-
+		config.AddInterceptorFunc(EventAPICall, apiCall)
 	})
 	return config
 }

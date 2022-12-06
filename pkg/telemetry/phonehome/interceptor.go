@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/pkg/errors"
 	erroxGRPC "github.com/stackrox/rox/pkg/errox/grpc"
@@ -27,11 +28,14 @@ type RequestParams struct {
 
 var (
 	log = logging.LoggerForModule()
+	mux = &sync.Mutex{}
 )
 
 // AddInterceptorFunc appends the custom list of telemetry interceptors with the
 // provided function.
 func (cfg *Config) AddInterceptorFunc(event string, f interceptor) {
+	mux.Lock()
+	defer mux.Unlock()
 	if cfg.interceptors == nil {
 		cfg.interceptors = make(map[string][]interceptor, 1)
 	}
