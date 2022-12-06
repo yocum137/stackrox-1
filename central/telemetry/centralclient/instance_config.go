@@ -12,6 +12,7 @@ import (
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome"
 	"github.com/stackrox/rox/pkg/version"
+
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -24,7 +25,9 @@ const (
 )
 
 var (
-	config       *phonehome.Config
+	config = &phonehome.Config{
+		ClientID: "11102e5e-ca16-4f2b-8d2e-e9e04e8dc531",
+	}
 	once         sync.Once
 	log          = logging.LoggerForModule()
 	ignoredPaths = []string{"/v1/ping", "/v1/metadata", "/static/"}
