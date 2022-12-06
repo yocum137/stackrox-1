@@ -23,19 +23,14 @@ import (
 const (
 	apiPathsAnnotation = "rhacs.redhat.com/telemetry-apipaths"
 	tenantIDLabel      = "rhacs.redhat.com/tenant"
-	EventAPICall       = "API Call"
-	EventPostCluster   = "Post Cluster"
-	EventRoxctl        = "roxctl"
 )
 
 var (
 	config = &phonehome.Config{
 		ClientID: "11102e5e-ca16-4f2b-8d2e-e9e04e8dc531",
 	}
-	once         sync.Once
-	log          = logging.LoggerForModule()
-	trackedPaths set.FrozenSet[string]
-	ignoredPaths = []string{"/v1/ping", "/v1/metadata", "/static/"}
+	once sync.Once
+	log  = logging.LoggerForModule()
 )
 
 func getInstanceConfig() (*phonehome.Config, error) {
@@ -105,9 +100,11 @@ func InstanceConfig() *phonehome.Config {
 		log.Info("Tenant ID: ", config.GroupID)
 		log.Info("API path telemetry enabled for: ", trackedPaths)
 
-		config.AddInterceptorFunc(EventAPICall, apiCall)
-		config.AddInterceptorFunc(EventPostCluster, postCluster)
-		config.AddInterceptorFunc(EventRoxctl, roxctl)
+		for event, funcs := range interceptors {
+			for _, f := range funcs {
+				config.AddInterceptorFunc(event, f)
+			}
+		}
 	})
 	return config
 }

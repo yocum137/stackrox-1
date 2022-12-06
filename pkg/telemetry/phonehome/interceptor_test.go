@@ -8,7 +8,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stackrox/rox/pkg/grpc/requestinfo"
-	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome/mocks"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -48,7 +47,6 @@ func (s *interceptorTestSuite) TestAddGrpcInterceptor() {
 	}
 	cfg := &Config{
 		ClientID: "test",
-		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
 	}
 
 	cfg.AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
@@ -61,10 +59,7 @@ func (s *interceptorTestSuite) TestAddGrpcInterceptor() {
 	})
 
 	s.mockTelemeter.EXPECT().Track("TestEvent", testRP.UserID, map[string]any{
-		"Path":       testRP.Path,
-		"Code":       testRP.Code,
-		"User-Agent": testRP.UserAgent,
-		"Property":   "test value",
+		"Property": "test value",
 	}).Times(1)
 
 	cfg.track(testRP, s.mockTelemeter)
@@ -82,7 +77,6 @@ func (s *interceptorTestSuite) TestAddHttpInterceptor() {
 	testRP.HttpReq = req
 	cfg := &Config{
 		ClientID: "test",
-		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
 	}
 
 	cfg.AddInterceptorFunc("TestEvent", func(rp *RequestParams, props map[string]any) bool {
@@ -93,10 +87,7 @@ func (s *interceptorTestSuite) TestAddHttpInterceptor() {
 	})
 
 	s.mockTelemeter.EXPECT().Track("TestEvent", testRP.UserID, map[string]any{
-		"Path":       testRP.Path,
-		"Code":       testRP.Code,
-		"User-Agent": testRP.UserAgent,
-		"Property":   "test_value",
+		"Property": "test_value",
 	}).Times(1)
 
 	cfg.track(testRP, s.mockTelemeter)
@@ -111,7 +102,6 @@ func (s *interceptorTestSuite) TestGrpcRequestInfo() {
 	}
 	cfg := &Config{
 		ClientID: "test",
-		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
 	}
 
 	md := metadata.New(nil)
@@ -141,7 +131,6 @@ func (s *interceptorTestSuite) TestHttpRequestInfo() {
 	}
 	cfg := &Config{
 		ClientID: "test",
-		Config:   map[string]any{"APIPaths": set.NewFrozenSet(testRP.Path)},
 	}
 
 	req, err := http.NewRequest(http.MethodPost, "https://test"+testRP.Path+"?test_key=test_value", nil)

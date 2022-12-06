@@ -33,20 +33,20 @@ var (
 
 // AddInterceptorFunc appends the custom list of telemetry interceptors with the
 // provided function.
-func (cfg *Config) AddInterceptorFunc(event string, f interceptor) {
+func (cfg *Config) AddInterceptorFunc(event string, f Interceptor) {
 	mux.Lock()
 	defer mux.Unlock()
 	if cfg.interceptors == nil {
-		cfg.interceptors = make(map[string][]interceptor, 1)
+		cfg.interceptors = make(map[string][]Interceptor, 1)
 	}
 	cfg.interceptors[event] = append(cfg.interceptors[event], f)
 }
 
 func (cfg *Config) track(rp *RequestParams, t Telemeter) {
-	for event, is := range cfg.interceptors {
+	for event, funcs := range cfg.interceptors {
 		props := map[string]any{}
 		ok := true
-		for _, interceptor := range is {
+		for _, interceptor := range funcs {
 			if ok = interceptor(rp, props); !ok {
 				break
 			}
