@@ -1,6 +1,9 @@
 package phonehome
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // Interceptor is a function which will be called on every API call if none of
 // the previous interceptors in the chain returned false.
@@ -16,6 +19,8 @@ type Config struct {
 	GroupID string
 	// Client static properties reported as client identity.
 	Properties map[string]any
+	// The period of identity gathering. Default is 1 hour.
+	GatherPeriod time.Duration
 
 	// Map of event name to the list of interceptors, that gather properties for
 	// the event.

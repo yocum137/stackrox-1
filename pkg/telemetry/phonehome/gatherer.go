@@ -13,9 +13,6 @@ var (
 	onceGatherer     sync.Once
 )
 
-// Time period for static data gathering from data sources.
-const period = 5 * time.Minute
-
 type gatherer struct {
 	telemeter   Telemeter
 	period      time.Duration
@@ -48,6 +45,10 @@ func newGatherer(t Telemeter, p time.Duration) *gatherer {
 func (cfg *Config) GathererSingleton() Gatherer {
 	if Enabled() {
 		onceGatherer.Do(func() {
+			period := cfg.GatherPeriod
+			if cfg.GatherPeriod.Nanoseconds() == 0 {
+				period = 1 * time.Hour
+			}
 			gathererInstance = newGatherer(cfg.TelemeterSingleton(), period)
 		})
 	}
