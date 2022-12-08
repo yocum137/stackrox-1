@@ -19,7 +19,6 @@ func Enabled() bool {
 
 type segmentTelemeter struct {
 	client   segment.Client
-	userID   string
 	identity map[string]any
 }
 
@@ -50,7 +49,7 @@ func initSegment(userID string, identity map[string]any, key, server string) *se
 		Logger:    &logWrapper{internal: log},
 		DefaultContext: &segment.Context{
 			Extra: map[string]any{
-				"Central ID": userID,
+				"Client ID": userID,
 			},
 		},
 	}
@@ -63,7 +62,6 @@ func initSegment(userID string, identity map[string]any, key, server string) *se
 
 	return &segmentTelemeter{
 		client:   client,
-		userID:   userID,
 		identity: identity,
 	}
 }
@@ -79,17 +77,13 @@ func (t *segmentTelemeter) Stop() {
 	}
 }
 
-func (t *segmentTelemeter) GetID() string {
-	return t.userID
-}
-
-func (t *segmentTelemeter) Identify(props map[string]any) {
+func (t *segmentTelemeter) Identify(userID string, props map[string]any) {
 	if t == nil {
 		return
 	}
 	traits := segment.NewTraits()
 	identity := segment.Identify{
-		UserId: t.userID,
+		UserId: userID,
 		Traits: traits,
 	}
 

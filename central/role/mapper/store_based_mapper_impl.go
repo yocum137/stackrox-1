@@ -41,7 +41,9 @@ func (rm *storeBasedMapperImpl) recordUser(ctx context.Context, descriptor *perm
 	}
 	if phonehome.Enabled() {
 		cfg := centralclient.InstanceConfig()
-		cfg.TelemeterSingleton().Group(cfg.GroupID, cfg.HashUserID(user.GetId(), user.GetAuthProviderId()), nil)
+		userIDHash := cfg.HashUserID(user.GetId(), user.GetAuthProviderId())
+		cfg.Telemeter().Identify(userIDHash, map[string]any{"Auth Provider": user.GetAuthProviderId()})
+		cfg.Telemeter().Group(cfg.GroupID, userIDHash, nil)
 	}
 }
 

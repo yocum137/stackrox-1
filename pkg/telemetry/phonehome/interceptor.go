@@ -19,7 +19,7 @@ import (
 // RequestParams holds intercepted call parameters.
 type RequestParams struct {
 	UserAgent string
-	UserID    string
+	UserID    authn.Identity
 	Path      string
 	Code      int
 	GrpcReq   any
@@ -52,7 +52,7 @@ func (cfg *Config) track(rp *RequestParams, t Telemeter) {
 			}
 		}
 		if ok {
-			t.Track(event, rp.UserID, props)
+			t.Track(event, cfg.HashUserAuthID(rp.UserID), props)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func (cfg *Config) getGrpcRequestDetails(ctx context.Context, err error, info *g
 	ri := requestinfo.FromContext(ctx)
 	return &RequestParams{
 		UserAgent: strings.Join(ri.Metadata.Get("User-Agent"), ", "),
-		UserID:    cfg.HashUserAuthID(id),
+		UserID:    id,
 		Path:      info.FullMethod,
 		Code:      int(erroxGRPC.RoxErrorToGRPCCode(err)),
 		GrpcReq:   req,
@@ -81,7 +81,7 @@ func (cfg *Config) getHttpRequestDetails(ctx context.Context, r *http.Request, e
 
 	return &RequestParams{
 		UserAgent: strings.Join(r.Header.Values("User-Agent"), ", "),
-		UserID:    cfg.HashUserAuthID(id),
+		UserID:    id,
 		Path:      r.URL.Path,
 		Code:      grpcError.ErrToHTTPStatus(err),
 		HttpReq:   r,
@@ -119,6 +119,6 @@ func (cfg *Config) getHTTPInterceptor(t Telemeter) httputil.HTTPInterceptor {
 
 // MakeInterceptors returns a couple of interceptors.
 func (cfg *Config) MakeInterceptors() (grpc.UnaryServerInterceptor, httputil.HTTPInterceptor) {
-	t := cfg.TelemeterSingleton()
+	t := cfg.Telemeter()
 	return cfg.getGRPCInterceptor(t), cfg.getHTTPInterceptor(t)
 }

@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	gathererInstance *gatherer
-	onceGatherer     sync.Once
+	onceGatherer sync.Once
 )
 
 type gatherer struct {
+	clientID    string
 	telemeter   Telemeter
 	period      time.Duration
 	stopSig     concurrency.Signal
@@ -34,25 +34,28 @@ func (g *gatherer) reset() {
 	g.ctx, _ = concurrency.DependentContext(context.Background(), &g.stopSig)
 }
 
-func newGatherer(t Telemeter, p time.Duration) *gatherer {
+func newGatherer(clientID string, t Telemeter, p time.Duration) *gatherer {
 	return &gatherer{
+		clientID:  clientID,
 		telemeter: t,
 		period:    p,
 	}
 }
 
-// GathererSingleton returns the telemetry gatherer instance.
-func (cfg *Config) GathererSingleton() Gatherer {
-	if Enabled() {
-		onceGatherer.Do(func() {
+// Gatherer returns the telemetry gatherer instance.
+func (cfg *Config) Gatherer() Gatherer {
+	onceGatherer.Do(func() {
+		if Enabled() {
 			period := cfg.GatherPeriod
 			if cfg.GatherPeriod.Nanoseconds() == 0 {
 				period = 1 * time.Hour
 			}
-			gathererInstance = newGatherer(cfg.TelemeterSingleton(), period)
-		})
-	}
-	return gathererInstance
+			cfg.gatherer = newGatherer(cfg.ClientID, cfg.Telemeter(), period)
+		} else {
+			cfg.gatherer = (*gatherer)(nil)
+		}
+	})
+	return cfg.gatherer
 }
 
 func (g *gatherer) collect() map[string]any {
@@ -78,7 +81,7 @@ func (g *gatherer) loop() {
 		select {
 		case <-ticker.C:
 			go func() {
-				g.telemeter.Identify(g.collect())
+				g.telemeter.Identify(g.clientID, g.collect())
 			}()
 		case <-g.stopSig.Done():
 			ticker.Stop()

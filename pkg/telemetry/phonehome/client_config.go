@@ -22,6 +22,9 @@ type Config struct {
 	// The period of identity gathering. Default is 1 hour.
 	GatherPeriod time.Duration
 
+	telemeter Telemeter
+	gatherer  Gatherer
+
 	// Map of event name to the list of interceptors, that gather properties for
 	// the event.
 	interceptors map[string][]Interceptor

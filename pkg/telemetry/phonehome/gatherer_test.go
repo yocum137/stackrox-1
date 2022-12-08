@@ -24,7 +24,7 @@ func TestConfig(t *testing.T) {
 func (s *gathererTestSuite) TestNilGatherer() {
 	s.T().Setenv(env.TelemetryStorageKey.EnvVar(), "")
 	cfg := &Config{}
-	nilgatherer := cfg.GathererSingleton()
+	nilgatherer := cfg.Gatherer()
 	s.Nil(nilgatherer)
 	nilgatherer.Start() // noop
 	nilgatherer.Stop()  // noop
@@ -33,11 +33,11 @@ func (s *gathererTestSuite) TestNilGatherer() {
 func (s *gathererTestSuite) TestGatherer() {
 	s.T().Setenv(env.TelemetryStorageKey.EnvVar(), "testkey")
 	t := mocks.NewMockTelemeter(gomock.NewController(s.T()))
-	t.EXPECT().Identify(nil).Times(3)
+	t.EXPECT().Identify("test", nil).Times(3)
 
 	var i int64
 	stop := concurrency.NewSignal()
-	gptr := newGatherer(t, 10*time.Millisecond)
+	gptr := newGatherer("test", t, 10*time.Millisecond)
 	s.Require().NotNil(gptr)
 	gptr.AddGatherer(func(context.Context) (map[string]any, error) {
 		if atomic.AddInt64(&i, 1) > 1 {

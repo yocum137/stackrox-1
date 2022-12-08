@@ -315,7 +315,7 @@ func startServices() {
 	pruning.Singleton().Start()
 	gatherer.Singleton().Start()
 	vulnRequestManager.Singleton().Start()
-	centralclient.InstanceConfig().GathererSingleton().Start()
+	centralclient.InstanceConfig().Gatherer().Start()
 
 	go registerDelayedIntegrations(iiStore.DelayedIntegrations)
 }
@@ -427,7 +427,7 @@ func servicesToRegister(registry authproviders.Registry, authzTraceSink observe.
 	}
 
 	if phonehome.Enabled() {
-		gs := centralclient.InstanceConfig().GathererSingleton()
+		gs := centralclient.InstanceConfig().Gatherer()
 		gs.AddGatherer(authProviderDS.Gather)
 		gs.AddGatherer(signatureIntegrationDS.Gather)
 		gs.AddGatherer(roleDataStore.Gather)
@@ -830,8 +830,8 @@ func waitForTerminationSignal() {
 		{gatherer.Singleton(), "network graph default external sources gatherer"},
 		{vulnReportScheduleManager.Singleton(), "vuln reports schedule manager"},
 		{vulnRequestManager.Singleton(), "vuln deferral requests expiry loop"},
-		{centralclient.InstanceConfig().GathererSingleton(), "telemetry gatherer"},
-		{centralclient.InstanceConfig().TelemeterSingleton(), "telemetry client"},
+		{centralclient.InstanceConfig().Gatherer(), "telemetry gatherer"},
+		{centralclient.InstanceConfig().Telemeter(), "telemetry client"},
 	}
 
 	var wg sync.WaitGroup
