@@ -6,11 +6,14 @@ import (
 	"github.com/pkg/errors"
 	groupDataStore "github.com/stackrox/rox/central/group/datastore"
 	"github.com/stackrox/rox/pkg/sac"
+	"github.com/stackrox/rox/pkg/set"
 	"github.com/stackrox/rox/pkg/telemetry/phonehome"
 )
 
 // Gather auth provider names and number of groups per auth provider.
 var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, error) {
+	// WithAllAccess is required only to fetch and calculate the number of
+	// auth providers and groups. It is not propagated anywhere else.
 	ctx = sac.WithAllAccess(ctx)
 	props := make(map[string]any)
 
@@ -19,13 +22,13 @@ var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, err
 		return nil, errors.Wrap(err, "failed to get AuthProviders")
 	}
 
-	providerIDNames := make(map[string]string, len(providers))
-	providerNames := make([]string, 0, len(providers))
+	providerIDTypes := make(map[string]string, len(providers))
+	providerTypes := set.NewSet[string]()
 	for _, provider := range providers {
-		providerIDNames[provider.GetId()] = provider.GetName()
-		providerNames = append(providerNames, provider.GetName())
+		providerIDTypes[provider.GetId()] = provider.GetType()
+		providerTypes.Add(provider.GetType())
 	}
-	props["Auth Providers"] = providerNames
+	props["Auth Providers"] = providerTypes.AsSlice()
 
 	groups, err := groupDataStore.Singleton().GetAll(ctx)
 	if err != nil {
@@ -39,7 +42,7 @@ var Gather phonehome.GatherFunc = func(ctx context.Context) (map[string]any, err
 	}
 
 	for id, n := range providerGroups {
-		props["Total Groups of "+providerIDNames[id]] = n
+		props["Total Groups of "+providerIDTypes[id]] = n
 	}
 	return props, nil
 }
