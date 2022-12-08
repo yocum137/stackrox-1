@@ -129,7 +129,7 @@ func (s *serviceImpl) Communicate(server central.SensorService_CommunicateServer
 	log.Infof("Cluster %s (%s) has successfully connected to Central", cluster.GetName(), cluster.GetId())
 	if phonehome.Enabled() {
 		cfg := centralclient.InstanceConfig()
-		idhash := cfg.HashUserID(identity)
+		idhash := cfg.HashUserAuthID(identity)
 		cfg.TelemeterSingleton().Track("Cluster Connected", idhash, nil)
 		cfg.TelemeterSingleton().Group(cfg.GroupID, idhash, nil)
 	}

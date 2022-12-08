@@ -55,7 +55,7 @@ func (s *serviceImpl) GetMetadata(ctx context.Context, _ *v1.Empty) (*v1.Metadat
 	if phonehome.Enabled() {
 		metadata.StorageKeyV1 = env.TelemetryStorageKey.Setting()
 		metadata.TelemetryEndpoint = env.TelemetryEndpoint.Setting()
-		metadata.UserId = centralclient.InstanceConfig().HashUserID(id)
+		metadata.UserId = centralclient.InstanceConfig().HashUserAuthID(id)
 	}
 	// Only return the version to logged in users, not anonymous users.
 	if id != nil {

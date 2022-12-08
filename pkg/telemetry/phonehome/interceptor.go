@@ -66,7 +66,7 @@ func (cfg *Config) getGrpcRequestDetails(ctx context.Context, err error, info *g
 	ri := requestinfo.FromContext(ctx)
 	return &RequestParams{
 		UserAgent: strings.Join(ri.Metadata.Get("User-Agent"), ", "),
-		UserID:    cfg.HashUserID(id),
+		UserID:    cfg.HashUserAuthID(id),
 		Path:      info.FullMethod,
 		Code:      int(erroxGRPC.RoxErrorToGRPCCode(err)),
 		GrpcReq:   req,
@@ -81,7 +81,7 @@ func (cfg *Config) getHttpRequestDetails(ctx context.Context, r *http.Request, e
 
 	return &RequestParams{
 		UserAgent: strings.Join(r.Header.Values("User-Agent"), ", "),
-		UserID:    cfg.HashUserID(id),
+		UserID:    cfg.HashUserAuthID(id),
 		Path:      r.URL.Path,
 		Code:      grpcError.ErrToHTTPStatus(err),
 		HttpReq:   r,
