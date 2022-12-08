@@ -15,10 +15,10 @@ type Interceptor func(rp *RequestParams, props map[string]any) bool
 type Config struct {
 	// ClientID identifies an entity that reports telemetry data.
 	ClientID string
+	// ClientName tells what kind of client is sending data.
+	ClientName string
 	// GroupID identifies the main group to which the client belongs.
 	GroupID string
-	// Client static properties reported as client identity.
-	Properties map[string]any
 	// The period of identity gathering. Default is 1 hour.
 	GatherPeriod time.Duration
 

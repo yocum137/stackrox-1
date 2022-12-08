@@ -33,24 +33,24 @@ var (
 	log  = logging.LoggerForModule()
 )
 
-func getInstanceConfig() (*phonehome.Config, error) {
+func getInstanceConfig() (*phonehome.Config, map[string]any, error) {
 	rc, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	clientset, err := kubernetes.NewForConfig(rc)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	v, err := clientset.ServerVersion()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	deployments := clientset.AppsV1().Deployments(env.Namespace.Setting())
 	central, err := deployments.Get(context.Background(), "central", v1.GetOptions{})
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot get central deployment")
+		return nil, nil, errors.Wrap(err, "cannot get central deployment")
 	}
 
 	paths := central.GetAnnotations()[apiPathsAnnotation]
@@ -63,7 +63,7 @@ func getInstanceConfig() (*phonehome.Config, error) {
 
 	ii, _, err := store.Singleton().Get(sac.WithAllAccess(context.Background()))
 	if err != nil || ii == nil {
-		return nil, errors.Wrap(err, "cannot get installation information")
+		return nil, nil, errors.Wrap(err, "cannot get installation information")
 	}
 	centralID := ii.Id
 
@@ -74,15 +74,16 @@ func getInstanceConfig() (*phonehome.Config, error) {
 	}
 
 	return &phonehome.Config{
-		ClientID: centralID,
-		GroupID:  tenantID,
-		Properties: map[string]any{
+			ClientID:   centralID,
+			ClientName: "Central",
+			GroupID:    tenantID,
+		},
+		map[string]any{
 			"Central version":    version.GetMainVersion(),
 			"Chart version":      version.GetChartVersion(),
 			"Orchestrator":       orchestrator,
 			"Kubernetes version": v.GitVersion,
-		},
-	}, nil
+		}, nil
 }
 
 // InstanceConfig collects the central instance telemetry configuration from
@@ -90,7 +91,11 @@ func getInstanceConfig() (*phonehome.Config, error) {
 // data is used for instance identification.
 func InstanceConfig() *phonehome.Config {
 	once.Do(func() {
-		cfg, err := getInstanceConfig()
+		if !phonehome.Enabled() {
+			log.Info("Phonehome telemetry collection disabled.")
+			return
+		}
+		cfg, props, err := getInstanceConfig()
 		if err != nil {
 			log.Errorf("Failed to get telemetry configuration: %v. Using hardcoded values.", err)
 			return
@@ -105,6 +110,15 @@ func InstanceConfig() *phonehome.Config {
 				config.AddInterceptorFunc(event, f)
 			}
 		}
+		// Central adds itself to the tenant group, adding its properties to the
+		// group properties:
+		config.Telemeter().Group(config.GroupID, config.ClientID, props)
+		// Add the local admin user as well, with no extra group properties:
+		config.Telemeter().Group(config.GroupID, config.HashUserID("admin", ""), nil)
+
+		config.Gatherer().AddGatherer(func(ctx context.Context) (map[string]any, error) {
+			return props, nil
+		})
 	})
 	return config
 }

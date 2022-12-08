@@ -18,15 +18,14 @@ func Enabled() bool {
 }
 
 type segmentTelemeter struct {
-	client   segment.Client
-	identity map[string]any
+	client segment.Client
 }
 
 // NewTelemeter creates and initializes a Segment telemeter instance.
-func NewTelemeter(userID string, identity map[string]any) *segmentTelemeter {
+func NewTelemeter(userID, clientName string) *segmentTelemeter {
 	key := env.TelemetryStorageKey.Setting()
 	server := env.TelemetryEndpoint.Setting()
-	return initSegment(userID, identity, key, server)
+	return initSegment(userID, clientName, key, server)
 }
 
 type logWrapper struct {
@@ -41,7 +40,7 @@ func (l *logWrapper) Errorf(format string, args ...any) {
 	l.internal.Errorf(format, args...)
 }
 
-func initSegment(userID string, identity map[string]any, key, server string) *segmentTelemeter {
+func initSegment(userID, clientName, key, server string) *segmentTelemeter {
 	segmentConfig := segment.Config{
 		Endpoint:  server,
 		Interval:  env.TelemetryFrequency.DurationSetting(),
@@ -49,7 +48,8 @@ func initSegment(userID string, identity map[string]any, key, server string) *se
 		Logger:    &logWrapper{internal: log},
 		DefaultContext: &segment.Context{
 			Extra: map[string]any{
-				"Client ID": userID,
+				"Client ID":   userID,
+				"Client Name": clientName,
 			},
 		},
 	}
@@ -61,8 +61,7 @@ func initSegment(userID string, identity map[string]any, key, server string) *se
 	}
 
 	return &segmentTelemeter{
-		client:   client,
-		identity: identity,
+		client: client,
 	}
 }
 
@@ -87,11 +86,6 @@ func (t *segmentTelemeter) Identify(userID string, props map[string]any) {
 		Traits: traits,
 	}
 
-	if t.identity != nil {
-		for k, v := range t.identity {
-			traits.Set(k, v)
-		}
-	}
 	for k, v := range props {
 		traits.Set(k, v)
 	}
