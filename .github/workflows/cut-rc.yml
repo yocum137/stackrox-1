@@ -302,7 +302,6 @@ jobs:
     if: >- # Skip if no clusters are going to be created.
       github.event.inputs.create-k8s-cluster != 'false' ||
       github.event.inputs.create-os4-cluster != 'false' ||
-      needs.variables.outputs.rc == '1' &&
       github.event.inputs.create-long-cluster != 'false'
     strategy:
       matrix:
@@ -503,7 +502,6 @@ jobs:
     # Cannot use env.DRY_RUN here. `github.event.inputs.*` can be 'true', 'false' or empty.
     if: >-
       github.event.inputs.dry-run != 'true' &&
-      needs.variables.outputs.rc == '1' &&
       github.event.inputs.create-long-cluster != 'false'
     runs-on: ubuntu-latest
     steps:
