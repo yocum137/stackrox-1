@@ -168,6 +168,7 @@ function launch_central {
     command -v oc >/dev/null && pkill -f oc'.*port-forward.*' || true    # terminate stale port forwarding from earlier runs
     command -v oc >/dev/null && pkill -9 -f oc'.*port-forward.*' || true
 
+    set -xv
     if [[ "${STORAGE_CLASS}" == "faster" ]]; then
         kubectl apply -f "${common_dir}/ssd-storageclass.yaml"
     fi
