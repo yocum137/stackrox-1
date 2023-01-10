@@ -510,7 +510,7 @@ jobs:
       with:
         token: ${{ secrets.INFRA_TOKEN }}
         flavor: gke-default
-        name: gke-long-running-${{ needs.variables.outputs.milestone }}
+        name: gke-long-running-${{ needs.variables.outputs.named-release-patch }}
         lifespan: 168h
         args: nodes=5,machine-type=e2-standard-8
         wait: true
