@@ -390,6 +390,7 @@ jobs:
   patch-os4-cluster:
     name: Patch OS4 cluster
     needs: [variables, create-os4-cluster]
+    if: always()
     runs-on: ubuntu-latest
     env:
       NAME: openshift-4-demo-${{needs.variables.outputs.milestone}}
@@ -517,6 +518,7 @@ jobs:
   patch-long-running-cluster:
     name: Patch long-running cluster
     needs: [variables, properties, create-long-running-cluster]
+    if: always()
     runs-on: ubuntu-latest
     env:
       NAME: gke-long-running-${{ needs.variables.outputs.milestone }}
