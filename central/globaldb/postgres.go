@@ -57,6 +57,8 @@ SELECT TABLE_NAME
 ) a;`
 
 	versionQuery = `SHOW server_version;`
+
+	connectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity GROUP BY datname;`
 )
 
 var (
@@ -231,11 +233,39 @@ func CollectPostgresDatabaseStats(postgresConfig *pgxpool.Config) {
 	metrics.PostgresTotalSize.Set(float64(totalSize))
 }
 
+// CollectPostgresConnectionStats -- collect connection stats for Postgres
+func CollectPostgresConnectionStats(ctx context.Context, db *pgxpool.Pool) {
+	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
+	defer cancel()
+
+	row, err := db.Query(ctx, connectionQuery)
+	if err != nil {
+		log.Errorf("error fetching object counts: %v", err)
+		return
+	}
+
+	defer row.Close()
+	for row.Next() {
+		var (
+			databaseName    string
+			connectionCount int
+		)
+		if err := row.Scan(&databaseName, &connectionCount); err != nil {
+			log.Errorf("error scanning row for connection data: %v", err)
+			return
+		}
+
+		databaseLabel := prometheus.Labels{"database": databaseName}
+		metrics.PostgresActiveConnections.With(databaseLabel).Set(float64(connectionCount))
+	}
+}
+
 func startMonitoringPostgres(ctx context.Context, db *pgxpool.Pool, postgresConfig *pgxpool.Config) {
 	t := time.NewTicker(1 * time.Minute)
 	defer t.Stop()
 	for range t.C {
 		_ = CollectPostgresStats(ctx, db)
 		CollectPostgresDatabaseStats(postgresConfig)
+		CollectPostgresConnectionStats(ctx, db)
 	}
 }
