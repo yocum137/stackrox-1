@@ -119,6 +119,7 @@ const TopologyComponent = ({
     function showExtraneousNodes() {
         // else if there is a selected node, create a node to collect extraneous flows
         const selectedNode = controller.getNodeById(detailId);
+        console.log('showExtraneousNodes', selectedNode);
         // TODO: figure out if/how to support namespaces
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore TS2339: Property 'data' does not exist on type 'Node<NodeModel, any> | {}'.

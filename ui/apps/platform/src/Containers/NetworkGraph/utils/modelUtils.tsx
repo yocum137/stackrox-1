@@ -326,12 +326,19 @@ function getNetworkPolicyState(
     let networkPolicyState: NetworkPolicyState = 'none';
 
     if (!nonIsolatedIngress && !nonIsolatedEgress) {
+        // if the node is isolated (limited) egress and ingress,
+        // we can assume it has both ingress and egress network policies
         networkPolicyState = 'both';
-    } else if (nonIsolatedEgress) {
+    } else if (!nonIsolatedIngress && nonIsolatedEgress) {
+        // if ingress is isolated (limited) but egress is non-isolated
+        // we can assume it only has ingress policies
         networkPolicyState = 'ingress';
-    } else if (nonIsolatedIngress) {
+    } else if (nonIsolatedIngress && !nonIsolatedEgress) {
+        // if ingress is non-isolated and egress is isolated (limited)
+        // we can assume it only has egress policies
         networkPolicyState = 'egress';
     }
+    // this should return if in/egress are both nonIsolated (no network policies)
     return networkPolicyState;
 }
 
@@ -365,6 +372,16 @@ export function transformPolicyData(
             policyNodeMap[node.id] = node as DeploymentNodeModel;
         }
         policyDataModel.nodes.push(node);
+
+        if (node.id === '5ace5d14-f008-44fd-94c1-1df63e8ce391') {
+            console.log(
+                'transformPolicyData',
+                'nonIsolatedEgress',
+                nonIsolatedEgress,
+                'nonIsolatedIngress',
+                nonIsolatedIngress
+            );
+        }
 
         // creating edges based off of outEdges per node and adding to data model
         Object.keys(outEdges).forEach((nodeIdx) => {
@@ -403,6 +420,15 @@ export function transformPolicyData(
                 policyEdgeMap[reverseEdgeId] = edge;
             } else {
                 policyEdgeMap[edgeId] = edge;
+            }
+
+            if (node.id === '5ace5d14-f008-44fd-94c1-1df63e8ce391') {
+                console.log(
+                    'outEdge',
+                    nodes[nodeIdx],
+                    'reverse edge?',
+                    policyEdgeMap[reverseEdgeId]
+                );
             }
         });
     });
