@@ -138,12 +138,18 @@ func main() {
 	nodeSignal := concurrency.NewSignal()
 	go sendNodes(stream, *maxNodes, *nodeInterval, nodeSignal)
 
+	maxProcessListeningOnPorts := 100
+	plopInterval := 0.01 * time.Second
+	plopSignal := concurrency.NewSignal()
+	go sendProcessListeningOnPorts(stream, maxProcessListeningOnPorts, plopInterval, plopSignal)
+
 	nodeSignal.Wait()
 	deploymentSignal.Wait()
 	indicatorSignal.Wait()
 	networkFlowSignal.Wait()
 	admissionControllerSignal.Wait()
 	deploymentUpdateSignal.Wait()
+	plopSignal.Wait()
 
 	logger.Info("All sending done. The mock sensor will now just sleep forever.")
 	time.Sleep(365 * 24 * time.Hour)
@@ -277,6 +283,25 @@ func sendIndicators(stream *threadSafeStream, maxIndicators int, indicatorInterv
 	logger.Infof("Finished writing %d indicators", maxIndicators)
 	signal.Signal()
 }
+
+func sendProcessListeningOnPorts(stream *threadSafeStream, maxProcessListeningOnPorts int, plopInterval time.Duration, signal concurrency.Signal) {
+	maxPort := 65535
+	maxJobs := 101
+	ticker := time.NewTicker(plopInterval)
+	defer ticker.Stop()
+	for plopCount := 0; plopCount < maxProcessListeningOnPorts; plopCount++ {
+		port := plopCount % maxPort
+		jobId := plopCount % maxJobs
+		plop := fixtures.GetProcessListeningOnPort(jobId, port)
+		<-ticker.C
+		if err := stream.SendEvent(sensorEventFromProcessListeningOnPorts(plopCount, plop); err != nil {
+			logger.Errorf("Error: %v", err)
+		}
+	}
+	logger.Infof("Finished writing %d indicators", maxIndicators)
+	signal.Signal()
+}
+
 
 func sendNetworkFlows(stream *threadSafeStream, networkFlowInterval time.Duration, maxNetworkFlows int, maxUpdates int, flowDeleteRate float64, signal *concurrency.Signal) {
 	defer signal.Signal()
