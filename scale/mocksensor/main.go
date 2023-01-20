@@ -353,7 +353,7 @@ func sendAdmissionControllerRequests(ctx context.Context, clusterClient v1.Clust
 			MainImage:           flavor.MainImageNoTag(),
 			CollectorImage:      "",
 			CentralApiEndpoint:  "central.stackrox:443",
-			CollectionMethod:    0,
+			CollectionMethod:    storage.CollectionMethod_EBPF,
 			AdmissionController: true,
 			Status:              nil,
 			DynamicConfig: &storage.DynamicClusterConfig{

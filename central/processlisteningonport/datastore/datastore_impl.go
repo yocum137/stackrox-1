@@ -87,9 +87,11 @@ func (ds *datastoreImpl) AddProcessListeningOnPort(
 		if indicator, ok := indicatorsMap[key]; ok {
 			indicatorID = indicator.GetId()
 			log.Debugf("Got indicator %s: %+v", indicatorID, indicator)
+			log.Debugf("%+v", val)
 		} else {
 			// XXX: Create a metric for this
 			log.Warnf("Found no matching indicators for %s", key)
+			log.Debugf("%+v", val)
 			processInfo = val.Process
 		}
 

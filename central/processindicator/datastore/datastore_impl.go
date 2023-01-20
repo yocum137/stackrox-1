@@ -92,12 +92,14 @@ func (ds *datastoreImpl) GetProcessIndicators(ctx context.Context, ids []string)
 }
 
 func (ds *datastoreImpl) AddProcessIndicators(ctx context.Context, indicators ...*storage.ProcessIndicator) error {
+	log.Debugf("In AddProcessIndicator")
 	if ok, err := deploymentExtensionSAC.WriteAllowed(ctx); err != nil {
 		return err
 	} else if !ok {
 		return sac.ErrResourceAccessDenied
 	}
 
+	log.Debugf("In AddProcessIndicator about to UpsertMany %d", len(indicators))
 	err := ds.storage.UpsertMany(ctx, indicators)
 	if err != nil {
 		return err
@@ -109,6 +111,8 @@ func (ds *datastoreImpl) AddProcessIndicators(ctx context.Context, indicators ..
 
 	keys := make([]string, 0, len(indicators))
 	for _, indicator := range indicators {
+		log.Debugf("Adding indicator")
+		log.Debugf("%+v", indicator)
 		keys = append(keys, indicator.GetId())
 	}
 	if err := ds.storage.AckKeysIndexed(ctx, keys...); err != nil {
