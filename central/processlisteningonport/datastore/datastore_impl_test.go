@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/fixtures/fixtureconsts"
 	"github.com/stackrox/rox/pkg/postgres/pgtest"
+	"github.com/stackrox/rox/pkg/process/filter"
 	"github.com/stackrox/rox/pkg/protoconv"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stretchr/testify/suite"
@@ -1096,4 +1098,99 @@ func (suite *PLOPDataStoreTestSuite) TestPLOPAddCloseBatchOutOfOrder() {
 	suite.NoError(err)
 	suite.Len(plopsFromDB, 1)
 	suite.Equal(plopsFromDB[0].CloseTimestamp, closedPlopObject3.CloseTimestamp)
+}
+
+// TestPLOPAddWithFilteredPI: one PLOP object is added with a correct process
+// indicator reference, but PI is filtered.
+func (suite *PLOPDataStoreTestSuite) TestPLOPAddWithFilteredPI() {
+	processFilter := filter.NewFilter(2, []int{3, 2, 1})
+	testNamespace := "test_namespace"
+
+	indicators := []*storage.ProcessIndicator{}
+
+	for i := 1; i <= 10; i++ {
+		newPI := &storage.ProcessIndicator{
+			Id:            fixtureconsts.ProcessIndicatorID1,
+			DeploymentId:  fixtureconsts.Deployment1,
+			PodId:         fixtureconsts.PodUID1,
+			ClusterId:     fixtureconsts.Cluster1,
+			ContainerName: "test_container",
+			Namespace:     testNamespace,
+
+			Signal: &storage.ProcessSignal{
+				Name:         "test_process",
+				Args:         fmt.Sprintf("test_arguments %d", i),
+				ExecFilePath: "test_path",
+			},
+		}
+
+		if processFilter.Add(newPI) {
+			fmt.Printf("Added %+v\n", newPI)
+			indicators = append(indicators, newPI)
+		} else {
+			fmt.Printf("Filtered out %+v\n", newPI)
+		}
+	}
+
+	plopObjects := []*storage.ProcessListeningOnPortFromSensor{
+		{
+			Port:           1234,
+			Protocol:       storage.L4Protocol_L4_PROTOCOL_TCP,
+			CloseTimestamp: nil,
+			Process: &storage.ProcessIndicatorUniqueKey{
+				PodId:         fixtureconsts.PodUID1,
+				ContainerName: "test_container",
+				ProcessName:   "test_process",
+				// Last Process Indicator, corresponding argument
+				ProcessArgs:         "test_arguments 10",
+				ProcessExecFilePath: "test_path",
+			},
+		},
+	}
+
+	fmt.Printf("Indicators %+v\n", indicators)
+	// Prepare indicators for FK
+	suite.NoError(suite.indicatorDataStore.AddProcessIndicators(
+		suite.hasWriteCtx, indicators...))
+
+	// Add PLOP referencing those indicators
+	suite.NoError(suite.datastore.AddProcessListeningOnPort(
+		suite.hasWriteCtx, plopObjects...))
+
+	// Fetch inserted PLOP back
+	newPlops, err := suite.datastore.GetProcessListeningOnPort(
+		suite.hasWriteCtx, fixtureconsts.Deployment1)
+	suite.NoError(err)
+
+	suite.Len(newPlops, 1)
+	suite.Equal(*newPlops[0], storage.ProcessListeningOnPort{
+		ContainerName: "test_container",
+		PodId:         fixtureconsts.PodUID1,
+		DeploymentId:  fixtureconsts.Deployment1,
+		ClusterId:     fixtureconsts.Cluster1,
+		Namespace:     testNamespace,
+		Endpoint: &storage.ProcessListeningOnPort_Endpoint{
+			Port:     1234,
+			Protocol: storage.L4Protocol_L4_PROTOCOL_TCP,
+		},
+		Signal: &storage.ProcessSignal{
+			Name:         "test_process",
+			Args:         "test_arguments 2",
+			ExecFilePath: "test_path",
+		},
+	})
+
+	// Verify that newly added PLOP object doesn't have Process field set in
+	// the serialized column (because all the info is stored in the referenced
+	// process indicator record)
+	processInfo := []*storage.ProcessIndicatorUniqueKey{}
+	err = suite.datastore.WalkAll(suite.hasWriteCtx,
+		func(plop *storage.ProcessListeningOnPortStorage) error {
+			if plop.GetProcess() != nil {
+				processInfo = append(processInfo, plop.GetProcess())
+			}
+			return nil
+		})
+	suite.NoError(err)
+	suite.Len(processInfo, 0)
 }

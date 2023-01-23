@@ -292,7 +292,6 @@ func (ds *datastoreImpl) fetchIndicators(
 				AddExactMatches(search.ContainerName, val.Process.ContainerName).
 				AddExactMatches(search.PodID, val.Process.PodId).
 				AddExactMatches(search.ProcessName, val.Process.ProcessName).
-				AddExactMatches(search.ProcessArguments, val.Process.ProcessArgs).
 				AddExactMatches(search.ProcessExecPath, val.Process.ProcessExecFilePath).
 				ProtoQuery())
 	}
@@ -426,11 +425,10 @@ func getProcessUniqueKeyFromParts(containerName string,
 	processArgs string,
 	processExecFilePath string,
 ) string {
-	return fmt.Sprintf("%s_%s_%s_%s_%s",
+	return fmt.Sprintf("%s_%s_%s_%s",
 		containerName,
 		podID,
 		processName,
-		processArgs,
 		processExecFilePath,
 	)
 }
