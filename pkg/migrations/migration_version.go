@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/ioutils"
 	"github.com/pkg/errors"
+	"github.com/stackrox/rox/pkg/env"
 	"github.com/stackrox/rox/pkg/logging"
 	"github.com/stackrox/rox/pkg/utils"
 	"github.com/stackrox/rox/pkg/version"
@@ -53,6 +54,10 @@ func Read(dbPath string) (*MigrationVersion, error) {
 	if err = yaml.Unmarshal(bytes, version); err != nil {
 		log.Errorf("failed to get migration version from %s: %v", dbPath, err)
 		return nil, err
+	}
+
+	if version.SeqNum > LastRocksDBVersionSeqNum() && !env.PostgresDatastoreEnabled.BooleanSetting() {
+		version.SeqNum = LastRocksDBVersionSeqNum()
 	}
 
 	log.Infof("Migration version of database at %v: %v", dbPath, version)

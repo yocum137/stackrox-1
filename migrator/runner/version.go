@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stackrox/rox/generated/storage"
 	"github.com/stackrox/rox/migrator/bolthelpers"
+	"github.com/stackrox/rox/migrator/log"
 	"github.com/stackrox/rox/migrator/types"
 	"github.com/stackrox/rox/migrator/version"
 	"github.com/stackrox/rox/pkg/env"
@@ -100,7 +101,6 @@ func getCurrentSeqNum(databases *types.Databases) (int, error) {
 	if writeHeavySeqNum != 0 && writeHeavySeqNum != boltSeqNum {
 		return 0, fmt.Errorf("bolt and rocksdb numbers mismatch: %d vs %d", boltSeqNum, writeHeavySeqNum)
 	}
-
 	return boltSeqNum, nil
 }
 
@@ -129,20 +129,21 @@ func updateVersion(databases *types.Databases, newVersion *storage.Version) erro
 		return errors.Wrap(err, "marshalling version")
 	}
 
-	err = databases.BoltDB.Update(func(tx *bolt.Tx) error {
-		versionBucket, err := tx.CreateBucketIfNotExists(versionBucketName)
+	if !env.PostgresDatastoreEnabled.BooleanSetting() {
+		log.WriteToStderrf("Writing %+v to legacy DBs", newVersion)
+		err = databases.BoltDB.Update(func(tx *bolt.Tx) error {
+			versionBucket, err := tx.CreateBucketIfNotExists(versionBucketName)
+			if err != nil {
+				return err
+			}
+			return versionBucket.Put(versionKey, versionBytes)
+		})
 		if err != nil {
+			return errors.Wrap(err, "updating version in bolt")
+		}
+		if err := updateRocksDB(databases.RocksDB, versionBytes); err != nil {
 			return err
 		}
-		return versionBucket.Put(versionKey, versionBytes)
-	})
-	if err != nil {
-		return errors.Wrap(err, "updating version in bolt")
 	}
-
-	if err := updateRocksDB(databases.RocksDB, versionBytes); err != nil {
-		return err
-	}
-
 	return nil
 }
