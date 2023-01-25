@@ -58,7 +58,7 @@ SELECT TABLE_NAME
 
 	versionQuery = `SHOW server_version;`
 
-	connectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity GROUP BY datname;`
+	connectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity WHERE state <> 'idle' AND datname IS NOT NULL GROUP BY datname;`
 )
 
 var (
