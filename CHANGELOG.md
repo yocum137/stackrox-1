@@ -36,7 +36,6 @@ Please avoid adding duplicate information across this changelog and JIRA/doc inp
 
 ### Technical Changes
 - ROX-12967: Re-introduce `rpm` to the main image in order to be able parse installed packages on RHCOS nodes (from Compliance container)
-- ROX-14280: ACS operator default channel changes from `latest` to `stable`. Users of older versions must follow the upgrade procedure in order to preserve ACS data in case of issues with the upgrade.
 - The k8s-istio.zip file inside of scanner-vuln-updates.zip (the file downloaded from https://install.stackrox.io/scanner/scanner-vuln-updates.zip for updating Scanner vulnerabilities in offline-mode)
   is no longer needed. We will continue to populate it to support older versions of the product, but it will be ignored.
 - The time interval used to determine the frequency to scan orchestrator-level components (Kubernetes, OpenShift, Istio) is now configurable
