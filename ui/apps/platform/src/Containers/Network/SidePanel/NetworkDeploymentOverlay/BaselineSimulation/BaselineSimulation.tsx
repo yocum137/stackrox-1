@@ -69,6 +69,8 @@ function BaselineSimulation({ deploymentId }: BaselineSimulationProps): ReactEle
 
     const undoAvailable = !!undoModification && !isUndoOn;
 
+    console.log(undoModification);
+
     return (
         <div className="bg-primary-100 rounded-b rounded-tr-lg shadow flex flex-1 flex-col">
             <PanelNew testid="baseline-simulation">
