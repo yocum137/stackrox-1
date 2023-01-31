@@ -54,6 +54,7 @@ func init() {
 		PostgresConnected,
 		PostgresActiveConnections,
 		PostgresTotalConnections,
+		PostgresMaximumConnections,
 	)
 }
 
@@ -217,6 +218,13 @@ var (
 		Name:      "postgres_total_db_connections",
 		Help:      "number of total connections to Postgres by database name",
 	}, []string{"database"})
+
+	PostgresMaximumConnections = prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: metrics.PrometheusNamespace,
+		Subsystem: metrics.CentralSubsystem.String(),
+		Name:      "postgres_maximum_db_connections",
+		Help:      "number of total connections allowed to the Postgres database server",
+	})
 )
 
 // SetGaugeInt sets a value for a gauge from an int

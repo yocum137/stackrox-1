@@ -62,6 +62,8 @@ SELECT TABLE_NAME
 	connectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity WHERE state <> 'idle' AND datname IS NOT NULL GROUP BY datname;`
 
 	totalConnectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity WHERE datname IS NOT NULL GROUP BY datname;`
+
+	maxConnectionQuery = `SELECT current_setting('max_connections')::int;`
 )
 
 var (
@@ -243,15 +245,19 @@ func CollectPostgresConnectionStats(ctx context.Context, db *pgxpool.Pool) {
 
 	// Get the total connections by database
 	getTotalConnections(ctx, db)
+
+	// Get the max connections for Postgres
+	getMaxConnections(ctx, db)
 }
 
+// getActiveConnections -- gets the active connections by database
 func getActiveConnections(ctx context.Context, db *pgxpool.Pool) {
 	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
 	defer cancel()
 
 	rows, err := db.Query(ctx, connectionQuery)
 	if err != nil {
-		log.Errorf("error fetching connection information: %v", err)
+		log.Errorf("error fetching active connection information: %v", err)
 		return
 	}
 
@@ -260,19 +266,35 @@ func getActiveConnections(ctx context.Context, db *pgxpool.Pool) {
 	processConnectionCountRow(metrics.PostgresActiveConnections, rows)
 }
 
+// getTotalConnections -- gets the total connections by database
 func getTotalConnections(ctx context.Context, db *pgxpool.Pool) {
 	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
 	defer cancel()
 
 	rows, err := db.Query(ctx, totalConnectionQuery)
 	if err != nil {
-		log.Errorf("error fetching connection information: %v", err)
+		log.Errorf("error fetching total connection information: %v", err)
 		return
 	}
 
 	defer rows.Close()
 
 	processConnectionCountRow(metrics.PostgresTotalConnections, rows)
+}
+
+// getMaxConnections -- gets maximum number of connections to Postgres server
+func getMaxConnections(ctx context.Context, db *pgxpool.Pool) {
+	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
+	defer cancel()
+
+	row := db.QueryRow(ctx, maxConnectionQuery)
+	var connectionCount int
+	if err := row.Scan(&connectionCount); err != nil {
+		log.Errorf("error fetching max connection information: %v", err)
+		return
+	}
+
+	metrics.PostgresMaximumConnections.Set(float64(connectionCount))
 }
 
 func processConnectionCountRow(metric *prometheus.GaugeVec, rows pgx.Rows) {
