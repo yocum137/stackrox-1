@@ -53,6 +53,7 @@ func init() {
 		PostgresTotalSize,
 		PostgresConnected,
 		PostgresActiveConnections,
+		PostgresTotalConnections,
 	)
 }
 
@@ -206,8 +207,15 @@ var (
 	PostgresActiveConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: metrics.PrometheusNamespace,
 		Subsystem: metrics.CentralSubsystem.String(),
-		Name:      "postgres_active_connections",
+		Name:      "postgres_active_db_connections",
 		Help:      "number of active connections to Postgres by database name",
+	}, []string{"database"})
+
+	PostgresTotalConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: metrics.PrometheusNamespace,
+		Subsystem: metrics.CentralSubsystem.String(),
+		Name:      "postgres_total_db_connections",
+		Help:      "number of total connections to Postgres by database name",
 	}, []string{"database"})
 )
 

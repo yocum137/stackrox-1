@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stackrox/rox/central/globaldb/metrics"
@@ -59,6 +60,8 @@ SELECT TABLE_NAME
 	versionQuery = `SHOW server_version;`
 
 	connectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity WHERE state <> 'idle' AND datname IS NOT NULL GROUP BY datname;`
+
+	totalConnectionQuery = `SELECT datname, COUNT(datid) FROM pg_stat_activity WHERE datname IS NOT NULL GROUP BY datname;`
 )
 
 var (
@@ -235,28 +238,56 @@ func CollectPostgresDatabaseStats(postgresConfig *pgxpool.Config) {
 
 // CollectPostgresConnectionStats -- collect connection stats for Postgres
 func CollectPostgresConnectionStats(ctx context.Context, db *pgxpool.Pool) {
+	// Get the active connections by database
+	getActiveConnections(ctx, db)
+
+	// Get the total connections by database
+	getTotalConnections(ctx, db)
+}
+
+func getActiveConnections(ctx context.Context, db *pgxpool.Pool) {
 	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
 	defer cancel()
 
-	row, err := db.Query(ctx, connectionQuery)
+	rows, err := db.Query(ctx, connectionQuery)
 	if err != nil {
-		log.Errorf("error fetching object counts: %v", err)
+		log.Errorf("error fetching connection information: %v", err)
 		return
 	}
 
-	defer row.Close()
-	for row.Next() {
+	defer rows.Close()
+
+	processConnectionCountRow(metrics.PostgresActiveConnections, rows)
+}
+
+func getTotalConnections(ctx context.Context, db *pgxpool.Pool) {
+	ctx, cancel := context.WithTimeout(ctx, PostgresQueryTimeout)
+	defer cancel()
+
+	rows, err := db.Query(ctx, totalConnectionQuery)
+	if err != nil {
+		log.Errorf("error fetching connection information: %v", err)
+		return
+	}
+
+	defer rows.Close()
+
+	processConnectionCountRow(metrics.PostgresTotalConnections, rows)
+}
+
+func processConnectionCountRow(metric *prometheus.GaugeVec, rows pgx.Rows) {
+	for rows.Next() {
 		var (
 			databaseName    string
 			connectionCount int
 		)
-		if err := row.Scan(&databaseName, &connectionCount); err != nil {
+		if err := rows.Scan(&databaseName, &connectionCount); err != nil {
 			log.Errorf("error scanning row for connection data: %v", err)
 			return
 		}
 
 		databaseLabel := prometheus.Labels{"database": databaseName}
-		metrics.PostgresActiveConnections.With(databaseLabel).Set(float64(connectionCount))
+		metric.With(databaseLabel).Set(float64(connectionCount))
 	}
 }
 
