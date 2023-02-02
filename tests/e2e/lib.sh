@@ -440,8 +440,7 @@ wait_for_api() {
     set +e
     NUM_SUCCESSES_IN_A_ROW=0
     SUCCESSES_NEEDED_IN_A_ROW=3
-    # shellcheck disable=SC2034
-    for i in $(seq 1 40); do
+    for _ in $(seq 1 40); do
         metadata="$(curl -sk --connect-timeout 5 --max-time 10 "${METADATA_URL}")"
         metadata_exitstatus="$?"
         status="$(echo "$metadata" | jq '.licenseStatus' -r)"
