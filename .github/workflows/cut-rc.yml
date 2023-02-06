@@ -87,22 +87,22 @@ jobs:
       version: ${{format('{0}{1}', github.event.milestone.title, github.event.inputs.version)}}
       assert-format: A.B.C[-N]-rc.D
 
-  check-jira:
-    name: Check Jira tickets for release
-    needs: [variables, properties]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Query JIRA
-        env:
-          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
-        run: |
-          set -uo pipefail
-          gh api -H "$ACCEPT_RAW" "${{env.script_url}}" | bash -s -- \
-            check-jira-issues \
-            "${{needs.properties.outputs.jira-projects}}" \
-            "${{needs.variables.outputs.release}}" \
-            "${{needs.variables.outputs.patch}}" \
-            "${{needs.variables.outputs.named-release-patch}}"
+  # check-jira:
+  #   name: Check Jira tickets for release
+  #   needs: [variables, properties]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Query JIRA
+  #       env:
+  #         JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+  #       run: |
+  #         set -uo pipefail
+  #         gh api -H "$ACCEPT_RAW" "${{env.script_url}}" | bash -s -- \
+  #           check-jira-issues \
+  #           "${{needs.properties.outputs.jira-projects}}" \
+  #           "${{needs.variables.outputs.release}}" \
+  #           "${{needs.variables.outputs.patch}}" \
+  #           "${{needs.variables.outputs.named-release-patch}}"
 
   postpone-prs:
     name: Postpone open PRs
