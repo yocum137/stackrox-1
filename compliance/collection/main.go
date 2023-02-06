@@ -39,8 +39,8 @@ var (
 	node string
 	once sync.Once
 
-	inventoryCachePath    = "/cache"
-	inventoryCacheSeconds = 60 * time.Second.Seconds()
+	inventoryCachePath = "/cache"
+	// inventoryCacheSeconds = 60 * time.Second.Seconds()
 )
 
 func getNode() string {
@@ -237,12 +237,12 @@ func scanNode(nodeName string, scanner nodeinventorizer.NodeInventorizer) (*sens
 		} else {
 			scanTime := diskInvMsg.GetScanTime()
 			now := timestamp.TimestampNow().GetSeconds()
-			if scanTime != nil && scanTime.GetSeconds() > now-int64(inventoryCacheSeconds) {
+			if scanTime != nil && scanTime.GetSeconds() > now-int64(env.NodeInventoryCacheDuration.DurationSetting().Seconds()) {
 				log.Debugf("Using cached scan from %v", diskInvMsg.GetScanTime())
 				// The NodeName should not change, but we want to use the cached message exclusively
 				return createAndObserveMessage(diskInvMsg.GetNodeName(), diskInvMsg), nil
 			}
-			log.Debugf("Cached scan oder than threshold of %v with timestamp %v - running new inventory", inventoryCacheSeconds, diskInvMsg.GetScanTime())
+			log.Debugf("Cached scan oder than threshold of %v with timestamp %v - running new inventory", env.NodeInventoryCacheDuration.DurationSetting(), diskInvMsg.GetScanTime())
 		}
 	}
 
@@ -344,7 +344,7 @@ func main() {
 	if features.RHCOSNodeScanning.Enabled() {
 		rescanInterval := env.NodeRescanInterval.DurationSetting()
 		cmetrics.ObserveRescanInterval(rescanInterval, getNode())
-		log.Infof("Node Rescan interval: %s", rescanInterval.String())
+		log.Infof("Node Rescan interval: %s - caching results for %s", rescanInterval.String(), env.NodeInventoryCacheDuration.DurationSetting())
 
 		var scanner nodeinventorizer.NodeInventorizer
 		if features.UseFakeNodeInventory.Enabled() {
