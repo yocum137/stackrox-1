@@ -164,7 +164,7 @@ jobs:
   cut-rc:
     name: Tag RC for milestone ${{needs.variables.outputs.milestone}}
     runs-on: ubuntu-latest
-    needs: [variables, properties, postpone-prs, check-jira]
+    needs: [variables, properties, postpone-prs] #, check-jira]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
