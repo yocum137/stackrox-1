@@ -296,7 +296,9 @@ func handle(
 		seenIDs:                    make(map[types.UID]struct{}),
 		missingInitialIDs:          nil,
 	}
-	informer.AddEventHandler(handlerImpl)
+	if _, err := informer.AddEventHandler(handlerImpl); err != nil {
+		log.Warnf("could add event handler: %+v", err)
+	}
 	wg.Add(1)
 	go func() {
 		defer wg.Add(-1)
