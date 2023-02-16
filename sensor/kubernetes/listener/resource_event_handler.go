@@ -15,7 +15,6 @@ import (
 	"github.com/stackrox/rox/sensor/common/processfilter"
 	"github.com/stackrox/rox/sensor/kubernetes/eventpipeline/component"
 	"github.com/stackrox/rox/sensor/kubernetes/listener/resources"
-	"github.com/stackrox/rox/sensor/kubernetes/orchestratornamespaces"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/informers"
@@ -93,7 +92,6 @@ func (k *listenerImpl) handleAllEvents() {
 		profileLister,
 		processfilter.Singleton(),
 		k.configHandler,
-		orchestratornamespaces.Singleton(),
 		k.credentialsManager,
 		k.traceWriter,
 		k.storeProvider,
