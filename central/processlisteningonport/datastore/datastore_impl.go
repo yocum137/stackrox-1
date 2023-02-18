@@ -40,6 +40,63 @@ func newDatastoreImpl(
 	}
 }
 
+//type ProcessListeningOnPortStorage struct {
+//        // Ideally it has to be GENERATED ALWAYS AS IDENTITY, which will make it a
+//        // bigint with a sequence. Unfortunately at the moment some bits of store
+//        // generator assume an id has to be a string.
+//        Id                 string           `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" sql:"pk,type(uuid)"`
+//        Port               uint32           `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty" search:"Port,store"`
+//        Protocol           L4Protocol       `protobuf:"varint,3,opt,name=protocol,proto3,enum=storage.L4Protocol" json:"protocol,omitempty" search:"Port Protocol,store"`
+//        CloseTimestamp     *types.Timestamp `protobuf:"bytes,4,opt,name=close_timestamp,json=closeTimestamp,proto3" json:"close_timestamp,omitempty"`
+//        ProcessIndicatorId string           `protobuf:"bytes,5,opt,name=process_indicator_id,json=processIndicatorId,proto3" json:"process_indicator_id,omitempty" search:"Process ID,store" sql:"fk(ProcessIndicator:id),no-fk-constraint,index=btree,type(uuid)"`
+//        // XXX: Make it a partial index on only active, not closed, PLOP
+//        Closed bool `protobuf:"varint,6,opt,name=closed,proto3" json:"closed,omitempty" search:"Closed,store" sql:"index=btree"`
+//        // ProcessIndicator will be not empty only for those cases when we were not
+//        // able to find references process in the database
+//        Process              *ProcessIndicatorUniqueKey `protobuf:"bytes,7,opt,name=process,proto3" json:"process,omitempty"`
+//        XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+//        XXX_unrecognized     []byte                     `json:"-"`
+//        XXX_sizecache        int32                      `json:"-"`
+//}
+
+//type ProcessListeningOnPortFromSensor struct {
+//        Port                 uint32                     `protobuf:"varint,1,opt,name=port,proto3" json:"port,omitempty"`
+//        Protocol             L4Protocol                 `protobuf:"varint,2,opt,name=protocol,proto3,enum=storage.L4Protocol" json:"protocol,omitempty"`
+//        Process              *ProcessIndicatorUniqueKey `protobuf:"bytes,3,opt,name=process,proto3" json:"process,omitempty"`
+//        CloseTimestamp       *types.Timestamp           `protobuf:"bytes,4,opt,name=close_timestamp,json=closeTimestamp,proto3" json:"close_timestamp,omitempty"`
+//        ClusterId            string                     `protobuf:"bytes,6,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+//        XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+//        XXX_unrecognized     []byte                     `json:"-"`
+//        XXX_sizecache        int32                      `json:"-"`
+//}
+
+
+func convertPlopFromStorageToPlopFromSensor(plopStorage *storage.ProcessListeningOnPortFromSensor) *storage.ProcessListeningOnPortStorage {
+	return &storage.ProcessListeningOnPortStorage{
+		Port:		plopStorage.Port,
+		Protocol:	plopStorage.Protocol,
+		Process:	plopStorage.Process,
+		CloseTimestamp:	plopStorage.CloseTimestamp,
+		//ClusterId:	plopStorage.ClusterId,
+}
+
+func (ds *datastoreImpl) addUnmatchedProcesses(ctx context.Context, portProcesses []*storage.ProcessListeningOnPortFromSensor ([]*storage.ProcessListeningOnPortFromSensor, error) {
+
+
+	unmatchedPLOPs, err := ds.storage.GetByQuery(ctx, search.NewQueryBuilder().
+		AddStrings(search.ProcessID, nil).ProtoQuery())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, val := range unmatchedPLOPs {
+		plop := convertPlopFromStorageToPlopFromSensor(val)
+		portProcesses = append(portProcesses, plop)
+	}
+
+	return portProcesses, nil
+}
+
 func (ds *datastoreImpl) AddProcessListeningOnPort(
 	ctx context.Context,
 	portProcesses ...*storage.ProcessListeningOnPortFromSensor,
@@ -62,7 +119,8 @@ func (ds *datastoreImpl) AddProcessListeningOnPort(
 		return sac.ErrResourceAccessDenied
 	}
 
-	normalizedPLOPs, completedInBatch := normalizePLOPs(portProcesses)
+	newAndUnmatchedPortProcesses := addUnmatchedProcesses(portProcesses)
+	normalizedPLOPs, completedInBatch := normalizePLOPs(newAndUnmatchedPortProcesses)
 
 	// TODO ROX-14376: The next two calls, fetchIndicators and fetchExistingPLOPs, have to
 	// be done in a single join query fetching both ProcessIndicator and needed
