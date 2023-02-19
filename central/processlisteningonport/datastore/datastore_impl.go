@@ -87,6 +87,7 @@ func (ds *datastoreImpl) AddProcessListeningOnPort(
 		if indicator, ok := indicatorsMap[key]; ok {
 			indicatorID = indicator.GetId()
 			log.Debugf("Got indicator %s: %+v", indicatorID, indicator)
+			log.Debugf("val= %+v ", val)
 		} else {
 			countMetrics.IncrementOrphanedPLOPCounter(val.GetClusterId())
 			log.Warnf("Found no matching indicators for %s", key)

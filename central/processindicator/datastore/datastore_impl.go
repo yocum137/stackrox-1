@@ -113,6 +113,7 @@ func (ds *datastoreImpl) AddProcessIndicators(ctx context.Context, indicators ..
 
 	keys := make([]string, 0, len(indicators))
 	for _, indicator := range indicators {
+		log.Info("AddProcessIndicators %+v", indicator)
 		keys = append(keys, indicator.GetId())
 	}
 	if err := ds.storage.AckKeysIndexed(ctx, keys...); err != nil {
