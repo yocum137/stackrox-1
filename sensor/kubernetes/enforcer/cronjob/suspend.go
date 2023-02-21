@@ -16,7 +16,7 @@ import (
 
 const (
 	batchV1      = "batch/v1"
-	batchBeta1v1 = "batch/beta1v1"
+	batchV1beta1 = "batch/v1beta1"
 )
 
 // Suspend suspends the cron job
@@ -42,14 +42,14 @@ func Suspend(ctx context.Context, client kubernetes.Interface, deploymentInfo *c
 			return retry.MakeRetryable(err)
 		}
 	} else {
-		patch := fmt.Sprintf("{\"metadata\": {\"name\": %s}, \"kind\": %s, \"apiVersion\": %s, \"spec\": {\"suspend\": true}}", depName, depType, batchBeta1v1)
+		patch := fmt.Sprintf("{\"metadata\": {\"name\": %s}, \"kind\": %s, \"apiVersion\": %s, \"spec\": {\"suspend\": true}}", depName, depType, batchV1beta1)
 
 		_, err = client.BatchV1beta1().CronJobs(deploymentInfo.GetNamespace()).Patch(ctx, depName, types.ApplyPatchType,
 			[]byte(patch),
 			metav1.PatchOptions{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       depType,
-					APIVersion: batchBeta1v1,
+					APIVersion: batchV1beta1,
 				},
 				FieldManager: branding.GetProductName(),
 				Force:        &forcePatch,
