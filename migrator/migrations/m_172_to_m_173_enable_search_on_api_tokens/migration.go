@@ -26,7 +26,7 @@ var (
 		VersionAfter:   &storage.Version{SeqNum: int32(startSeqNum + 1)},
 		Run: func(database *types.Databases) error {
 			// Migration code comes here
-			return nil
+			return migrateAPITokens(database.PostgresDB, database.GormDB)
 		},
 	}
 )
