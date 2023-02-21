@@ -4,8 +4,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// HasAPI checks whether the kubernetes client supports the gv API for the specified kind
-func HasAPI(client kubernetes.Interface, gv, kind string) (bool, error) {
+// HasAPI checks whether the kubernetes client supports the groupVersion API for the specified kind
+func HasAPI(client kubernetes.Interface, groupVersion, kind string) (bool, error) {
 	apiResourceList, err := client.Discovery().ServerResourcesForGroupVersion(gv)
 	if err != nil {
 		return false, err
