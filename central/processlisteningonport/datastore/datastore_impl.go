@@ -71,30 +71,39 @@ func newDatastoreImpl(
 //}
 
 
-func convertPlopFromStorageToPlopFromSensor(plopStorage *storage.ProcessListeningOnPortFromSensor) *storage.ProcessListeningOnPortStorage {
-	return &storage.ProcessListeningOnPortStorage{
+func convertPlopFromStorageToPlopFromSensor(plopStorage *storage.ProcessListeningOnPortStorage) *storage.ProcessListeningOnPortFromSensor {
+	return &storage.ProcessListeningOnPortFromSensor{
 		Port:		plopStorage.Port,
 		Protocol:	plopStorage.Protocol,
 		Process:	plopStorage.Process,
 		CloseTimestamp:	plopStorage.CloseTimestamp,
 		//ClusterId:	plopStorage.ClusterId,
+	}
 }
 
-func (ds *datastoreImpl) addUnmatchedProcesses(ctx context.Context, portProcesses []*storage.ProcessListeningOnPortFromSensor ([]*storage.ProcessListeningOnPortFromSensor, error) {
+func (ds *datastoreImpl) getUnmatchedPlopsFromDB(ctx context.Context) []*storage.ProcessListeningOnPortStorage {
+        plopsFromDB := []*storage.ProcessListeningOnPortStorage{}
+        ds.WalkAll(ctx,
+                func(plop *storage.ProcessListeningOnPortStorage) error {
+			if plop.ProcessIndicatorId == "" {
+				plopsFromDB = append(plopsFromDB, plop)
+			}
+                        return nil
+                })
 
+        return plopsFromDB
+}
 
-	unmatchedPLOPs, err := ds.storage.GetByQuery(ctx, search.NewQueryBuilder().
-		AddStrings(search.ProcessID, nil).ProtoQuery())
-	if err != nil {
-		return nil, err
-	}
+func (ds *datastoreImpl) addUnmatchedProcesses(ctx context.Context, portProcesses []*storage.ProcessListeningOnPortFromSensor) []*storage.ProcessListeningOnPortFromSensor {
+
+	unmatchedPLOPs := ds.getUnmatchedPlopsFromDB(ctx)
 
 	for _, val := range unmatchedPLOPs {
 		plop := convertPlopFromStorageToPlopFromSensor(val)
 		portProcesses = append(portProcesses, plop)
 	}
 
-	return portProcesses, nil
+	return portProcesses
 }
 
 func (ds *datastoreImpl) AddProcessListeningOnPort(
@@ -119,7 +128,7 @@ func (ds *datastoreImpl) AddProcessListeningOnPort(
 		return sac.ErrResourceAccessDenied
 	}
 
-	newAndUnmatchedPortProcesses := addUnmatchedProcesses(portProcesses)
+	newAndUnmatchedPortProcesses := ds.addUnmatchedProcesses(ctx, portProcesses)
 	normalizedPLOPs, completedInBatch := normalizePLOPs(newAndUnmatchedPortProcesses)
 
 	// TODO ROX-14376: The next two calls, fetchIndicators and fetchExistingPLOPs, have to
@@ -142,6 +151,7 @@ func (ds *datastoreImpl) AddProcessListeningOnPort(
 
 		key := getPlopProcessUniqueKey(val)
 
+		log.Debugf("AddProcessListeningOnPort val= %+v", val)
 		if indicator, ok := indicatorsMap[key]; ok {
 			indicatorID = indicator.GetId()
 			log.Debugf("Got indicator %s: %+v", indicatorID, indicator)
