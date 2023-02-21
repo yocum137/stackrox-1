@@ -515,7 +515,6 @@ func (ds *datastoreImpl) RemoveCluster(ctx context.Context, id string, done *con
 func (ds *datastoreImpl) postRemoveCluster(ctx context.Context, cluster *storage.Cluster, done *concurrency.Signal) {
 	// Terminate the cluster connection to prevent new data from being stored.
 	if ds.cm != nil {
-
 		ds.cm.CloseConnection(cluster.GetId())
 	}
 	ds.removeClusterImageIntegrations(ctx, cluster)
