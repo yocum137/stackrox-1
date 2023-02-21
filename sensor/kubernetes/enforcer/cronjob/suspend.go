@@ -26,7 +26,7 @@ func Suspend(ctx context.Context, client kubernetes.Interface, deploymentInfo *c
 	forcePatch := true
 
 	if ok, apiErr := utils.HasAPI(client, batchV1, kubernetesPkg.CronJob); ok && apiErr == nil {
-		patch := fmt.Sprintf("{\"metadata\": {\"name\": %s}, \"kind\": %s, \"apiVersion\": %s, \"spec\": {\"suspend\": true}}", depName, depType, batchV1)
+		patch := fmt.Sprintf("{\"metadata\": {\"name\": %q}, \"kind\": %q, \"apiVersion\": %s, \"spec\": {\"suspend\": true}}", depName, depType, batchV1)
 
 		_, err = client.BatchV1().CronJobs(deploymentInfo.GetNamespace()).Patch(ctx, depName, types.ApplyPatchType,
 			[]byte(patch),
