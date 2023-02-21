@@ -77,7 +77,7 @@ func (s *sensorEventHandler) addMultiplexed(ctx context.Context, msg *central.Ms
 		utils.Should(errors.New("handler only supports events"))
 	}
 
-	if s.deduper.check(msg) {
+	if s.deduper.dedupe(msg) {
 		metrics.IncSensorEventsDeduper(true)
 		return
 	}

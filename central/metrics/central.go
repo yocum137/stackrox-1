@@ -190,7 +190,7 @@ var (
 		Namespace: metrics.PrometheusNamespace,
 		Subsystem: metrics.CentralSubsystem.String(),
 		Name:      "sensor_event_deduper",
-		Help:      "A counter of the total number of PLOP objects without a reference to a ProcessIndicator",
+		Help:      "A counter that tracks objects that has passed the sensor event deduper in the connection stream",
 	}, []string{"status"})
 )
 

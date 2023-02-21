@@ -29,7 +29,7 @@ type deduper struct {
 	hasher hash.Hash64
 }
 
-func skipCheck(msg *central.MsgFromSensor) bool {
+func skipDedupe(msg *central.MsgFromSensor) bool {
 	eventMsg, ok := msg.Msg.(*central.MsgFromSensor_Event)
 	if !ok {
 		return true
@@ -46,14 +46,18 @@ func skipCheck(msg *central.MsgFromSensor) bool {
 	return false
 }
 
-func (d *deduper) check(msg *central.MsgFromSensor) bool {
-	if skipCheck(msg) {
+func (d *deduper) dedupe(msg *central.MsgFromSensor) bool {
+	if skipDedupe(msg) {
 		return false
 	}
 	event := msg.GetEvent()
 	key := key{
 		id:           event.GetId(),
 		resourceType: reflect.TypeOf(event.GetResource()),
+	}
+	if event.GetAction() == central.ResourceAction_REMOVE_RESOURCE {
+		delete(d.lastReceived, key)
+		return false
 	}
 	receivedHash := event.GetSensorHash()
 	// Backwards compatibility with a previous Sensor
