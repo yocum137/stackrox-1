@@ -185,6 +185,13 @@ var (
 		Name:      "orphaned_plop_total",
 		Help:      "A counter of the total number of PLOP objects without a reference to a ProcessIndicator",
 	}, []string{"ClusterID"})
+
+	sensorEventsDeduperCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Namespace: metrics.PrometheusNamespace,
+		Subsystem: metrics.CentralSubsystem.String(),
+		Name:      "sensor_event_deduper",
+		Help:      "A counter of the total number of PLOP objects without a reference to a ProcessIndicator",
+	}, []string{"status"})
 )
 
 func startTimeToMS(t time.Time) float64 {
@@ -307,4 +314,13 @@ func SetClusterMetrics(clusterID string, clusterMetrics *central.ClusterMetrics)
 // received at all. This type of situations require investigation.
 func IncrementOrphanedPLOPCounter(clusterID string) {
 	totalOrphanedPLOPCounter.With(prometheus.Labels{"ClusterID": clusterID}).Inc()
+}
+
+// IncSensorEventsDeduper increments the sensor events deduper on whether or not it was deduped or not
+func IncSensorEventsDeduper(deduped bool) {
+	label := "passed"
+	if deduped {
+		label = "deduped"
+	}
+	sensorEventsDeduperCounter.With(prometheus.Labels{"status": label}).Inc()
 }
