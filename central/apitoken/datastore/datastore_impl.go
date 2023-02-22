@@ -152,6 +152,32 @@ func (b *datastoreImpl) Search(ctx context.Context, q *v1.Query) ([]search.Resul
 	return b.searcher.Search(ctx, q)
 }
 
+func (b *datastoreImpl) SearchRawTokens(ctx context.Context, q *v1.Query) ([]*storage.TokenMetadata, error) {
+	if ok, err := integrationSAC.ReadAllowed(ctx); err != nil {
+		return nil, err
+	} else if !ok {
+		return nil, nil
+	}
+	if env.PostgresDatastoreEnabled.BooleanSetting() {
+		return b.storage.GetByQuery(ctx, q)
+	}
+	results, err := b.searcher.Search(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	objects := make([]*storage.TokenMetadata, 0, len(results))
+	for _, r := range results {
+		token, found, err := b.storage.Get(ctx, r.ID)
+		if err != nil {
+			return nil, err
+		}
+		if found {
+			objects = append(objects, token)
+		}
+	}
+	return objects, nil
+}
+
 func (b *datastoreImpl) GetNotificationSchedule(ctx context.Context) (*storage.NotificationSchedule, bool, error) {
 	if !env.PostgresDatastoreEnabled.BooleanSetting() {
 		log.Warn("Tried to retrieve API Token notification schedule not on Postgres, ignoring.")
