@@ -35,33 +35,6 @@ process_args() {
      done
 }
 
-pad_string() {
-    string="$1"
-    length="$2"
-
-    current_length=${#string}
-
-    #echo "string= $string"
-    #echo "length= $length"
-    #echo "current_length= $current_length"
-
-    if [[ $current_length -ge $length ]]; then
-        echo "$string"
-    else
-        num_spaces=$((length - current_length))
-        #echo "num_spaces= $num_spaces"
-
-        #padded="$(printf "%s%*s\n" "$string" "$num_spaces" "")"
-        #echo $padded
-        for ((i = 0; i < num_spaces; i = i + 1)); do
-            string="$string "
-        done
-
-        echo "$string"
-    fi
-
-}
-
 process_args $@
 
 port=8443
@@ -131,37 +104,17 @@ for deployment in ${deployments[@]}; do
             containerName="$(echo $listening_endpoints | jq .listeningEndpoints[$j].containerName | tr -d '"')"
             pid="$(echo $listening_endpoints | jq .listeningEndpoints[$j].signal.pid | tr -d '"')"
 
-	    # Could probably just use printf
-	    name="$(pad_string $name 20)"
-	    pid="$(pad_string $pid 9)"
-	    plop_port="$(pad_string $plop_port 7)"
-	    proto="$(pad_string $proto 7)"
-	    namespace="$(pad_string $namespace 15)"
-	    clusterId="$(pad_string $clusterId 40)"
-	    podId="$(pad_string $podId 55)"
-	    containerName="$(pad_string $containerName 20)"
-
-            netstat_line=$(printf "%-20s %-9s %-7s %-7s %-15s %-40s %-55s %-20s\n" \
+            netstat_line=$(printf "%-20s %-9s %-7s %-7s %-15s %-40s %-55s %-20s" \
                 "$name" "$pid" "$plop_port" "$proto" "$namespace" "$clusterId" \
                 "$podId" "$containerName")
 
-	    netstat_line="${name}${pid}${plop_port}${proto}${namespace}${clusterId}${podId}${containerName}\n"
-            netstat_lines="${netstat_lines}${netstat_line}"
+            netstat_lines="${netstat_lines}${netstat_line}\n"
         done
     fi
 done
 
 echo
 if [[ "$format_value" == "table" ]]; then
-    name="$(pad_string "Program name" 20)"
-    pid="$(pad_string "PID" 9)"
-    plop_port="$(pad_string "Port" 7)"
-    proto="$(pad_string "Proto" 7)"
-    namespace="$(pad_string "Namespace" 15)"
-    clusterId="$(pad_string "ClusterId" 40)"
-    podId="$(pad_string "podId" 55)"
-    containerName="$(pad_string "containerName" 20)"
-
     header=$(printf "%-20s %-9s %-7s %-7s %-15s %-40s %-55s %-20s\n" \
         "Program name" "PID" "Port" "Proto" "Namespace" "clusterId" \
         "podId" "containerName")
