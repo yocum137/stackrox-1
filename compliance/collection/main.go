@@ -38,14 +38,7 @@ var (
 )
 
 func nodeInventoryWaitCallback(waitTime time.Duration) {
-	maxBackoffSeconds := int64(env.NodeInventoryMaxBackoff.DurationSetting() / time.Second)
 	waitTimeSeconds := int64(waitTime / time.Second)
-
-	if waitTimeSeconds > maxBackoffSeconds {
-		log.Debugf("Backoff interval hit upper boundary. Cutting from %d to %d", waitTimeSeconds, maxBackoffSeconds)
-		waitTimeSeconds = maxBackoffSeconds
-	}
-
 	time.Sleep(time.Duration(waitTimeSeconds) * time.Second)
 }
 
@@ -185,6 +178,7 @@ func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scann
 		if err != nil {
 			log.Errorf("error running cachedScanNode: %v", err)
 		} else {
+			cmetrics.ObserveInventoryProtobufMessage(msg)
 			sensorC <- msg
 		}
 
@@ -197,6 +191,7 @@ func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scann
 				if err != nil {
 					log.Errorf("error running cachedScanNode: %v", err)
 				} else {
+					cmetrics.ObserveInventoryProtobufMessage(msg)
 					sensorC <- msg
 				}
 			}
@@ -295,7 +290,7 @@ func main() {
 	if features.RHCOSNodeScanning.Enabled() {
 		rescanInterval := env.NodeRescanInterval.DurationSetting()
 		cmetrics.ObserveRescanInterval(rescanInterval, getNode())
-		log.Infof("Node Rescan interval: %s - Cache Duration: %s", rescanInterval.String(), env.NodeInventoryCacheDuration.DurationSetting())
+		log.Infof("Node Rescan interval: %s - Cache Duration: %s", rescanInterval.String(), env.NodeScanCacheDuration.DurationSetting())
 
 		var scanner nodeinventorizer.NodeInventorizer
 		if features.UseFakeNodeInventory.Enabled() {
