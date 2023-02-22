@@ -141,6 +141,10 @@ for deployment in ${deployments[@]}; do
 	    podId="$(pad_string $podId 55)"
 	    containerName="$(pad_string $containerName 20)"
 
+            netstat_line=$(printf "%-20s %-9s %-7s %-7s %-15s %-40s %-55s %-20s\n" \
+                "$name" "$pid" "$plop_port" "$proto" "$namespace" "$clusterId" \
+                "$podId" "$containerName")
+
 	    netstat_line="${name}${pid}${plop_port}${proto}${namespace}${clusterId}${podId}${containerName}\n"
             netstat_lines="${netstat_lines}${netstat_line}"
         done
@@ -158,7 +162,9 @@ if [[ "$format_value" == "table" ]]; then
     podId="$(pad_string "podId" 55)"
     containerName="$(pad_string "containerName" 20)"
 
-    header="${name}${pid}${plop_port}${proto}${namespace}${clusterId}${podId}${containerName}"
+    header=$(printf "%-20s %-9s %-7s %-7s %-15s %-40s %-55s %-20s\n" \
+        "Program name" "PID" "Port" "Proto" "Namespace" "clusterId" \
+        "podId" "containerName")
 
     echo -e "$header"
     echo -e "$netstat_lines"
