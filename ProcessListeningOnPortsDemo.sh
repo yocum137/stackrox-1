@@ -3,6 +3,7 @@ set -eou pipefail
 
 
 deployment_value=NA
+deploymentname_value=NA
 namespace_value=NA
 clustername_value=NA
 clusterid_value=NA
@@ -16,6 +17,8 @@ process_arg() {
      
     if [[ "$key" == "deployment" ]]; then
         deployment_value="$value"
+    elif [[ "$key" == "deploymentname" ]]; then
+        deploymentname_value="$value"
     elif [[ "$key" == "namespace" ]]; then
 	namespace_value="$value"
     elif [[ "$key" == "clustername" ]]; then
@@ -52,6 +55,10 @@ if [[ "$deployment_value" == "NA" ]]; then
 
     if [[ "$namespace_value" != "NA" ]]; then
 	json_deployments="$(echo "$json_deployments" | jq --arg namespace "$namespace_value" '{deployments: [.deployments[] | select(.namespace == $namespace)]}')"
+    fi
+
+    if [[ "$deploymentname_value" != "NA" ]]; then
+	json_deployments="$(echo "$json_deployments" | jq --arg deploymentname "$deploymentname_value" '{deployments: [.deployments[] | select(.name == $deploymentname)]}')"
     fi
 
     if [[ "$clustername_value" != "NA" ]]; then
