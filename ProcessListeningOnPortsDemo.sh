@@ -66,7 +66,7 @@ process_args $@
 
 port=8443
 port=8000
-export OPEN_BROWSER=false
+export OPEN_BROWSER=false # I have modified my own logmein script so that with this option I get a token without opening a web browser. This needs improvement.
 #export OPEN_BROWSER=true
 logmein localhost:$port &> token_file.txt
 token="$(cat token_file.txt | sed 's|.*token=||' | sed 's|&type.*||')"
@@ -131,6 +131,7 @@ for deployment in ${deployments[@]}; do
             containerName="$(echo $listening_endpoints | jq .listeningEndpoints[$j].containerName | tr -d '"')"
             pid="$(echo $listening_endpoints | jq .listeningEndpoints[$j].signal.pid | tr -d '"')"
 
+	    # Could probably just use printf
 	    name="$(pad_string $name 20)"
 	    pid="$(pad_string $pid 9)"
 	    plop_port="$(pad_string $plop_port 7)"
@@ -148,8 +149,6 @@ done
 
 echo
 if [[ "$format_value" == "table" ]]; then
-    header="Program name\tPID\tPort\tProto\tNamespace\tClusterId\t\t\t\tpodId\t\t\tcontainerName"
-
     name="$(pad_string "Program name" 20)"
     pid="$(pad_string "PID" 9)"
     plop_port="$(pad_string "Port" 7)"
