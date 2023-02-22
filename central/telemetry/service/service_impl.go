@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	configDS "github.com/stackrox/rox/central/config/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/central/telemetry/centralclient"
 	v1 "github.com/stackrox/rox/generated/api/v1"
@@ -84,14 +85,37 @@ func (s *serviceImpl) GetConfig(ctx context.Context, _ *v1.Empty) (*central.Tele
 	}, nil
 }
 
+func updateTelemetryEnabled(ctx context.Context, enable bool) error {
+	config, err := configDS.Singleton().GetConfig(ctx)
+	if err != nil {
+		return err
+	}
+	if t := config.GetPublicConfig().GetTelemetry(); t != nil && t.Enabled != enable {
+		t.Enabled = enable
+		err = configDS.Singleton().UpsertConfig(ctx, config)
+	}
+	return err
+}
+
 func (s *serviceImpl) Disable(ctx context.Context, _ *v1.Empty) (*v1.Empty, error) {
+	if !centralclient.InstanceConfig().Enabled() {
+		return nothing, nil
+	}
 	centralclient.Disable()
+
+	if err := updateTelemetryEnabled(ctx, false); err != nil {
+		return nil, err
+	}
 	return nothing, nil
 }
 
 func (s *serviceImpl) Enable(ctx context.Context, _ *v1.Empty) (*v1.Empty, error) {
 	if !centralclient.Enable().Enabled() {
 		return nil, errTelemetryDisabled
+	}
+
+	if err := updateTelemetryEnabled(ctx, true); err != nil {
+		return nil, err
 	}
 	return nothing, nil
 }
