@@ -31,9 +31,7 @@ process_arg() {
 }
 
 process_args() {
-     echo "In process_arguments"
      for arg in "$@"; do
-         echo "$arg"
 	 process_arg "$arg"
      done
 }
@@ -48,7 +46,7 @@ logmein localhost:$port &> token_file.txt
 token="$(cat token_file.txt | sed 's|.*token=||' | sed 's|&type.*||')"
 
 password="$(cat ./deploy/k8s/central-deploy/password)"
-curl -sSkf -u "admin:$password" -o /dev/null -w '%{redirect_url}' "https://localhost:$port/sso/providers/basic/4df1b98c-24ed-4073-a9ad-356aec6bb62d/challenge?micro_ts=0"
+#curl -sSkf -u "admin:$password" -o /dev/null -w '%{redirect_url}' "https://localhost:$port/sso/providers/basic/4df1b98c-24ed-4073-a9ad-356aec6bb62d/challenge?micro_ts=0"
 
 if [[ "$deployment_value" == "NA" ]]; then
     json_deployments="$(curl --location --silent --request GET "https://localhost:$port/v1/deployments" -k -H "Authorization: Bearer $token")"
