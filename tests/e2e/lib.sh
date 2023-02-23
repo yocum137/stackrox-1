@@ -334,12 +334,12 @@ setup_podsecuritypolicies_config() {
     minorVersion=$(echo "$version" | jq -r .serverVersion.minor)
 
     # PodSecurityPolicy was removed in version 1.25
-    if (( "$majorVersion" >= 1 && "$minorVersion" >= 25 )); then
-        ci_export "POD_SECURITY_POLICIES" "false"
-        info "POD_SECURITY_POLICIES set to false"
-    else
+    if (( "$majorVersion" <= 1 && "$minorVersion" < 25 )); then
         ci_export "POD_SECURITY_POLICIES" "true"
         info "POD_SECURITY_POLICIES set to true"
+    else
+        ci_export "POD_SECURITY_POLICIES" "false"
+        info "POD_SECURITY_POLICIES set to false"
     fi
 }
 
