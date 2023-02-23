@@ -11,6 +11,10 @@ from clusters import GKECluster
 os.environ["ORCHESTRATOR_FLAVOR"] = "k8s"
 os.environ["GCP_IMAGE_TYPE"] = "cos_containerd"
 
+# 1% of queries will fail with a transient error
+os.environ["ROX_POSTGRES_CHAOS_PERCENT"] = "1"
+os.environ["MUTEX_WATCHDOG_TIMEOUT_SECS"]="0"
+
 # use postgres
 os.environ["ROX_POSTGRES_DATASTORE"] = "true"
 
