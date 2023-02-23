@@ -37,10 +37,6 @@ var (
 	once sync.Once
 )
 
-func nodeInventoryWaitCallback(waitTime time.Duration) {
-	time.Sleep(waitTime)
-}
-
 func getNode() string {
 	once.Do(func() {
 		node = os.Getenv(string(orchestrators.NodeName))
@@ -159,24 +155,22 @@ func manageSendToSensor(ctx context.Context, cli sensor.ComplianceService_Commun
 }
 
 func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scanner nodeinventorizer.NodeInventorizer) <-chan *sensor.MsgFromCompliance {
+	nodeName := getNode()
 	sensorC := make(chan *sensor.MsgFromCompliance)
-	inventoryOpts := &nodeinventorizer.InventoryScanOpts{
-		NodeName:            getNode(),
-		Scanner:             scanner,
-		InventoryCachePath:  "/cache/inventory-cache",
-		BackoffFilePath:     "/cache/inventory-backoff",
-		BackoffWaitCallback: nodeInventoryWaitCallback,
-	}
 
 	go func() {
 		defer close(sensorC)
 		t := time.NewTicker(rescanInterval)
 
 		// first scan should happen on start
-		msg, err := nodeinventorizer.TriggerNodeInventory(inventoryOpts)
+		inventory, err := scanner.Scan(nodeName)
 		if err != nil {
 			log.Errorf("error running cachedScanNode: %v", err)
 		} else {
+			msg := &sensor.MsgFromCompliance{
+				Node: nodeName,
+				Msg:  &sensor.MsgFromCompliance_NodeInventory{NodeInventory: inventory},
+			}
 			cmetrics.ObserveInventoryProtobufMessage(msg)
 			sensorC <- msg
 		}
@@ -186,10 +180,14 @@ func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scann
 			case <-ctx.Done():
 				return
 			case <-t.C:
-				msg, err := nodeinventorizer.TriggerNodeInventory(inventoryOpts)
+				inventory, err := scanner.Scan(nodeName)
 				if err != nil {
 					log.Errorf("error running cachedScanNode: %v", err)
 				} else {
+					msg := &sensor.MsgFromCompliance{
+						Node: nodeName,
+						Msg:  &sensor.MsgFromCompliance_NodeInventory{NodeInventory: inventory},
+					}
 					cmetrics.ObserveInventoryProtobufMessage(msg)
 					sensorC <- msg
 				}
@@ -297,7 +295,10 @@ func main() {
 			scanner = &nodeinventorizer.FakeNodeInventorizer{}
 		} else {
 			log.Infof("Using NodeInventoryCollector")
-			scanner = &nodeinventorizer.NodeInventoryCollector{}
+			scanner = nodeinventorizer.NewCachingScanner(
+				"/cache/inventory-cache",
+				"/cache/inventory-backoff",
+				func(duration time.Duration) { time.Sleep(duration) })
 		}
 		nodeInventoriesC := manageNodeScanLoop(ctx, rescanInterval, scanner)
 
