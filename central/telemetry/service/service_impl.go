@@ -90,7 +90,20 @@ func updateTelemetryEnabled(ctx context.Context, enable bool) error {
 	if err != nil {
 		return err
 	}
-	if t := config.GetPublicConfig().GetTelemetry(); t != nil && t.Enabled != enable {
+	if config == nil {
+		config = &storage.Config{}
+	}
+	pc := config.GetPublicConfig()
+	if pc == nil {
+		pc = &storage.PublicConfig{}
+		config.PublicConfig = pc
+	}
+	t := pc.GetTelemetry()
+	if t == nil {
+		t = &storage.TelemetryConfiguration{Enabled: true}
+		pc.Telemetry = t
+	}
+	if t.Enabled != enable {
 		t.Enabled = enable
 		err = configDS.Singleton().UpsertConfig(ctx, config)
 	}
