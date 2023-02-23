@@ -11,3 +11,15 @@ critical
 data race
 should (not|never) happen
 OMITTED.*LOG LINES DUE TO THROTTLING
+
+# We don't want the system to access deprecated CronJobs via v1beta1 API.
+failed to list \*v1beta1\.CronJob
+batch/v1beta1 CronJob is deprecated
+# Similarly, we don't want other deprecated resources removed in k8s 1.25.
+# https://cloud.google.com/kubernetes-engine/docs/deprecations/apis-1-25
+^W.*v1beta1.*EndpointSlice
+^W.*v1beta1.*PodDisruptionBudget
+^W.*v1beta1.*PodSecurityPolicy
+^W.*v1beta1.*RuntimeClass
+^W.*v1beta1.*Events
+^W.*v2beta1.*HorizontalPodAutoscaler
