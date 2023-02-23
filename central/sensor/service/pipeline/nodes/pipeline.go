@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"context"
+	"strings"
 
 	"github.com/pkg/errors"
 	clusterDataStore "github.com/stackrox/rox/central/cluster/datastore"
@@ -95,7 +96,9 @@ func (p *pipelineImpl) Run(ctx context.Context, clusterID string, msg *central.M
 		log.Warnf("enriching node %s:%s: %v", node.GetClusterName(), node.GetName(), err)
 	}
 
-	if err := p.riskManager.CalculateRiskAndUpsertNode(node); err != nil {
+	ignoreScan := strings.HasPrefix(node.GetOperatingSystem(), "rhcos") // FIXME: make sure that RHCOS is recognized correctly here
+
+	if err := p.riskManager.CalculateRiskAndUpsertNode(node, ignoreScan); err != nil {
 		err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
 		log.Error(err)
 		return err

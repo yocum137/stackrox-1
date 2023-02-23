@@ -61,7 +61,7 @@ type Store interface {
 	Count(ctx context.Context) (int, error)
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.Node, bool, error)
-	Upsert(ctx context.Context, obj *storage.Node) error
+	Upsert(ctx context.Context, node *storage.Node, ignoreScan bool) error
 	Delete(ctx context.Context, id string) error
 	GetMany(ctx context.Context, ids []string) ([]*storage.Node, []int, error)
 	// GetNodeMetadata gets the node without scan/component data.
@@ -491,7 +491,7 @@ func (s *storeImpl) isUpdated(ctx context.Context, node *storage.Node) (bool, bo
 	return true, scanUpdated, nil
 }
 
-func (s *storeImpl) upsert(ctx context.Context, obj *storage.Node) error {
+func (s *storeImpl) upsert(ctx context.Context, obj *storage.Node, ignoreScan bool) error {
 	iTime := protoTypes.TimestampNow()
 
 	if !s.noUpdateTimestamps {
@@ -501,6 +501,8 @@ func (s *storeImpl) upsert(ctx context.Context, obj *storage.Node) error {
 	if err != nil {
 		return err
 	}
+	//
+	scanUpdated = !ignoreScan && scanUpdated
 	if !metadataUpdated && !scanUpdated {
 		return nil
 	}
@@ -531,11 +533,11 @@ func (s *storeImpl) upsert(ctx context.Context, obj *storage.Node) error {
 }
 
 // Upsert upserts node into the store.
-func (s *storeImpl) Upsert(ctx context.Context, obj *storage.Node) error {
+func (s *storeImpl) Upsert(ctx context.Context, node *storage.Node, ignoreScan bool) error {
 	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Upsert, "Node")
 
 	return pgutils.Retry(func() error {
-		return s.upsert(ctx, obj)
+		return s.upsert(ctx, node, ignoreScan)
 	})
 }
 

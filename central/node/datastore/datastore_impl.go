@@ -184,7 +184,7 @@ func (ds *datastoreImpl) GetManyNodeMetadata(ctx context.Context, ids []string) 
 }
 
 // UpsertNode dedupes the node with the underlying storage and adds the node to the index.
-func (ds *datastoreImpl) UpsertNode(ctx context.Context, node *storage.Node) error {
+func (ds *datastoreImpl) UpsertNode(ctx context.Context, node *storage.Node, ignoreScan bool) error {
 	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "UpsertNode")
 
 	if node.GetId() == "" {
@@ -203,7 +203,7 @@ func (ds *datastoreImpl) UpsertNode(ctx context.Context, node *storage.Node) err
 	ds.updateComponentRisk(node)
 	enricher.FillScanStats(node)
 
-	if err := ds.storage.Upsert(ctx, node); err != nil {
+	if err := ds.storage.Upsert(ctx, node, ignoreScan); err != nil {
 		return err
 	}
 	// If the node in db is latest, this node object will be carrying its risk score

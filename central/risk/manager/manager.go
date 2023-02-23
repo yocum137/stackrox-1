@@ -41,7 +41,7 @@ var (
 type Manager interface {
 	ReprocessDeploymentRisk(deployment *storage.Deployment)
 	CalculateRiskAndUpsertImage(image *storage.Image) error
-	CalculateRiskAndUpsertNode(node *storage.Node) error
+	CalculateRiskAndUpsertNode(node *storage.Node, ignoreScan bool) error
 }
 
 type managerImpl struct {
@@ -177,7 +177,7 @@ func (e *managerImpl) calculateAndUpsertNodeRisk(node *storage.Node) error {
 	return nil
 }
 
-func (e *managerImpl) CalculateRiskAndUpsertNode(node *storage.Node) error {
+func (e *managerImpl) CalculateRiskAndUpsertNode(node *storage.Node, ignoreScan bool) error {
 	defer metrics.ObserveRiskProcessingDuration(time.Now(), "Node")
 
 	if err := e.calculateAndUpsertNodeRisk(node); err != nil {
@@ -186,7 +186,7 @@ func (e *managerImpl) CalculateRiskAndUpsertNode(node *storage.Node) error {
 
 	// TODO: ROX-6235: Evaluate cluster risk.
 
-	if err := e.nodeStorage.UpsertNode(riskReprocessorCtx, node); err != nil {
+	if err := e.nodeStorage.UpsertNode(riskReprocessorCtx, node, ignoreScan); err != nil {
 		return errors.Wrapf(err, "upserting node %s", node.GetName())
 	}
 	return nil
