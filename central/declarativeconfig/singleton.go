@@ -3,6 +3,7 @@ package declarativeconfig
 import (
 	"github.com/gogo/protobuf/proto"
 	authProviderDatastore "github.com/stackrox/rox/central/authprovider/datastore"
+	groupDatastore "github.com/stackrox/rox/central/group/datastore"
 	roleDatastore "github.com/stackrox/rox/central/role/datastore"
 	"github.com/stackrox/rox/pkg/auth/authproviders"
 	"github.com/stackrox/rox/pkg/env"
@@ -25,6 +26,7 @@ func ManagerSingleton(registry authproviders.Registry) Manager {
 			env.DeclarativeConfigReconcileInterval.DurationSetting(),
 			env.DeclarativeConfigWatchInterval.DurationSetting(),
 			roleDatastore.Singleton(),
+			groupDatastore.Singleton(),
 			authProviderDatastore.Singleton(),
 			registry,
 			// TODO(ROX-15088): replace with actual health reporter

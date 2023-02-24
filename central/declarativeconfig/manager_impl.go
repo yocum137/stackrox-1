@@ -9,7 +9,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	authProviderDatastore "github.com/stackrox/rox/central/authprovider/datastore"
-	groupDataStore "github.com/stackrox/rox/central/group/datastore"
+	groupDatastore "github.com/stackrox/rox/central/group/datastore"
 	roleDatastore "github.com/stackrox/rox/central/role/datastore"
 	"github.com/stackrox/rox/central/role/resources"
 	"github.com/stackrox/rox/generated/storage"
@@ -49,7 +49,7 @@ type managerImpl struct {
 	shortCircuitSignal   concurrency.Signal
 
 	roleDS                      roleDatastore.DataStore
-	groupDS                     groupDataStore.DataStore
+	groupDS                     groupDatastore.DataStore
 	authProviderDS              authproviders.Store
 	authProviderRegistry        authproviders.Registry
 	reconciliationCtx           context.Context
@@ -67,19 +67,20 @@ var (
 // New creates a new instance of Manager.
 // Note that it will not watch the declarative configuration directories when created, only after
 // ReconcileDeclarativeConfigurations has been called.
-func New(reconciliationTickerDuration, watchIntervalDuration time.Duration, roleDS roleDatastore.DataStore, authProviderDS authproviders.Store, registry authproviders.Registry, reconciliationErrorReporter ReconciliationErrorReporter) Manager {
+func New(reconciliationTickerDuration, watchIntervalDuration time.Duration, roleDS roleDatastore.DataStore, groupDS groupDatastore.DataStore, authProviderDS authproviders.Store, registry authproviders.Registry, reconciliationErrorReporter ReconciliationErrorReporter) Manager {
 	writeDeclarativeRoleCtx := declarativeconfig.WithModifyDeclarativeResource(context.Background())
 	writeDeclarativeRoleCtx = sac.WithGlobalAccessScopeChecker(writeDeclarativeRoleCtx,
 		sac.AllowFixedScopes(
 			sac.AccessModeScopeKeys(storage.Access_READ_ACCESS, storage.Access_READ_WRITE_ACCESS),
 			// TODO: ROX-14398 Replace Role with Access
-			sac.ResourceScopeKeys(resources.Role)))
+			sac.ResourceScopeKeys(resources.Role, resources.Access)))
 	return &managerImpl{
 		universalTransformer:         transform.New(),
 		transformedMessagesByHandler: map[string]protoMessagesByType{},
 		reconciliationTickerDuration: reconciliationTickerDuration,
 		watchIntervalDuration:        watchIntervalDuration,
 		roleDS:                       roleDS,
+		groupDS:                      groupDS,
 		authProviderDS:               authProviderDS,
 		reconciliationCtx:            writeDeclarativeRoleCtx,
 		reconciliationErrorReporter:  reconciliationErrorReporter,
