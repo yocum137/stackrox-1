@@ -8,11 +8,18 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
+	authProviderDatastore "github.com/stackrox/rox/central/authprovider/datastore"
+	groupDataStore "github.com/stackrox/rox/central/group/datastore"
+	roleDatastore "github.com/stackrox/rox/central/role/datastore"
+	"github.com/stackrox/rox/central/role/resources"
+	"github.com/stackrox/rox/generated/storage"
+	"github.com/stackrox/rox/pkg/auth/authproviders"
 	"github.com/stackrox/rox/pkg/concurrency"
 	"github.com/stackrox/rox/pkg/declarativeconfig"
 	"github.com/stackrox/rox/pkg/declarativeconfig/transform"
 	"github.com/stackrox/rox/pkg/k8scfgwatch"
 	"github.com/stackrox/rox/pkg/maputil"
+	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/sync"
 	"github.com/stackrox/rox/pkg/utils"
 )
@@ -22,6 +29,10 @@ const (
 )
 
 type protoMessagesByType = map[reflect.Type][]proto.Message
+
+type ReconciliationErrorReporter interface {
+	ProcessError(protoValue proto.Message, err error)
+}
 
 type managerImpl struct {
 	once sync.Once
@@ -36,17 +47,49 @@ type managerImpl struct {
 
 	reconciliationTicker *time.Ticker
 	shortCircuitSignal   concurrency.Signal
+	// TODO: think about naming for datastores
+	roleDS               roleDatastore.DataStore
+	groupDS              groupDataStore.DataStore
+	authProviderRegistry authproviders.Registry
+	// TODO: think about naming
+	ctx                         context.Context
+	reconciliationErrorReporter ReconciliationErrorReporter
+	authProviderDS              authproviders.Store
 }
+
+var (
+	authProviderType  = reflect.TypeOf((*storage.AuthProvider)(nil))
+	accessScopeType   = reflect.TypeOf((*storage.SimpleAccessScope)(nil))
+	groupType         = reflect.TypeOf((*storage.Group)(nil))
+	permissionSetType = reflect.TypeOf((*storage.PermissionSet)(nil))
+	roleType          = reflect.TypeOf((*storage.Role)(nil))
+)
+
+type noOpErrorReporter struct{}
+
+func (n noOpErrorReporter) ProcessError(_ proto.Message, _ error) {}
 
 // New creates a new instance of Manager.
 // Note that it will not watch the declarative configuration directories when created, only after
 // ReconcileDeclarativeConfigurations has been called.
-func New(reconciliationTickerDuration, watchIntervalDuration time.Duration) Manager {
+func New(reconciliationTickerDuration, watchIntervalDuration time.Duration, roleDS roleDatastore.DataStore, authProviderDS authproviders.Store, registry authproviders.Registry) Manager {
+	writeDeclarativeRoleCtx := declarativeconfig.WithModifyDeclarativeResource(context.Background())
+	writeDeclarativeRoleCtx = sac.WithGlobalAccessScopeChecker(writeDeclarativeRoleCtx,
+		sac.AllowFixedScopes(
+			sac.AccessModeScopeKeys(storage.Access_READ_ACCESS, storage.Access_READ_WRITE_ACCESS),
+			// TODO: ROX-14398 Replace Role with Access
+			sac.ResourceScopeKeys(resources.Role)))
 	return &managerImpl{
 		universalTransformer:         transform.New(),
 		transformedMessagesByHandler: map[string]protoMessagesByType{},
 		reconciliationTickerDuration: reconciliationTickerDuration,
 		watchIntervalDuration:        watchIntervalDuration,
+		roleDS:                       roleDS,
+		authProviderDS:               authProviderDS,
+		ctx:                          writeDeclarativeRoleCtx,
+		// TODO: properly initialize error reporter(probably need to make it into singleton)
+		reconciliationErrorReporter: noOpErrorReporter{},
+		authProviderRegistry:        registry,
 	}
 }
 
@@ -151,14 +194,105 @@ func (m *managerImpl) runReconciliation() {
 }
 
 func (m *managerImpl) reconcileTransformedMessages(transformedMessagesByHandler map[string]protoMessagesByType) {
-	for handler, protoMessagesByType := range transformedMessagesByHandler {
+	// TODO: think if name makes sense in context of the overall function(think about deletion)
+	transformedMessages := map[reflect.Type][]proto.Message{}
+	// TODO: think if we need to log handler
+	for _, protoMessagesByType := range transformedMessagesByHandler {
 		for protoType, protoMessages := range protoMessagesByType {
-			// TODO(ROX-14693): Add upserting transformed resources.
-			log.Debugf("Upserting transformed messages of type %s from file %s: %+v",
-				protoType.Name(), handler, protoMessages)
+			transformedMessages[protoType] = append(transformedMessages[protoType], protoMessages...)
 		}
+
 	}
+	// TODO: write in the PR description that alternative was to use protoTypeUpsertOrder list. However, the problem was
+	// TODO: to generalize type of upsert function as "function type cannot have type parameters" in Golang.
+	m.reconcileUpsertAccessScopes(transformedMessages)
+	m.reconcileUpsertPermissionSets(transformedMessages)
+	m.reconcileUpsertRoles(transformedMessages)
+	m.reconcileUpsertAuthProviders(transformedMessages)
+	m.reconcileUpsertGroups(transformedMessages)
 	// TODO(ROX-14694): Add deletion of resources.
 	log.Debugf("Deleting all proto messages that have traits.Origin==DECLARATIVE but are not contained"+
 		" within the current list of transformed messages: %+v", transformedMessagesByHandler)
+}
+
+func (m *managerImpl) reconcileUpsertAccessScopes(transformedMessages map[reflect.Type][]proto.Message) {
+	accessScopes, ok := transformedMessages[accessScopeType]
+	// No access scopes to reconcile.
+	if !ok {
+		return
+	}
+	for _, accessScope := range accessScopes {
+		err := m.roleDS.UpsertAccessScope(m.ctx, accessScope.(*storage.SimpleAccessScope))
+		if err != nil {
+			// TODO: think if we need to collect errors within manager_impl o
+			m.reconciliationErrorReporter.ProcessError(accessScope, err)
+		}
+	}
+}
+
+func (m *managerImpl) reconcileUpsertPermissionSets(transformedMessages map[reflect.Type][]proto.Message) {
+	permissionSets, ok := transformedMessages[permissionSetType]
+	// No permission sets to reconcile.
+	if !ok {
+		return
+	}
+	for _, permissionSet := range permissionSets {
+		err := m.roleDS.UpsertPermissionSet(m.ctx, permissionSet.(*storage.PermissionSet))
+		if err != nil {
+			// TODO: think if we need to collect errors within manager_impl o
+			m.reconciliationErrorReporter.ProcessError(permissionSet, err)
+		}
+	}
+}
+
+func (m *managerImpl) reconcileUpsertRoles(transformedMessages map[reflect.Type][]proto.Message) {
+	roles, ok := transformedMessages[roleType]
+	// No roles to reconcile.
+	if !ok {
+		return
+	}
+	for _, role := range roles {
+		err := m.roleDS.UpsertRole(m.ctx, role.(*storage.Role))
+		if err != nil {
+			// TODO: think if we need to collect errors within manager_impl o
+			m.reconciliationErrorReporter.ProcessError(role, err)
+		}
+	}
+}
+
+func (m *managerImpl) reconcileUpsertAuthProviders(transformedMessages map[reflect.Type][]proto.Message) {
+	authProviders, ok := transformedMessages[authProviderType]
+	// No auth providers to reconcile.
+	if !ok {
+		return
+	}
+	for _, protoMessage := range authProviders {
+		authProvider := protoMessage.(*storage.AuthProvider)
+
+		if err := m.authProviderRegistry.DeleteProvider(m.ctx, authProvider.GetId(), true, true); err != nil {
+			m.reconciliationErrorReporter.ProcessError(authProvider, err)
+		}
+		// TODO: common function/interface to call CreateProvider with the same options as service_impl
+		// TODO: also to prevent modifications to basic auth provider
+		if _, err := m.authProviderRegistry.CreateProvider(m.ctx, authproviders.WithStorageView(authProvider),
+			authproviders.WithAttributeVerifier(authProvider),
+			authproviders.WithValidateCallback(authProviderDatastore.Singleton())); err != nil {
+			m.reconciliationErrorReporter.ProcessError(authProvider, err)
+		}
+	}
+}
+
+func (m *managerImpl) reconcileUpsertGroups(transformedMessages map[reflect.Type][]proto.Message) {
+	groups, ok := transformedMessages[groupType]
+	// No access scopes to reconcile.
+	if !ok {
+		return
+	}
+	for _, group := range groups {
+		err := m.groupDS.Upsert(m.ctx, group.(*storage.Group))
+		if err != nil {
+			// TODO: think if we need to collect errors within manager_impl o
+			m.reconciliationErrorReporter.ProcessError(group, err)
+		}
+	}
 }

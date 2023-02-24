@@ -15,6 +15,7 @@ import (
 	"github.com/stackrox/rox/pkg/postgres/pgutils"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/sync"
+	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
@@ -30,6 +31,90 @@ type dataStoreImpl struct {
 	accessScopeStorage   rocksDBStore.SimpleAccessScopeStore
 
 	lock sync.RWMutex
+}
+
+func (ds *dataStoreImpl) UpsertRole(ctx context.Context, newRole *storage.Role) error {
+	if err := sac.VerifyAuthzOK(roleSAC.WriteAllowed(ctx)); err != nil {
+		return err
+	}
+	if err := rolePkg.ValidateRole(newRole); err != nil {
+		return errors.Wrap(errox.InvalidArgs, err.Error())
+	}
+
+	ds.lock.Lock()
+	defer ds.lock.Unlock()
+
+	oldRole, found, err := ds.roleStorage.Get(ctx, newRole.GetName())
+	if err != nil {
+		return err
+	}
+	if err := verifyRoleOriginMatches(ctx, utils.IfThenElse(found, oldRole, newRole)); err != nil {
+		return err
+	}
+
+	// Constraints ok, write the object. We expect the underlying store to
+	// verify there is no role with the same name.
+	if err := ds.roleStorage.Upsert(ctx, newRole); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *dataStoreImpl) UpsertPermissionSet(ctx context.Context, newPS *storage.PermissionSet) error {
+	if err := sac.VerifyAuthzOK(roleSAC.WriteAllowed(ctx)); err != nil {
+		return err
+	}
+	if err := rolePkg.ValidatePermissionSet(newPS); err != nil {
+		return errors.Wrap(errox.InvalidArgs, err.Error())
+	}
+
+	ds.lock.Lock()
+	defer ds.lock.Unlock()
+
+	oldPS, found, err := ds.permissionSetStorage.Get(ctx, newPS.GetId())
+	if err != nil {
+		return err
+	}
+	if err := verifyPermissionSetOriginMatches(ctx, utils.IfThenElse(found, oldPS, newPS)); err != nil {
+		return err
+	}
+
+	// Constraints ok, write the object. We expect the underlying store to
+	// verify there is no permission set with the same name.
+	if err := ds.permissionSetStorage.Upsert(ctx, newPS); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *dataStoreImpl) UpsertAccessScope(ctx context.Context, newScope *storage.SimpleAccessScope) error {
+	if err := sac.VerifyAuthzOK(roleSAC.WriteAllowed(ctx)); err != nil {
+		return err
+	}
+	if err := rolePkg.ValidateSimpleAccessScope(newScope); err != nil {
+		return errors.Wrap(errox.InvalidArgs, err.Error())
+	}
+
+	ds.lock.Lock()
+	defer ds.lock.Unlock()
+
+	oldScope, found, err := ds.accessScopeStorage.Get(ctx, newScope.GetId())
+	if err != nil {
+		return err
+	}
+	if err := verifyAccessScopeOriginMatches(ctx, utils.IfThenElse(found, oldScope, newScope)); err != nil {
+		return err
+	}
+
+	// Constraints ok, write the object. We expect the underlying store to
+	// verify there is no access scope with the same name.
+	if err := ds.accessScopeStorage.Upsert(ctx, newScope); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (ds *dataStoreImpl) GetRole(ctx context.Context, name string) (*storage.Role, bool, error) {

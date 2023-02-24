@@ -27,6 +27,57 @@ type dataStoreImpl struct {
 	lock sync.RWMutex
 }
 
+func (ds *dataStoreImpl) Upsert(ctx context.Context, group *storage.Group) error {
+	if ok, err := accessSAC.WriteAllowed(ctx); err != nil {
+		return err
+	} else if !ok {
+		return sac.ErrResourceAccessDenied
+	}
+
+	// Lock to simulate being behind a transaction
+	ds.lock.Lock()
+	defer ds.lock.Unlock()
+
+	if err := ds.validateAndPrepGroupForUpsertNoLock(ctx, group); err != nil {
+		return err
+	}
+
+	return ds.storage.Upsert(ctx, group)
+}
+
+// Validate if the group is allowed to be upserted and prep the group before it is upserted in db.
+// NOTE: This function assumes that the call to this function is already behind a lock.
+func (ds *dataStoreImpl) validateAndPrepGroupForUpsertNoLock(ctx context.Context, newGroup *storage.Group) error {
+	if err := ValidateGroup(newGroup, true); err != nil {
+		return errox.InvalidArgs.CausedBy(err)
+	}
+
+	oldGroup, exists, err := ds.storage.Get(ctx, newGroup.GetProps().GetId())
+	if err != nil {
+		return err
+	}
+	if exists {
+		if err = verifyGroupOriginMatches(ctx, oldGroup); err != nil {
+			return err
+		}
+	}
+	if err = verifyGroupOriginMatches(ctx, newGroup); err != nil {
+		return err
+	}
+
+	defaultGroup, err := ds.getDefaultGroupForProps(ctx, newGroup.GetProps())
+	if err != nil {
+		return err
+	}
+
+	// Only disallow update of a default group if it does not update the existing default group, if there is any.
+	if defaultGroup != nil && defaultGroup.GetProps().GetId() != newGroup.GetProps().Id {
+		return errox.AlreadyExists.Newf("cannot update group to default group of auth provider %q as a default group already exists",
+			newGroup.GetProps().GetAuthProviderId())
+	}
+	return nil
+}
+
 func (ds *dataStoreImpl) Get(ctx context.Context, props *storage.GroupProperties) (*storage.Group, error) {
 	if ok, err := accessSAC.ReadAllowed(ctx); err != nil {
 		return nil, err
