@@ -30,6 +30,7 @@ const (
 
 type protoMessagesByType = map[reflect.Type][]proto.Message
 
+// ReconciliationErrorReporter processes declarative resources reconciliation errors.
 type ReconciliationErrorReporter interface {
 	ProcessError(protoValue proto.Message, err error)
 }
