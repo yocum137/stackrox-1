@@ -15,7 +15,6 @@ import (
 	"github.com/stackrox/rox/pkg/postgres/pgutils"
 	"github.com/stackrox/rox/pkg/sac"
 	"github.com/stackrox/rox/pkg/sync"
-	"github.com/stackrox/rox/pkg/utils"
 )
 
 var (
@@ -44,11 +43,16 @@ func (ds *dataStoreImpl) UpsertRole(ctx context.Context, newRole *storage.Role) 
 	ds.lock.Lock()
 	defer ds.lock.Unlock()
 
-	oldRole, found, err := ds.roleStorage.Get(ctx, newRole.GetName())
+	oldRole, exists, err := ds.roleStorage.Get(ctx, newRole.GetName())
 	if err != nil {
 		return err
 	}
-	if err := verifyRoleOriginMatches(ctx, utils.IfThenElse(found, oldRole, newRole)); err != nil {
+	if exists {
+		if err := verifyRoleOriginMatches(ctx, oldRole); err != nil {
+			return err
+		}
+	}
+	if err := verifyRoleOriginMatches(ctx, newRole); err != nil {
 		return err
 	}
 
@@ -72,11 +76,16 @@ func (ds *dataStoreImpl) UpsertPermissionSet(ctx context.Context, newPS *storage
 	ds.lock.Lock()
 	defer ds.lock.Unlock()
 
-	oldPS, found, err := ds.permissionSetStorage.Get(ctx, newPS.GetId())
+	oldPS, exists, err := ds.permissionSetStorage.Get(ctx, newPS.GetId())
 	if err != nil {
 		return err
 	}
-	if err := verifyPermissionSetOriginMatches(ctx, utils.IfThenElse(found, oldPS, newPS)); err != nil {
+	if exists {
+		if err := verifyPermissionSetOriginMatches(ctx, oldPS); err != nil {
+			return err
+		}
+	}
+	if err := verifyPermissionSetOriginMatches(ctx, newPS); err != nil {
 		return err
 	}
 
@@ -100,11 +109,17 @@ func (ds *dataStoreImpl) UpsertAccessScope(ctx context.Context, newScope *storag
 	ds.lock.Lock()
 	defer ds.lock.Unlock()
 
-	oldScope, found, err := ds.accessScopeStorage.Get(ctx, newScope.GetId())
+	oldScope, exists, err := ds.accessScopeStorage.Get(ctx, newScope.GetId())
 	if err != nil {
 		return err
 	}
-	if err := verifyAccessScopeOriginMatches(ctx, utils.IfThenElse(found, oldScope, newScope)); err != nil {
+	if exists {
+		if err := verifyAccessScopeOriginMatches(ctx, oldScope); err != nil {
+			return err
+		}
+		if err := verifyAccessScopeOriginMatches(ctx, newScope); err != nil {
+			return err
+		}
 		return err
 	}
 
