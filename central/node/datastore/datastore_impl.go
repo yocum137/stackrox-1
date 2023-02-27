@@ -185,7 +185,7 @@ func (ds *datastoreImpl) GetManyNodeMetadata(ctx context.Context, ids []string) 
 
 // UpsertNode dedupes the node with the underlying storage and adds the node to the index.
 func (ds *datastoreImpl) UpsertNode(ctx context.Context, node *storage.Node, ignoreScan bool) error {
-	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "UpsertNode")
+	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "UpsertNodeNoScan")
 
 	if node.GetId() == "" {
 		return errors.New("cannot upsert a node without an id")
@@ -204,6 +204,62 @@ func (ds *datastoreImpl) UpsertNode(ctx context.Context, node *storage.Node, ign
 	enricher.FillScanStats(node)
 
 	if err := ds.storage.Upsert(ctx, node, ignoreScan); err != nil {
+		return err
+	}
+	// If the node in db is latest, this node object will be carrying its risk score
+	ds.nodeRanker.Add(node.GetId(), node.GetRiskScore())
+	return nil
+}
+
+// UpdateNodeRisk updates the risk value for node
+func (ds *datastoreImpl) UpdateNodeRisk(ctx context.Context, node *storage.Node) error {
+	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "UpdateNodeRisk")
+
+	if node.GetId() == "" {
+		return errors.New("cannot upsert a node without an id")
+	}
+
+	if ok, err := nodesSAC.WriteAllowed(ctx); err != nil {
+		return err
+	} else if !ok {
+		return sac.ErrResourceAccessDenied
+	}
+
+	ds.keyedMutex.Lock(node.GetId())
+	defer ds.keyedMutex.Unlock(node.GetId())
+
+	ds.updateComponentRisk(node)
+	enricher.FillScanStats(node)
+
+	if err := ds.storage.Upsert(ctx, node, false); err != nil {
+		return err
+	}
+	// If the node in db is latest, this node object will be carrying its risk score
+	ds.nodeRanker.Add(node.GetId(), node.GetRiskScore())
+	return nil
+}
+
+// UpdateNodeScan updates the components and vulnerabilities values for node
+func (ds *datastoreImpl) UpdateNodeScan(ctx context.Context, node *storage.Node) error {
+	defer metrics.SetDatastoreFunctionDuration(time.Now(), typ, "UpdateNodeScan")
+
+	if node.GetId() == "" {
+		return errors.New("cannot update a node without an id")
+	}
+
+	if ok, err := nodesSAC.WriteAllowed(ctx); err != nil {
+		return err
+	} else if !ok {
+		return sac.ErrResourceAccessDenied
+	}
+
+	ds.keyedMutex.Lock(node.GetId())
+	defer ds.keyedMutex.Unlock(node.GetId())
+
+	ds.updateComponentRisk(node)
+	enricher.FillScanStats(node)
+
+	if err := ds.storage.UpdateNodeScan(ctx, node); err != nil {
 		return err
 	}
 	// If the node in db is latest, this node object will be carrying its risk score

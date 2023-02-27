@@ -98,11 +98,24 @@ func (p *pipelineImpl) Run(ctx context.Context, clusterID string, msg *central.M
 
 	log.Infof("Node pipeline is processing node with OS '%s'. IsRHCOS = %t", node.GetOsImage(), isRHCOS(node.GetOsImage()))
 
-	if err := p.riskManager.CalculateRiskAndUpsertNode(node, isRHCOS(node.GetOsImage())); err != nil {
+	if !isRHCOS(node.GetOsImage()) {
+		if err := p.riskManager.CalculateRisk(node); err != nil {
+			err = errors.Wrapf(err, "calculating risk for node %s:%s into datastore", node.GetClusterName(), node.GetName())
+			log.Error(err)
+			return err
+		}
+	}
+	if err := p.riskManager.UpsertNode(node, isRHCOS(node.GetOsImage())); err != nil {
 		err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
 		log.Error(err)
 		return err
 	}
+
+	// if err := p.riskManager.CalculateRiskAndUpsertNode(node, isRHCOS(node.GetOsImage())); err != nil {
+	//	err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
+	//	log.Error(err)
+	//	return err
+	//}
 
 	return nil
 }

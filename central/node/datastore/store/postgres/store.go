@@ -61,7 +61,11 @@ type Store interface {
 	Count(ctx context.Context) (int, error)
 	Exists(ctx context.Context, id string) (bool, error)
 	Get(ctx context.Context, id string) (*storage.Node, bool, error)
+
 	Upsert(ctx context.Context, node *storage.Node, ignoreScan bool) error
+	UpsertNodeNoScan(ctx context.Context, node *storage.Node) error
+	UpdateNodeScan(ctx context.Context, node *storage.Node) error
+
 	Delete(ctx context.Context, id string) error
 	GetMany(ctx context.Context, ids []string) ([]*storage.Node, []int, error)
 	// GetNodeMetadata gets the node without scan/component data.
@@ -144,6 +148,114 @@ func (s *storeImpl) insertIntoNodes(
 	}
 	if !scanUpdated {
 		return nil
+	}
+
+	// DO NOT CHANGE THE ORDER.
+	if err := copyFromNodeComponentEdges(ctx, tx, cloned.GetId(), parts.nodeComponentEdges...); err != nil {
+		return err
+	}
+	if err := copyFromNodeComponents(ctx, tx, parts.components...); err != nil {
+		return err
+	}
+
+	if err := copyFromNodeComponentCVEEdges(ctx, tx, parts.componentCVEEdges...); err != nil {
+		return err
+	}
+	return copyFromNodeCves(ctx, tx, iTime, parts.vulns...)
+}
+
+func (s *storeImpl) insertIntoNodesNoScan(
+	ctx context.Context,
+	tx pgx.Tx,
+	parts *nodePartsAsSlice,
+	iTime *protoTypes.Timestamp,
+) error {
+	cloned := parts.node
+	if cloned.GetScan().GetComponents() != nil {
+		cloned = parts.node.Clone()
+		cloned.Scan.Components = nil
+	}
+	serialized, marshalErr := cloned.Marshal()
+	if marshalErr != nil {
+		return marshalErr
+	}
+
+	values := []interface{}{
+		// parent primary keys start
+		pgutils.NilOrUUID(cloned.GetId()),
+		cloned.GetName(),
+		pgutils.NilOrUUID(cloned.GetClusterId()),
+		cloned.GetClusterName(),
+		cloned.GetLabels(),
+		cloned.GetAnnotations(),
+		pgutils.NilOrTime(cloned.GetJoinedAt()),
+		cloned.GetContainerRuntime().GetVersion(),
+		cloned.GetOsImage(),
+		pgutils.NilOrTime(cloned.GetLastUpdated()),
+		serialized,
+	}
+
+	finalStr := "INSERT INTO nodes (Id, Name, ClusterId, ClusterName, Labels, Annotations, JoinedAt, ContainerRuntime_Version, OsImage, LastUpdated, serialized) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT(Id) DO UPDATE SET Id = EXCLUDED.Id, Name = EXCLUDED.Name, ClusterId = EXCLUDED.ClusterId, ClusterName = EXCLUDED.ClusterName, Labels = EXCLUDED.Labels, Annotations = EXCLUDED.Annotations, JoinedAt = EXCLUDED.JoinedAt, ContainerRuntime_Version = EXCLUDED.ContainerRuntime_Version, OsImage = EXCLUDED.OsImage, LastUpdated = EXCLUDED.LastUpdated, serialized = EXCLUDED.serialized"
+	_, err := tx.Exec(ctx, finalStr, values...)
+	if err != nil {
+		return err
+	}
+
+	var query string
+
+	for childIdx, child := range cloned.GetTaints() {
+		if err := insertIntoNodesTaints(ctx, tx, child, cloned.GetId(), childIdx); err != nil {
+			return err
+		}
+	}
+
+	query = "delete from nodes_taints where nodes_Id = $1 AND idx >= $2"
+	_, err = tx.Exec(ctx, query, pgutils.NilOrUUID(cloned.GetId()), len(cloned.GetTaints()))
+	if err != nil {
+		return err
+	}
+
+	// DO NOT CHANGE THE ORDER.
+	if err := copyFromNodeComponentEdges(ctx, tx, cloned.GetId(), parts.nodeComponentEdges...); err != nil {
+		return err
+	}
+	if err := copyFromNodeComponents(ctx, tx, parts.components...); err != nil {
+		return err
+	}
+
+	if err := copyFromNodeComponentCVEEdges(ctx, tx, parts.componentCVEEdges...); err != nil {
+		return err
+	}
+	return copyFromNodeCves(ctx, tx, iTime, parts.vulns...)
+}
+
+func (s *storeImpl) updateNodesSetScan(
+	ctx context.Context,
+	tx pgx.Tx,
+	parts *nodePartsAsSlice,
+	iTime *protoTypes.Timestamp,
+) error {
+	cloned := parts.node
+	if cloned.GetScan().GetComponents() != nil {
+		cloned = parts.node.Clone()
+		cloned.Scan.Components = nil
+	}
+
+	values := []interface{}{
+		// parent primary keys start
+		pgutils.NilOrUUID(cloned.GetId()),
+		pgutils.NilOrTime(cloned.GetScan().GetScanTime()),
+		cloned.GetComponents(),
+		cloned.GetCves(),
+		cloned.GetFixableCves(),
+		cloned.GetRiskScore(),
+		cloned.GetTopCvss(),
+	}
+
+	finalStr := "UPDATE nodes  SET Scan_ScanTime = $2, Components = $3, Cves = $4, FixableCves = $5, RiskScore = $6, TopCvss = $7, WHERE Id = $1;"
+	_, err := tx.Exec(ctx, finalStr, values...)
+	if err != nil {
+		return err
 	}
 
 	// DO NOT CHANGE THE ORDER.
@@ -538,6 +650,91 @@ func (s *storeImpl) Upsert(ctx context.Context, node *storage.Node, ignoreScan b
 
 	return pgutils.Retry(func() error {
 		return s.upsert(ctx, node, ignoreScan)
+	})
+}
+
+func (s *storeImpl) upsertNodeNoScan(ctx context.Context, obj *storage.Node) error {
+	iTime := protoTypes.TimestampNow()
+
+	if !s.noUpdateTimestamps {
+		obj.LastUpdated = iTime
+	}
+	metadataUpdated, _, err := s.isUpdated(ctx, obj)
+	if err != nil {
+		return err
+	}
+	if !metadataUpdated {
+		return nil
+	}
+
+	nodeParts := getPartsAsSlice(common.Split(obj, false))
+	keys := gatherKeys(nodeParts)
+
+	conn, release, err := s.acquireConn(ctx, ops.Upsert, "Node")
+	if err != nil {
+		return err
+	}
+	defer release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	return s.keyFence.DoStatusWithLock(concurrency.DiscreteKeySet(keys...), func() error {
+		if err := s.insertIntoNodesNoScan(ctx, tx, nodeParts, iTime); err != nil {
+			if err := tx.Rollback(ctx); err != nil {
+				return err
+			}
+			return err
+		}
+		return tx.Commit(ctx)
+	})
+}
+
+// UpsertNodeNoScan upserts node into the store but does not update NodeScan
+func (s *storeImpl) UpsertNodeNoScan(ctx context.Context, node *storage.Node) error {
+	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Upsert, "Node")
+
+	return pgutils.Retry(func() error {
+		return s.upsertNodeNoScan(ctx, node)
+	})
+}
+
+func (s *storeImpl) updateNodeScan(ctx context.Context, obj *storage.Node) error {
+	iTime := protoTypes.TimestampNow()
+
+	nodeParts := getPartsAsSlice(common.Split(obj, true))
+	keys := gatherKeys(nodeParts)
+
+	conn, release, err := s.acquireConn(ctx, ops.Upsert, "Node")
+	if err != nil {
+		return err
+	}
+	defer release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	return s.keyFence.DoStatusWithLock(concurrency.DiscreteKeySet(keys...), func() error {
+		if err := s.updateNodesSetScan(ctx, tx, nodeParts, iTime); err != nil {
+			if err := tx.Rollback(ctx); err != nil {
+				return err
+			}
+			return err
+		}
+		return tx.Commit(ctx)
+	})
+}
+
+// UpdateNodeScan updates NodeScan for a Node
+func (s *storeImpl) UpdateNodeScan(ctx context.Context, node *storage.Node) error {
+	defer metrics.SetPostgresOperationDurationTime(time.Now(), ops.Upsert, "Node")
+
+	return pgutils.Retry(func() error {
+		return s.updateNodeScan(ctx, node)
 	})
 }
 

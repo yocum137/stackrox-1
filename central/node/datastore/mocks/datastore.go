@@ -209,7 +209,7 @@ func (mr *MockDataStoreMockRecorder) SearchRawNodes(ctx, q interface{}) *gomock.
 // UpsertNode mocks base method.
 func (m *MockDataStore) UpsertNode(ctx context.Context, node *storage.Node, ignoreScan bool) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpsertNode", ctx, node)
+	ret := m.ctrl.Call(m, "UpsertNodeNoScan", ctx, node)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -217,5 +217,5 @@ func (m *MockDataStore) UpsertNode(ctx context.Context, node *storage.Node, igno
 // UpsertNode indicates an expected call of UpsertNode.
 func (mr *MockDataStoreMockRecorder) UpsertNode(ctx, node interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertNode", reflect.TypeOf((*MockDataStore)(nil).UpsertNode), ctx, node)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertNodeNoScan", reflect.TypeOf((*MockDataStore)(nil).UpsertNode), ctx, node)
 }

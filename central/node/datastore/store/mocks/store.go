@@ -151,6 +151,22 @@ func (m *MockStore) Upsert(ctx context.Context, node *storage.Node, ignoreScan b
 	return ret0
 }
 
+// UpsertNodeNoScan mocks base method.
+func (m *MockStore) UpsertNodeNoScan(ctx context.Context, node *storage.Node) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertNodeNoScan", ctx, node)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertNodeNoScan mocks base method.
+func (m *MockStore) UpdateNodeScan(ctx context.Context, node *storage.Node) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateNodeScan", ctx, node)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
 // Upsert indicates an expected call of Upsert.
 func (mr *MockStoreMockRecorder) Upsert(ctx, node interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()

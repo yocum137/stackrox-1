@@ -91,11 +91,22 @@ func (p *pipelineImpl) Run(ctx context.Context, clusterID string, msg *central.M
 
 	// Here NodeInventory stops to matter. All data required for the DB and UI is in node.NodeScan already
 
-	if err := p.riskManager.CalculateRiskAndUpsertNode(node, false); err != nil {
+	if err := p.riskManager.CalculateRisk(node); err != nil {
+		err = errors.Wrapf(err, "calculating risk for node %s:%s into datastore", node.GetClusterName(), node.GetName())
+		log.Error(err)
+		return err
+	}
+	if err := p.riskManager.UpdateNodeScan(node); err != nil {
 		err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
 		log.Error(err)
 		return err
 	}
+
+	// if err := p.riskManager.CalculateRiskAndUpsertNode(node, false); err != nil {
+	//	err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
+	//	log.Error(err)
+	//	return err
+	//}
 	// TODO(ROX-14484): Resolve the race between pipelines - End of critical section (when CalculateRiskAndUpsertNode finishes)
 	// We will loose data written in the node pipeline if the node pipeline writes an update to the DB
 	// while this pipeline is in the critical section!

@@ -41,6 +41,9 @@ var (
 type Manager interface {
 	ReprocessDeploymentRisk(deployment *storage.Deployment)
 	CalculateRiskAndUpsertImage(image *storage.Image) error
+	UpsertNode(node *storage.Node, ignoreScan bool) error
+	UpdateNodeScan(node *storage.Node) error
+	CalculateRisk(node *storage.Node) error
 	CalculateRiskAndUpsertNode(node *storage.Node, ignoreScan bool) error
 }
 
@@ -188,6 +191,29 @@ func (e *managerImpl) CalculateRiskAndUpsertNode(node *storage.Node, ignoreScan 
 
 	if err := e.nodeStorage.UpsertNode(riskReprocessorCtx, node, ignoreScan); err != nil {
 		return errors.Wrapf(err, "upserting node %s", node.GetName())
+	}
+	return nil
+}
+
+func (e *managerImpl) CalculateRisk(node *storage.Node) error {
+	defer metrics.ObserveRiskProcessingDuration(time.Now(), "Node")
+
+	if err := e.calculateAndUpsertNodeRisk(node); err != nil {
+		return errors.Wrapf(err, "calculating risk for node %s", node.GetName())
+	}
+	return nil
+}
+
+func (e *managerImpl) UpsertNode(node *storage.Node, ignoreScan bool) error {
+	if err := e.nodeStorage.UpsertNode(riskReprocessorCtx, node, ignoreScan); err != nil {
+		return errors.Wrapf(err, "upserting node %s", node.GetName())
+	}
+	return nil
+}
+
+func (e *managerImpl) UpdateNodeScan(node *storage.Node) error {
+	if err := e.nodeStorage.UpdateNodeScan(riskReprocessorCtx, node); err != nil {
+		return errors.Wrapf(err, "updating node scan %s", node.GetName())
 	}
 	return nil
 }

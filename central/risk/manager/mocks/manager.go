@@ -48,6 +48,20 @@ func (mr *MockManagerMockRecorder) CalculateRiskAndUpsertImage(image interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalculateRiskAndUpsertImage", reflect.TypeOf((*MockManager)(nil).CalculateRiskAndUpsertImage), image)
 }
 
+func (m *MockManager) CalculateRisk(node *storage.Node) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CalculateRisk", node)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (m *MockManager) UpsertNode(node *storage.Node, ignoreScan bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertNodeNoScan", node)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
 // CalculateRiskAndUpsertNode mocks base method.
 func (m *MockManager) CalculateRiskAndUpsertNode(node *storage.Node, ignoreScan bool) error {
 	m.ctrl.T.Helper()

@@ -146,6 +146,16 @@ func (b *storeImpl) GetMany(_ context.Context, ids []string) ([]*storage.Node, [
 	return nodes, missingIndices, nil
 }
 
+func (b *storeImpl) UpsertNodeNoScan(ctx context.Context, node *storage.Node) error {
+	// TODO: implement me
+	return nil
+}
+
+func (b *storeImpl) UpdateNodeScan(ctx context.Context, node *storage.Node) error {
+	// TODO: implement me
+	return nil
+}
+
 // Upsert writes a node to the DB, overwriting previous data.
 func (b *storeImpl) Upsert(ctx context.Context, node *storage.Node, ignoreScan bool) error {
 	defer metrics.SetDackboxOperationDurationTime(time.Now(), ops.Upsert, typ)
