@@ -96,15 +96,19 @@ func (p *pipelineImpl) Run(ctx context.Context, clusterID string, msg *central.M
 		log.Warnf("enriching node %s:%s: %v", node.GetClusterName(), node.GetName(), err)
 	}
 
-	ignoreScan := strings.HasPrefix(node.GetOperatingSystem(), "rhcos") // FIXME: make sure that RHCOS is recognized correctly here
+	log.Infof("Node pipeline is processing node with OS '%s'. IsRHCOS = %t", node.GetOperatingSystem(), isRHCOS(node.GetOperatingSystem()))
 
-	if err := p.riskManager.CalculateRiskAndUpsertNode(node, ignoreScan); err != nil {
+	if err := p.riskManager.CalculateRiskAndUpsertNode(node, isRHCOS(node.GetOperatingSystem())); err != nil {
 		err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
 		log.Error(err)
 		return err
 	}
 
 	return nil
+}
+
+func isRHCOS(s string) bool {
+	return strings.HasPrefix(strings.ToLower(s), `red hat enterprise linux coreos `)
 }
 
 func (p *pipelineImpl) OnFinish(_ string) {}
