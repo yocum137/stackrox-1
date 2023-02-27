@@ -212,37 +212,6 @@ func New(db *postgres.DB, clusterID string) FlowStore {
 		return nil
 	}
 
-	tableCreate := `create table if not exists network_flows (
-			Flow_id bigserial,
-			Props_SrcEntity_Type integer,
-			Props_SrcEntity_Id varchar,
-			Props_DstEntity_Type integer,
-			Props_DstEntity_Id varchar,
-			Props_DstPort integer,
-			Props_L4Protocol integer,
-			LastSeenTimestamp timestamp,
-			ClusterId varchar,
-			PRIMARY KEY(ClusterId, Flow_id)
-	) PARTITION BY LIST (ClusterId)`
-
-	_, err = db.Exec(context.Background(), fmt.Sprintf(tableCreate))
-	if err != nil {
-		log.Info(err)
-		panic("error creating table: " + tableCreate)
-	}
-
-	indexes := []string{
-		"create index if not exists network_flows_lastseentimestamp on network_flows using brin(lastseentimestamp)",
-		"create index if not exists network_flows_src on network_flows using hash(props_srcentity_Id)",
-		"create index if not exists network_flows_dst on network_flows using hash(props_dstentity_Id)",
-		"create index if not exists network_flows_cluster on network_flows using hash(clusterid)",
-	}
-	for _, index := range indexes {
-		if _, err := db.Exec(context.Background(), fmt.Sprintf(index)); err != nil {
-			panic(err)
-		}
-	}
-
 	partitionPostFix := strings.ReplaceAll(clusterID, "-", "_")
 	partitionCreate := `create table if not exists network_flows_%s partition of network_flows 
 		for values in ('%s')`
@@ -678,6 +647,6 @@ func Destroy(ctx context.Context, db *postgres.DB) {
 
 // CreateTableAndNewStore returns a new Store instance for testing
 func CreateTableAndNewStore(ctx context.Context, db *postgres.DB, gormDB *gorm.DB, clusterID string) FlowStore {
-	//pkgSchema.ApplySchemaForTable(ctx, gormDB, networkFlowsTable)
+	pkgSchema.ApplySchemaForTable(ctx, gormDB, networkFlowsTable)
 	return New(db, clusterID)
 }
