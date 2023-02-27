@@ -96,9 +96,9 @@ func (p *pipelineImpl) Run(ctx context.Context, clusterID string, msg *central.M
 		log.Warnf("enriching node %s:%s: %v", node.GetClusterName(), node.GetName(), err)
 	}
 
-	log.Infof("Node pipeline is processing node with OS '%s'. IsRHCOS = %t", node.GetOperatingSystem(), isRHCOS(node.GetOperatingSystem()))
+	log.Infof("Node pipeline is processing node with OS '%s'. IsRHCOS = %t", node.GetOsImage(), isRHCOS(node.GetOsImage()))
 
-	if err := p.riskManager.CalculateRiskAndUpsertNode(node, isRHCOS(node.GetOperatingSystem())); err != nil {
+	if err := p.riskManager.CalculateRiskAndUpsertNode(node, isRHCOS(node.GetOsImage())); err != nil {
 		err = errors.Wrapf(err, "upserting node %s:%s into datastore", node.GetClusterName(), node.GetName())
 		log.Error(err)
 		return err
