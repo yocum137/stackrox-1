@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gogo/protobuf/types"
@@ -39,7 +41,7 @@ const (
 	joinStmt = ` INNER JOIN 
 	(SELECT Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, 
 	Props_L4Protocol, ClusterId, MAX(Flow_Id) AS MaxFlow 
-	FROM network_flows 
+	FROM network_flows_%s 
 	GROUP BY Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, Props_L4Protocol, ClusterId) tmpflow 
 	on nf.Props_SrcEntity_Type = tmpflow.Props_SrcEntity_Type AND nf.Props_SrcEntity_Id = tmpflow.Props_SrcEntity_Id AND 
 	nf.Props_DstEntity_Type = tmpflow.Props_DstEntity_Type AND nf.Props_DstEntity_Id = tmpflow.Props_DstEntity_Id AND 
@@ -67,9 +69,9 @@ const (
 	FROM network_flows nf ` + joinStmt +
 		`WHERE nf.Props_DstEntity_Type = 1 AND nf.Props_DstEntity_Id = $1 AND nf.ClusterId = $2`
 
-	pruneStaleNetworkFlowsStmt = `DELETE FROM network_flows a USING (
+	pruneStaleNetworkFlowsStmt = `DELETE FROM network_flows_%s a USING (
       SELECT MAX(flow_id) as Max_Flow, Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, Props_L4Protocol, ClusterId
-        FROM network_flows
+        FROM network_flows_%s
 		WHERE ClusterId = $1
         GROUP BY Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, Props_L4Protocol, ClusterId
 		HAVING COUNT(*) > 1
@@ -96,7 +98,7 @@ var (
 	// using copyFrom, we may not even want to batch.  It would probably be simpler
 	// to deal with failures if we just sent it all.  Something to think about as we
 	// proceed and move into more e2e and larger performance testing
-	batchSize = 10000
+	batchSize = 5000
 )
 
 // FlowStore stores all of the flows for a single cluster.
@@ -125,12 +127,13 @@ type FlowStore interface {
 }
 
 type flowStoreImpl struct {
-	db        *postgres.DB
-	mutex     sync.Mutex
-	clusterID uuid.UUID
+	db               *postgres.DB
+	mutex            sync.Mutex
+	clusterID        uuid.UUID
+	partitionPostFix string
 }
 
-func insertIntoNetworkflow(ctx context.Context, tx pgx.Tx, clusterID uuid.UUID, obj *storage.NetworkFlow) error {
+func (s *flowStoreImpl) insertIntoNetworkflow(ctx context.Context, tx pgx.Tx, clusterID uuid.UUID, obj *storage.NetworkFlow) error {
 
 	values := []interface{}{
 		// parent primary keys start
@@ -144,7 +147,7 @@ func insertIntoNetworkflow(ctx context.Context, tx pgx.Tx, clusterID uuid.UUID, 
 		clusterID,
 	}
 
-	finalStr := "INSERT INTO network_flows (Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, Props_L4Protocol, LastSeenTimestamp, ClusterId) VALUES($1, $2, $3, $4, $5, $6, $7, $8)"
+	finalStr := fmt.Sprintf("INSERT INTO network_flows_%s (Props_SrcEntity_Type, Props_SrcEntity_Id, Props_DstEntity_Type, Props_DstEntity_Id, Props_DstPort, Props_L4Protocol, LastSeenTimestamp, ClusterId) VALUES($1, $2, $3, $4, $5, $6, $7, $8)", s.partitionPostFix)
 	_, err := tx.Exec(ctx, finalStr, values...)
 	if err != nil {
 		return err
@@ -186,7 +189,8 @@ func (s *flowStoreImpl) copyFromNetworkflow(ctx context.Context, tx pgx.Tx, objs
 			// copy does not upsert so have to delete first.  parent deletion cascades so only need to
 			// delete for the top level parent
 
-			_, err = tx.CopyFrom(ctx, pgx.Identifier{networkFlowsTable}, copyCols, pgx.CopyFromRows(inputRows))
+			partitionName := fmt.Sprintf(networkFlowsTable+"_%s", s.partitionPostFix)
+			_, err = tx.CopyFrom(ctx, pgx.Identifier{partitionName}, copyCols, pgx.CopyFromRows(inputRows))
 
 			if err != nil {
 				return err
@@ -208,9 +212,51 @@ func New(db *postgres.DB, clusterID string) FlowStore {
 		return nil
 	}
 
+	tableCreate := `create table if not exists network_flows (
+			Flow_id bigserial,
+			Props_SrcEntity_Type integer,
+			Props_SrcEntity_Id varchar,
+			Props_DstEntity_Type integer,
+			Props_DstEntity_Id varchar,
+			Props_DstPort integer,
+			Props_L4Protocol integer,
+			LastSeenTimestamp timestamp,
+			ClusterId varchar,
+			PRIMARY KEY(ClusterId, Flow_id)
+	) PARTITION BY LIST (ClusterId)`
+
+	_, err = db.Exec(context.Background(), fmt.Sprintf(tableCreate))
+	if err != nil {
+		log.Info(err)
+		panic("error creating table: " + tableCreate)
+	}
+
+	indexes := []string{
+		"create index if not exists network_flows_lastseentimestamp on network_flows using brin(lastseentimestamp)",
+		"create index if not exists network_flows_src on network_flows using hash(props_srcentity_Id)",
+		"create index if not exists network_flows_dst on network_flows using hash(props_dstentity_Id)",
+		"create index if not exists network_flows_cluster on network_flows using hash(clusterid)",
+	}
+	for _, index := range indexes {
+		if _, err := db.Exec(context.Background(), fmt.Sprintf(index)); err != nil {
+			panic(err)
+		}
+	}
+
+	partitionPostFix := strings.ReplaceAll(clusterID, "-", "_")
+	partitionCreate := `create table if not exists network_flows_%s partition of network_flows 
+		for values in ('%s')`
+
+	_, err = db.Exec(context.Background(), fmt.Sprintf(partitionCreate, partitionPostFix, clusterID))
+	if err != nil {
+		log.Info(err)
+		panic("error creating table: " + partitionCreate)
+	}
+
 	return &flowStoreImpl{
-		db:        db,
-		clusterID: clusterUUID,
+		db:               db,
+		clusterID:        clusterUUID,
+		partitionPostFix: partitionPostFix,
 	}
 }
 
@@ -252,7 +298,7 @@ func (s *flowStoreImpl) upsert(ctx context.Context, objs ...*storage.NetworkFlow
 	}
 	for _, obj := range objs {
 
-		if err := insertIntoNetworkflow(ctx, tx, s.clusterID, obj); err != nil {
+		if err := s.insertIntoNetworkflow(ctx, tx, s.clusterID, obj); err != nil {
 			if err := tx.Rollback(ctx); err != nil {
 				return err
 			}
@@ -406,9 +452,11 @@ func (s *flowStoreImpl) retryableGetAllFlows(ctx context.Context, since *types.T
 
 	// handling case when since is nil.  Assumption is we want everything in that case vs when date is not null
 	if since == nil {
-		rows, err = s.db.Query(ctx, walkStmt, s.clusterID)
+		partitionWalkStmt := fmt.Sprintf(walkStmt, s.partitionPostFix)
+		rows, err = s.db.Query(ctx, partitionWalkStmt, s.clusterID)
 	} else {
-		rows, err = s.db.Query(ctx, getSinceStmt, pgutils.NilOrTime(since), s.clusterID)
+		partitionSinceStmt := fmt.Sprintf(getSinceStmt, s.partitionPostFix)
+		rows, err = s.db.Query(ctx, partitionSinceStmt, pgutils.NilOrTime(since), s.clusterID)
 	}
 	if err != nil {
 		return nil, nil, pgutils.ErrNilIfNoRows(err)
@@ -441,9 +489,11 @@ func (s *flowStoreImpl) retryableGetMatchingFlows(ctx context.Context, pred func
 
 	// handling case when since is nil.  Assumption is we want everything in that case vs when date is not null
 	if since == nil {
-		rows, err = s.db.Query(ctx, walkStmt, s.clusterID)
+		partitionWalkStmt := fmt.Sprintf(walkStmt, s.partitionPostFix)
+		rows, err = s.db.Query(ctx, partitionWalkStmt, s.clusterID)
 	} else {
-		rows, err = s.db.Query(ctx, getSinceStmt, pgutils.NilOrTime(since), s.clusterID)
+		partitionSinceStmt := fmt.Sprintf(getSinceStmt, s.partitionPostFix)
+		rows, err = s.db.Query(ctx, partitionSinceStmt, pgutils.NilOrTime(since), s.clusterID)
 	}
 
 	if err != nil {
@@ -468,7 +518,8 @@ func (s *flowStoreImpl) retryableGetFlowsForDeployment(ctx context.Context, depl
 	var rows pgx.Rows
 	var err error
 
-	rows, err = s.db.Query(ctx, getByDeploymentStmt, deploymentID, s.clusterID)
+	partitionDeploymentDeleteStmt := fmt.Sprintf(getByDeploymentStmt, s.partitionPostFix, s.partitionPostFix)
+	rows, err = s.db.Query(ctx, partitionDeploymentDeleteStmt, deploymentID, s.clusterID)
 
 	if err != nil {
 		return nil, pgutils.ErrNilIfNoRows(err)
@@ -551,7 +602,8 @@ func (s *flowStoreImpl) retryableRemoveMatchingFlows(ctx context.Context, keyMat
 	// in Postgres we cannot fully do this work in SQL.  Additionally, there may be issues with the synchronization
 	// of when flow is created vs a deployment deleted that may also make that problematic.
 	if keyMatchFn != nil {
-		rows, err := conn.Query(ctx, walkStmt, s.clusterID)
+		partitionWalkStmt := fmt.Sprintf(walkStmt, s.partitionPostFix)
+		rows, err := conn.Query(ctx, partitionWalkStmt, s.clusterID)
 		if err != nil {
 			return err
 		}
@@ -608,7 +660,8 @@ func (s *flowStoreImpl) RemoveStaleFlows(ctx context.Context) error {
 
 	// This is purposefully not retried as this is an optimization and not a requirement
 	// It is also currently prone to statement timeouts
-	_, err = conn.Exec(ctx, pruneStaleNetworkFlowsStmt, s.clusterID)
+	prune := fmt.Sprintf(pruneStaleNetworkFlowsStmt, s.partitionPostFix, s.partitionPostFix)
+	_, err = conn.Exec(ctx, prune, s.clusterID)
 	return err
 }
 
@@ -625,6 +678,6 @@ func Destroy(ctx context.Context, db *postgres.DB) {
 
 // CreateTableAndNewStore returns a new Store instance for testing
 func CreateTableAndNewStore(ctx context.Context, db *postgres.DB, gormDB *gorm.DB, clusterID string) FlowStore {
-	pkgSchema.ApplySchemaForTable(ctx, gormDB, networkFlowsTable)
+	//pkgSchema.ApplySchemaForTable(ctx, gormDB, networkFlowsTable)
 	return New(db, clusterID)
 }
