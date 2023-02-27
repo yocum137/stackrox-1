@@ -287,8 +287,9 @@ func main() {
 	if features.RHCOSNodeScanning.Enabled() {
 		rescanInterval := env.NodeRescanInterval.DurationSetting()
 		cmetrics.ObserveRescanInterval(rescanInterval, getNode())
-		log.Infof("Node Rescan interval: %s - Cache Duration: %s", rescanInterval.String(), env.NodeScanCacheDuration.DurationSetting())
+		log.Infof("Node Scanning active and configured with rescan interval %s and cache duration %s", rescanInterval.String(), env.NodeScanCacheDuration.DurationSetting())
 
+		// TODO(ROX-13935): Remove FakeNodeInventory and its FF
 		var scanner nodeinventorizer.NodeInventorizer
 		if features.UseFakeNodeInventory.Enabled() {
 			log.Infof("Using FakeNodeInventorizer")
