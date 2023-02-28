@@ -54,6 +54,10 @@ func MigrateToPartitions(gormDB *gorm.DB, db *postgres.DB) error {
 	// Now apply the updated schema to create a partition table with updated index types
 	pgutils.CreateTableFromModel(context.Background(), gormDB, frozenSchema.CreateTableNetworkFlowsStmt)
 
+	// Check what is up with indexes
+	indexes, err := gormDB.Migrator().GetIndexes("network_flows")
+	log.WriteToStderrf("Indexes right after create -- %v", indexes)
+
 	// Create the partition and move the data
 	for _, cluster := range clusters {
 		err = createPartition(db, cluster)
@@ -75,6 +79,9 @@ func MigrateToPartitions(gormDB *gorm.DB, db *postgres.DB) error {
 		log.WriteToStderrf("unable to drop table network_flows_no_partition, %v", err)
 		return err
 	}
+
+	indexes, err = gormDB.Migrator().GetIndexes("network_flows")
+	log.WriteToStderrf("Indexes at end of the migration -- %v", indexes)
 
 	return nil
 }
