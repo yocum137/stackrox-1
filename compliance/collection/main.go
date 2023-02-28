@@ -37,6 +37,11 @@ var (
 	once sync.Once
 )
 
+// nodeInventorizer is the interface that defines the interface a node scanner must implement
+type nodeInventorizer interface {
+	Scan(nodeName string) (*storage.NodeInventory, error)
+}
+
 func getNode() string {
 	once.Do(func() {
 		node = os.Getenv(string(orchestrators.NodeName))
@@ -154,7 +159,7 @@ func manageSendToSensor(ctx context.Context, cli sensor.ComplianceService_Commun
 	}
 }
 
-func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scanner nodeinventorizer.NodeInventorizer) <-chan *sensor.MsgFromCompliance {
+func manageNodeScanLoop(ctx context.Context, rescanInterval time.Duration, scanner nodeInventorizer) <-chan *sensor.MsgFromCompliance {
 	nodeName := getNode()
 	sensorC := make(chan *sensor.MsgFromCompliance)
 
@@ -290,7 +295,7 @@ func main() {
 		log.Infof("Node Scanning active and configured with rescan interval %s and cache duration %s", rescanInterval.String(), env.NodeScanCacheDuration.DurationSetting())
 
 		// TODO(ROX-13935): Remove FakeNodeInventory and its FF
-		var scanner nodeinventorizer.NodeInventorizer
+		var scanner nodeInventorizer
 		if features.UseFakeNodeInventory.Enabled() {
 			log.Infof("Using FakeNodeInventorizer")
 			scanner = &nodeinventorizer.FakeNodeInventorizer{}
