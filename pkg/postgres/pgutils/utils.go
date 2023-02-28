@@ -94,6 +94,7 @@ func CreateTableFromModel(ctx context.Context, db *gorm.DB, createStmt *postgres
 		CreateTableFromModel(ctx, db, child)
 	}
 	for _, stmt := range createStmt.PostStmts {
+		log.Infof("SHREWS -- running post statement -- %q", stmt)
 		rdb := db.WithContext(ctx).Exec(stmt)
 		utils.Must(rdb.Error)
 	}
