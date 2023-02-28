@@ -26,7 +26,7 @@ var (
 		Run: func(databases *types.Databases) error {
 			err := MigrateToPartitions(databases.GormDB, databases.PostgresDB)
 			if err != nil {
-				return errors.Wrap(err, "updating policy categories schema")
+				return errors.Wrap(err, "updating network_flows to partitions")
 			}
 			return nil
 		},

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	oldSchema "github.com/stackrox/rox/migrator/migrations/frozenschema/v73"
-	newSchema "github.com/stackrox/rox/migrator/migrations/m_172_to_m_173_network_flow_indexes_to_hash/schema"
+	newSchema "github.com/stackrox/rox/migrator/migrations/m_172_to_m_173_network_flows_partition/schema"
 	pghelper "github.com/stackrox/rox/migrator/migrations/postgreshelper"
 	"github.com/stackrox/rox/migrator/types"
 	"github.com/stackrox/rox/pkg/postgres/pgutils"
